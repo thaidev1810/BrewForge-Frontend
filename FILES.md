@@ -1,0 +1,107 @@
+# File inventory
+
+All paths are relative to BrewForge/frontend. This inventory includes the existing architecture work and the business-state implementation; pre-existing package changes were preserved.
+
+## Modified tracked files
+
+- README.md
+- index.html
+- package-lock.json
+- package.json
+- src/App.tsx
+- src/index.css
+- tsconfig.app.json
+- tsconfig.json
+- vite.config.ts
+
+## Added files
+
+- .env.example
+- FILES.md
+- components.json
+- docs/business-api-contracts.md
+- scripts/verify-auth.mjs
+- scripts/verify-business.mjs
+- src/app/hooks.ts
+- src/app/router.tsx
+- src/app/store.ts
+- src/components/common/PageHeader.tsx
+- src/components/common/RoleDashboard.tsx
+- src/components/common/RoutePages.tsx
+- src/components/common/StatCard.tsx
+- src/components/common/StatusBadge.tsx
+- src/components/layout/AppHeader.tsx
+- src/components/layout/AppSidebar.tsx
+- src/components/layout/DashboardLayout.tsx
+- src/components/ui/button.tsx
+- src/components/ui/input.tsx
+- src/constants/config.ts
+- src/constants/roles.ts
+- src/constants/training.ts
+- src/features/admin/.gitkeep
+- src/features/assessments/assessmentSelectors.ts
+- src/features/assessments/assessmentService.ts
+- src/features/assessments/assessmentSlice.ts
+- src/features/assessments/assessmentTypes.ts
+- src/features/assessments/mockAssessmentService.ts
+- src/features/audits/.gitkeep
+- src/features/auth/LoginPage.tsx
+- src/features/auth/ProtectedRoute.tsx
+- src/features/auth/PublicRoute.tsx
+- src/features/auth/RoleBasedRoute.tsx
+- src/features/auth/authService.ts
+- src/features/auth/authSlice.ts
+- src/features/auth/authTypes.ts
+- src/features/auth/mockAuthService.ts
+- src/features/branches/branchSelectors.ts
+- src/features/branches/branchService.ts
+- src/features/branches/branchSlice.ts
+- src/features/branches/branchTypes.ts
+- src/features/branches/mockBranchService.ts
+- src/features/certificates/certificateSelectors.ts
+- src/features/certificates/certificateService.ts
+- src/features/certificates/certificateSlice.ts
+- src/features/certificates/certificateTypes.ts
+- src/features/certificates/mockCertificateService.ts
+- src/features/courses/courseSelectors.ts
+- src/features/courses/courseService.ts
+- src/features/courses/courseSlice.ts
+- src/features/courses/courseTypes.ts
+- src/features/courses/mockCourseService.ts
+- src/features/products/mockProductService.ts
+- src/features/products/productSelectors.ts
+- src/features/products/productService.ts
+- src/features/products/productSlice.ts
+- src/features/products/productTypes.ts
+- src/features/quizzes/mockQuizService.ts
+- src/features/quizzes/quizSelectors.ts
+- src/features/quizzes/quizService.ts
+- src/features/quizzes/quizSlice.ts
+- src/features/quizzes/quizTypes.ts
+- src/features/recipes/mockRecipeService.ts
+- src/features/recipes/recipeSelectors.ts
+- src/features/recipes/recipeService.ts
+- src/features/recipes/recipeSlice.ts
+- src/features/recipes/recipeTypes.ts
+- src/features/sops/mockSopService.ts
+- src/features/sops/sopSelectors.ts
+- src/features/sops/sopService.ts
+- src/features/sops/sopSlice.ts
+- src/features/sops/sopTypes.ts
+- src/features/training/mockTrainingService.ts
+- src/features/training/trainingSelectors.ts
+- src/features/training/trainingService.ts
+- src/features/training/trainingSlice.ts
+- src/features/training/trainingTypes.ts
+- src/hooks/.gitkeep
+- src/services/apiClient.ts
+- src/services/apiError.ts
+- src/services/domainService.ts
+- src/services/mock/branchDirectory.ts
+- src/services/mock/helpers.ts
+- src/services/mock/standards.ts
+- src/types/api.ts
+- src/types/domain.ts
+- src/types/standards.ts
+- src/utils/cn.ts
+- src/utils/createDomainSlice.ts
