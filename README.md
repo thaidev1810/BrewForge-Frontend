@@ -1,55 +1,66 @@
 # BrewForge frontend
 
-React 19 + TypeScript + Vite, with feature-based architecture. Backend files are outside this project's scope.
+React 19 + TypeScript + Vite, React Router, Redux Toolkit/RTK Query, Axios và Tailwind 4. Giữ feature folders, alias `@`, component và giao diện espresso/caramel của dự án. Các route hiện tại gọi backend thật, không dùng tài khoản demo hoặc dữ liệu mock.
 
-## Development
+## Chạy cục bộ
 
-Use npm install, then copy .env.example to .env.local and run npm run dev.
-Development defaults to demo authentication; production defaults to API authentication. Set VITE_ENABLE_MOCK_AUTH=true explicitly for a deployed capstone demo. Set it to false and provide VITE_API_BASE_URL for backend integration.
+Từ `D:\capstone\BrewForge\frontend`:
 
-Choose one of seven demo users on /login. The password is BrewForge123!. After login, the header can switch demo roles. Sessions are held in Redux memory: refresh requires login again. No credentials or tokens are stored in browser storage.
+```powershell
+npm.cmd install
+Copy-Item .env.example .env.local
+npm.cmd run dev
+```
 
-## Structure
+Trên hệ điều hành khác dùng `npm`. `npm.cmd` tránh lỗi execution policy của PowerShell. Sửa `VITE_API_BASE_URL` trong `.env.local` theo địa chỉ API, **giữ `/api/v1`**; giá trị mẫu `http://localhost:5113/api/v1`. Vite mặc định chạy `http://localhost:5173`. Backend phải cho phép origin FE trong CORS; xem hướng dẫn và cấu hình môi trường backend. Không chép JWT key, connection string, mật khẩu, API key hoặc VAPID private key vào biến `VITE_*`.
 
-- src/app: Redux store, typed hooks, and router.
-- src/features/auth: types, Redux slice, interchangeable API/mock services, login page, and route guards.
-- src/features/{products,recipes,sops,courses,training,quizzes,assessments,certificates,branches}: typed business contracts, separate mock/API service bindings, Redux thunks/slices, and selectors. Each domain keeps one entity cache with independent asynchronous request states.
-- src/features/{admin,audits}: reserved feature directories; create subfolders only when needed.
-- src/components/ui: local shadcn/ui-style Button and Input primitives; components.json supports adding components with the shadcn CLI.
-- src/components/layout: responsive sidebar, header, and dashboard shell.
-- src/components/common: page header, stat card, status badge, shared placeholder dashboard, and route fallback pages.
-- src/services: Axios client and centralized errors, including ASP.NET Core ProblemDetails.
-- src/constants: environment mode and role-to-route configuration.
-- src/types: shared API contracts.
-- src/utils: Tailwind class merging.
-- src/hooks: reserved shared hook directory; typed Redux hooks live in app.
-- src/assets: preserved existing assets.
-- scripts/verify-auth.mjs: executable behavior checks using Vite's actual TypeScript modules, without network requests.
-- scripts/verify-business.mjs: business-rule, asynchronous state, concurrency, and service-adapter checks.
-- docs/business-api-contracts.md: expected frontend service contracts and provisional mock policies for future .NET integration.
+Backend yêu cầu .NET 10 và PostgreSQL. Khởi động backend có thể chạy migration/tác vụ ghi, nên chỉ khởi động trong môi trường đã cấu hình và được phép. Lần triển khai này không khởi động backend, không thay database. Đăng nhập bằng **username**, password của tài khoản backend do quản trị viên cung cấp.
 
-## Routes
+Access token, refresh token và identity chỉ ở Redux memory; tải lại trang cần đăng nhập lại. Axios tự gắn Bearer, refresh token tuần tự khi có nhiều 401; tự thử lại GET một lần, mutation chỉ replay sau refresh khi endpoint hỗ trợ idempotency và có key. Mutation khác yêu cầu người dùng xác nhận lại, không tự gửi lần hai. Refresh hết hạn xóa session/cache. Đăng xuất gọi revoke backend rồi xóa session cục bộ. Nếu role/chi nhánh đổi khi refresh, yêu cầu đăng nhập lại. Route guard hỗ trợ điều hướng; quyền và ownership vẫn do BE kiểm tra.
 
-Each prefix redirects to its /dashboard child: /admin, /rd-specialist, /rd-manager, /trainer, /store-manager, /barista, /quality-auditor.
+## Workspace và chức năng
 
-PublicRoute redirects authenticated users from login to their workspace. ProtectedRoute requires a session. RoleBasedRoute redirects users who open a different role's workspace back to their own dashboard. Unknown routes show a 404 page.
+| Role BE | Prefix giữ theo dự án | Màn hình chính theo quyền API |
+| --- | --- | --- |
+| ADMIN | `/admin` | Người dùng, chi nhánh, danh mục, cấu hình, nhật ký; không có quyền vượt mọi role |
+| RD_SPECIALIST | `/rd-specialist` | Nguyên liệu/thiết bị, công thức, phiên bản SOP, AI draft/repair, kiểm tra và submit, impact |
+| RD_MANAGER | `/rd-manager` | Review/release/rollback SOP, thử nghiệm, readiness/decision/mở bán, impact, doanh số/báo cáo |
+| TRAINER | `/trainer` | Khóa học/học phần/bài học/quiz/checklist/bank, nhu cầu/giao học/lớp/buổi/điểm danh, lịch, đánh giá thực hành |
+| TRAINEE | `/barista` | Khóa của tôi, bài học/hoàn thành, thi/lịch sử/kết quả, chứng chỉ, hộ chiếu kỹ năng |
+| BRANCH_MANAGER | `/store-manager` | Đội ngũ, giao học/reset/close, lớp, doanh số/POS, readiness, kiểm định/khắc phục chi nhánh |
+| QUALITY_AUDITOR | `/quality-auditor` | Kiểm định/minh chứng, khắc phục, tổng quan chất lượng, truy vết và báo cáo tuân thủ |
+| TRAINING_MANAGER | `/training-manager` | Duyệt/trả/rebuild khóa học, quy định, nhu cầu và báo cáo đào tạo |
 
-## Backend integration
+Mỗi workspace có dashboard dữ liệu thật, tài khoản và đăng ký/hủy web push. Menu chỉ có API role được gọi. Một số detail chỉ truy cập bằng liên kết ID do BE không cho role đọc danh sách. Chi tiết route/luồng và giới hạn: [implementation status](docs/implementation-status.md), [frontend blueprint](../docs/frontend-blueprint.md), [integration gaps](../docs/integration-gaps.md).
 
-The API authentication adapter posts credentials to /auth/login and expects { user, accessToken }; align this contract with the future .NET backend. API requests require VITE_API_BASE_URL, inject the latest Redux bearer token, normalize server/network errors, and clear the session on HTTP 401. Validation errors remain available on ApiError.validationErrors.
+Màn hình hỗ trợ loading/empty/error, lỗi field/rule/traceId, xác nhận thao tác, phân trang/tìm kiếm/lọc/sort theo từng API; form metadata có nhãn và lookup dữ liệu thật. POS dùng CSV/XLSX; kiểm định dùng ảnh minh chứng; thực hành dùng video multipart. Media có bảo vệ được lấy bằng Bearer và blob URL; export CSV/XLSX dùng tải file. Không có PDF, notification inbox hoặc upload SOP/lesson do BE chưa hỗ trợ.
 
-Client route guards support navigation; enforce authentication and authorization in the backend too. Mock tokens only represent demo sessions. Refresh tokens, persistence, registration, password reset, and business APIs are intentionally deferred.
+## Cấu trúc và contract
 
-BrowserRouter deployments must serve index.html for application routes. Environment variables are baked into the Vite build and must not contain secrets.
+- `src/app`: store, session/cache lifecycle, router theo 8 role.
+- `src/features/auth`: login thực, guards, identity và refresh/logout.
+- `src/features/workspace`: cấu hình 25 danh sách, màn hình nghiệp vụ, báo cáo và detail đặc thù.
+- `src/features/training/LearningPage.tsx`, `src/features/assessments/AssessmentPage.tsx`: học/thi và đánh giá thực hành.
+- `src/services/backend`: types/enums, route metadata, RTK Query, request projection và validation; `src/services/apiClient.ts`/`apiError.ts`: transport và lỗi chung.
+- `src/components/common`: bảng, trạng thái, form/nested array/lookup, upload và dialog; `src/components/layout`: shell responsive.
+- `public/push-worker.js`: nhận web push; cần secure context, browser hỗ trợ và VAPID public config từ API.
 
-Business services use their own `VITE_ENABLE_MOCK_SERVICES` flag (development defaults on; production defaults off). There are no assumed business endpoints. Register typed API adapters using each domain's `configure*Service` export when real contracts are approved; unconfigured API services fail explicitly. See [business API contracts](docs/business-api-contracts.md) for domain inputs/results, the SOP and assessment rules, historical version snapshots, Redux selectors, and integration responsibilities.
+Các slice/service mock cũ còn được giữ làm reference lịch sử, không được màn hình mới gọi; `useMockServices` và demo auth đã tắt trong code. Các flag `VITE_ENABLE_MOCK_*` cũ không bật lại chế độ demo. Tài liệu provisional cũ được giữ kèm thông báo thay thế.
 
-## Verification
+Đọc contract tại [api-contract](../docs/api-contract.md). Sau thay đổi C# controller/DTO, chạy `npm.cmd run contracts:generate`, xem diff và kiểm tra business validation thủ công; generator không thay thế việc đọc service. Có 160 endpoint đăng ký, không đồng nghĩa đã kiểm tra 160 HTTP request trên server. `node scripts/report-integration-coverage.mjs` báo các tham chiếu UI/session tĩnh.
 
-- npm run typecheck
-- npm run lint
-- npm run verify:auth (development/demo mode)
-- npm run verify:business
-- npm run build
+## Kiểm tra và build
 
-Tailwind v4 uses @tailwindcss/vite and CSS theme tokens in src/index.css. Existing React/Vite configuration is retained, with the @ alias added for both TypeScript and Vite.
+```powershell
+npm.cmd run typecheck
+npm.cmd run lint
+npm.cmd test
+npm.cmd run build
+npm.cmd run preview
+```
+
+`verify:auth` và `verify:business` chạy riêng các suite trong `scripts/verify-integration.mjs`. Tests dùng transport adapter chỉ trong test để kiểm tra concurrency, cache, request thật, role/route matrix và business validation; không ghi backend/database. Các script verify đời trước không phải suite tích hợp hiện hành.
+
+Smoke browser tùy chọn trên Windows có Chrome: khi Vite đang chạy, chạy `node scripts/browser-smoke.mjs`. Script dùng profile tạm riêng, kiểm guard/validation/responsive và xuất ảnh vào thư mục temp, không gọi BE. Có thể đặt `CHROME_PATH` hoặc `FE_SMOKE_URL` (chỉ localhost).
+
+Deploy static cần rewrite application routes về `index.html`. Các biến Vite được bake lúc build. FE không tự deploy trong lần này. Live end-to-end, OpenAPI chạy thật, media/CORS/push/LLM cần kiểm tra khi backend môi trường test được phép đã sẵn sàng.

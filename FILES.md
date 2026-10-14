@@ -1,5 +1,9 @@
 # File inventory
 
+## Backend integration update — 2026-10-13
+
+Current integration adds `src/services/backend/*`, workspace resource/detail/report pages, `LearningPage`, `AssessmentPage`, common contract forms/lookup/upload/dialog/data/state components, role navigation and lazy page loading, `public/push-worker.js`, generated DTO/endpoint scripts and transport behavior tests. Auth, store, router, layout, role constants and environment documentation now use the verified backend. See [implementation status](docs/implementation-status.md) and [README](README.md). The earlier inventory below is retained as historical context.
+
 All paths are relative to BrewForge/frontend. This inventory includes the existing architecture work and the business-state implementation; pre-existing package changes were preserved.
 
 ## Modified tracked files

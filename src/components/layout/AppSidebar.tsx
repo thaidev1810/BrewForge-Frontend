@@ -1,9 +1,12 @@
-import { Coffee, LayoutDashboard } from 'lucide-react'
+import { Coffee, Menu, X, LayoutGrid, ChevronRight } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
 import { useAppSelector } from '@/app/hooks'
-import { dashboardPath, roleConfig } from '@/constants/roles'
+import { roleConfig } from '@/constants/roles'
+import { navigationFor } from '@/constants/navigation'
 export function AppSidebar() {
-  const user = useAppSelector((state) => state.auth.user)
+  const user = useAppSelector(s => s.auth.user), [open, setOpen] = useState(false)
   if (!user) return null
-  return <aside className="border-b bg-espresso p-6 text-white md:min-h-screen md:w-64 md:shrink-0 md:border-b-0"><div className="flex items-center gap-3 text-xl font-bold"><Coffee className="text-caramel" aria-hidden="true" />BrewForge</div><p className="mt-2 text-sm text-white/70">Training & operating standards</p><nav aria-label="Main navigation" className="mt-8"><NavLink to={dashboardPath(user.role)} className={({ isActive }) => `flex items-center gap-3 rounded-lg px-4 py-3 text-sm ${isActive ? 'bg-white/15' : 'hover:bg-white/10'}`}><LayoutDashboard className="size-4" aria-hidden="true" />Dashboard</NavLink></nav><p className="mt-8 text-xs text-white/70">{roleConfig[user.role].label} workspace</p></aside>
+  const entries = navigationFor(user.role), groups = [...new Set(entries.map(e => e.group))]
+  return <aside className="workspace-sidebar"><div className="sidebar-brand"><div className="brand"><Coffee size={26} />BrewForge<span className="brand-dot" /></div><button className="mobile-toggle" onClick={() => setOpen(!open)} aria-label={open ? 'Đóng menu' : 'Mở menu'} aria-expanded={open}>{open ? <X /> : <Menu />}</button></div><p className="sidebar-tagline">Standards in every cup.</p><nav className={open ? 'sidebar-nav open' : 'sidebar-nav'} aria-label="Điều hướng chính">{groups.map(group => <section key={group}><h2>{group}</h2>{entries.filter(e => e.group === group).map(entry => <NavLink key={entry.key} to={`${roleConfig[user.role].prefix}/${entry.key}`} onClick={() => setOpen(false)} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}><LayoutGrid size={15} /><span>{entry.title}</span><ChevronRight size={13} /></NavLink>)}</section>)}</nav><div className="sidebar-footer"><span className="live-dot" />{roleConfig[user.role].label}<p>Craft better. Learn together.</p></div></aside>
 }

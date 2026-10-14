@@ -1,5 +1,7 @@
 # Business service contracts for future .NET integration
 
+> Historical reference only (updated 2026-10-13): the frontend now integrates the verified backend using `src/services/backend/contracts.ts` and `schema.ts`. See [actual API contract](../../docs/api-contract.md), [implementation status](implementation-status.md) and [current README](../README.md). Provisional interfaces and mock rules below are preserved for context, are not the current wire contract, and are not used by the new routes.
+
 These are **frontend adapter contracts**, not confirmed backend routes or wire DTOs. No business HTTP endpoints, HTTP methods, pagination formats, or permission policies are assumed. Existing authentication configuration is unchanged. Agree the .NET contracts first, then map them to these interfaces using the existing Axios client.
 
 ## Service selection
