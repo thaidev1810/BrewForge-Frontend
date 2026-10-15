@@ -9,8 +9,9 @@ import { fieldLimit, requiredField, type FieldIssue } from '@/services/backend/v
 import { label, display } from './presentation'
 import { ErrorState } from './AsyncState'
 import { EvidenceInput } from './EvidenceInput'
+import { changeQuestionField } from '@/services/backend/authoringRules'
 export interface Choice { value: string | number; label: string }
-export interface FormContext { courseId?: number; recipeId?: number; branchId?: number; enrollmentId?: number; choices?: Record<string, Choice[]>; readOnly?: string[]; creating?: boolean }
+export interface FormContext { courseId?: number; recipeId?: number; branchId?: number; enrollmentId?: number; choices?: Record<string, Choice[]>; readOnly?: string[]; creating?: boolean; retrainingCourseIds?: number[] }
 import { fieldsFor, formDefaults, type SchemaField } from '@/services/backend/formValues'
 function IdPicker({ field, value, onChange, context, multiple = false, root }: { field: string; value: unknown; onChange: (v: unknown) => void; context: FormContext; multiple?: boolean; root: RecordData }) {
   const user = useAppSelector(s => s.auth.user)
@@ -37,8 +38,8 @@ function IdPicker({ field, value, onChange, context, multiple = false, root }: {
     {call && endpointsSearchable(call.operation) && !context.choices?.[field] && <div className="flex gap-2"><Input aria-label={`Tìm ${label(field)}`} placeholder={`Tìm ${label(field).toLowerCase()}…`} value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} /><Button type="button" variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>‹</Button><Button type="button" variant="outline" disabled={rowsOf(data.data).length < 100 && !['recipeVersionId', 'copyFromVersionId'].includes(field)} onClick={() => setPage(p => p + 1)}>›</Button></div>}
     <select multiple={multiple} value={selection} disabled={data.isFetching || context.readOnly?.includes(field)} onChange={e => onChange(multiple ? [...e.target.selectedOptions].map(o => Number(o.value)) : e.target.value ? Number(e.target.value) : null)} aria-label={label(field)}>{!multiple && <option value="">{data.isFetching ? 'Đang tải…' : 'Chọn…'}</option>}{choices.map(c => <option key={String(c.value)} value={c.value}>{c.label}</option>)}</select>
     {multiple && <p className="field-help">Có thể chọn nhiều mục (Ctrl/⌘ hoặc thao tác chọn trên điện thoại).</p>}
-    {field === 'trainerId' && <p className="field-help">Chỉ chọn được chính bạn; hệ thống chưa cung cấp danh sách giảng viên.</p>}
-    {call && !canCall(call.operation, user?.role) && <p className="field-error">Tài khoản này chưa được cấp API danh sách tương ứng; không thể chọn mới.</p>}
+    {field === 'trainerId' && <p className="field-help">Chỉ chọn được chính bạn; hệ thống chưa cung cấp danh sách giảng viên. BR-34: dạy khóa gắn SOP cần chứng nhận hiệu lực trên đúng phiên bản. Giao diện chưa có đủ dữ liệu để kết luận bạn có chứng nhận hay không.</p>}
+    {call && !context.choices?.[field] && !canCall(call.operation, user?.role) && <p className="field-error">Tài khoản này chưa được cấp API danh sách tương ứng; không thể chọn mới.</p>}
     {data.error && <ErrorState error={data.error} retry={() => void data.refetch()} />}
   </div>
 }
@@ -57,6 +58,10 @@ function StringArray({ value, onChange, field }: { value: unknown; onChange: (v:
 }
 function FieldControl({ field, schema, value, onChange, context, root, path, issues }: { field: SchemaField; schema: string; value: unknown; onChange: (v: unknown) => void; context: FormContext; root: RecordData; path: string; issues: FieldIssue[] }) {
   const type = field.type.replace(/\?$/, ''), array = type.match(/^IReadOnlyList<(.+)>$/)
+  if (schema === 'QuizQuestionRequest' && field.name === 'correctOption') {
+    const keys = [...new Set((Array.isArray(root.options) ? root.options : []).map(o => String(asRecord(o).key ?? '').trim()).filter(Boolean))]
+    return <select id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)}><option value="">Chọn đáp án đúng…</option>{keys.map(k => <option key={k} value={k}>{k}</option>)}</select>
+  }
   if (field.name === 'evidenceUrl') return <EvidenceInput value={value} onChange={onChange} />
   if (array) {
     if (array[1] === 'long') return <IdPicker field={field.name} value={value} onChange={onChange} context={context} multiple root={root} />
@@ -93,6 +98,6 @@ export function ContractFields({ schema, value, onChange, context = {}, root = v
   if (schema === 'StepDecisionRequest' && value.action !== 'EDIT') fields = fields.filter(f => f.name !== 'editedText')
   if (schema === 'PilotCriterionRequest') fields = fields.filter(f => f.name === 'type' || value.type === 'ABSOLUTE' && f.name === 'cupsPerDayPerBranch' || value.type === 'RELATIVE' && ['controlRecipeId', 'minPercentOfControl'].includes(f.name) || value.type === 'RETENTION' && f.name === 'maxDropSecondHalfPct')
   return <div className="form-grid">{fields.map(field => { const path = prefix + field.name, arrayOrRecord = field.type.startsWith('IReadOnlyList') || field.type.replace(/\?$/, '') in schemas
-    return <div key={path} className={arrayOrRecord || ['content', 'description', 'actionText', 'comment'].includes(field.name) ? 'form-field span-full' : 'form-field'}><label htmlFor={path}>{label(field.name)}{requiredField(schema, field.name, context.creating) && <span aria-label="bắt buộc"> *</span>}</label><FieldControl field={field} schema={schema} value={value[field.name]} onChange={v => { const next = { ...value, [field.name]: v }; if (schema === 'PilotCriterionRequest' && field.name === 'type') Object.assign(next, { cupsPerDayPerBranch: null, controlRecipeId: null, minPercentOfControl: null, maxDropSecondHalfPct: null }); if (schema.includes('UserRequest') && field.name === 'role' && !['TRAINEE', 'BRANCH_MANAGER', 'TRAINER'].includes(String(v))) next.branchId = null; onChange(next) }} context={context} root={root} path={path} issues={issues} />{issues.filter(i => i.field === path).map((i, n) => <p className="field-error" key={n}>{i.issue}</p>)}</div>
+    return <div key={path} className={arrayOrRecord || ['content', 'description', 'actionText', 'comment'].includes(field.name) ? 'form-field span-full' : 'form-field'}><label htmlFor={path}>{label(field.name)}{requiredField(schema, field.name, context.creating) && <span aria-label="bắt buộc"> *</span>}</label><FieldControl field={field} schema={schema} value={value[field.name]} onChange={v => { const next = changeQuestionField(schema, value, field.name, v); if (schema === 'PilotCriterionRequest' && field.name === 'type') Object.assign(next, { cupsPerDayPerBranch: null, controlRecipeId: null, minPercentOfControl: null, maxDropSecondHalfPct: null }); if (schema.includes('UserRequest') && field.name === 'role' && !['TRAINEE', 'BRANCH_MANAGER', 'TRAINER'].includes(String(v))) next.branchId = null; onChange(next) }} context={context} root={root} path={path} issues={issues} />{issues.filter(i => i.field === path).map((i, n) => <p className="field-error" key={n}>{i.issue}</p>)}</div>
   })}</div>
 }

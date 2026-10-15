@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query'
 import authReducer, { logout, sessionRotated } from '@/features/auth/authSlice'
 import { authTransport, configureApiAuth } from '@/services/apiClient'
 import { identityFromWire } from '@/features/auth/authTypes'
@@ -44,6 +45,7 @@ configureApiAuth(() => store.getState().auth.accessToken, () => { store.dispatch
   store.dispatch(sessionRotated({ user, accessToken: data.accessToken, refreshToken: data.refreshToken }))
   return data.accessToken
 }, () => store.getState().auth.generation)
+setupListeners(store.dispatch)
 let generation = store.getState().auth.generation
 store.subscribe(() => {
   const current = store.getState().auth.generation

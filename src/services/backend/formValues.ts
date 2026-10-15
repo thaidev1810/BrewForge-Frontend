@@ -11,6 +11,7 @@ export function formDefaults(schema: string): RecordData {
   if (schema === 'PilotRequest') result.minCertifiedStaff = 2
   if (schema === 'TrainingRegulationRequest') Object.assign(result, { dueDays: 14, maxRetakes: 2, minAttendancePct: 80 })
   if (schema === 'QuizRequest') result.passScore = 80
+  if (schema === 'QuizQuestionRequest') result.options = [{ key: 'A', text: '' }, { key: 'B', text: '' }]
   return result
 }
 export function requestFields(schema: string, value: unknown): RecordData {

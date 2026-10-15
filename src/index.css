@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+.error-box,.field-error,.notice-box{overflow-wrap:anywhere}
+
 :root {
   --background: #FAF8F5;
   --foreground: #4B3028;

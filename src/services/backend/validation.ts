@@ -32,6 +32,7 @@ export function validateRequest(schema: string, body: RecordData, creating = fal
     if (typeof value === 'string' && max && value.trim().length > max) add(field.name, `Tối đa ${max} ký tự.`)
     if (typeof value === 'number' && !Number.isFinite(value)) add(field.name, 'Số không hợp lệ.')
     if (typeof value === 'number' && /^(int|long)$/.test(type) && !Number.isSafeInteger(value)) add(field.name, 'Cần số nguyên trong phạm vi an toàn.')
+    if (typeof value === 'number' && type === 'int' && (value > 2147483647 || value < -2147483648)) add(field.name, 'Số nguyên vượt phạm vi Int32 của API.')
     if (type === 'DateOnly' && value && !/^\d{4}-\d{2}-\d{2}$/.test(String(value))) add(field.name, 'Ngày phải có dạng YYYY-MM-DD.')
     const arr = type.match(/^IReadOnlyList<(.+)>$/)
     if (arr && Array.isArray(value)) value.forEach((item, i) => { if (item && typeof item === 'object') issues.push(...validateRequest(arr[1], item as RecordData, false, `${prefix}${field.name}[${i}].`)) })
@@ -71,10 +72,10 @@ export function validateRequest(schema: string, body: RecordData, creating = fal
   if (schema === 'PracticalScheduleRequest' && (!body.scheduledAt || !Number.isFinite(Date.parse(String(body.scheduledAt))) || Date.parse(String(body.scheduledAt)) <= Date.now())) add('scheduledAt', 'Đặt thời gian hợp lệ trong tương lai.')
   if (schema === 'TrainingRegulationRequest' && body.prerequisiteType && body.prerequisiteType === body.courseType) add('prerequisiteType', 'Loại khóa học không là tiên quyết của chính nó.')
   if (schema === 'QuizQuestionRequest' || schema === 'QuestionBankRequest') {
-    const options = Array.isArray(body.options) ? body.options as RecordData[] : [], keys = options.map(o => o.key)
+    const options = Array.isArray(body.options) ? body.options as RecordData[] : [], keys = options.map(o => typeof o.key === 'string' ? o.key.trim() : o.key)
     if (body.questionType !== 'TRUE_FALSE' && options.length < 2) add('options', 'Cần ít nhất hai lựa chọn.')
     if (new Set(keys).size !== keys.length) add('options', 'Mã lựa chọn không trùng.')
-    if (schema === 'QuizQuestionRequest' && !keys.includes(body.correctOption)) add('correctOption', 'Chọn đáp án từ các mã lựa chọn đã tạo.')
+    if (schema === 'QuizQuestionRequest' && !keys.includes(typeof body.correctOption === 'string' ? body.correctOption.trim() : body.correctOption)) add('correctOption', 'Chọn đáp án từ các mã lựa chọn đã tạo.')
     if (schema === 'QuestionBankRequest') {
       const allowed = body.questionType === 'TRUE_FALSE' ? ['TRUE', 'FALSE'] : keys
       const answers = Array.isArray(body.correctOptions) ? body.correctOptions : []

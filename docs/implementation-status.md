@@ -1,5 +1,15 @@
 # Kết quả triển khai frontend theo backend
 
+## Phiên tích hợp BE `f7c43d5` — ưu tiên hiện hành
+
+Đã trực tiếp sửa FE-01 serialized errors và FE-02 background-refetch dialog; thêm scoped cache invalidation và focus/reconnect/mount refresh. User deactivate/move branch invalidate Coverage theo server fix active/recount. Course có readiness/thiếu text từng lesson/duration và SOP-vs-instructor labels; **MIXED mọi lesson cần prose**, không chỉ một lesson đã sửa. Quiz default2 lựa chọn, correct answer select, đổi/xóa keys clear stale answer. Save giữ draft khi lỗi và chặn double submit; không đổi policy BE.
+
+Impact empty dùng persisted header: detail/GET/commit được, UI committed/409 không gửi lặp; cần migration006, chưa xác minh đã applied. Auditor retraining mở giới hạn từ action có named staff + audit→trace published courses; không dùng certificate history làm active roster, không gọi ADMIN/users, full lookup vẫn thiếu. BR-34 notice hiển thị cho trainer session; không lọc certificate khi không có dữ liệu.
+
+BE G-01/G-02/G-03/G-25/G-17/G-18/G-10/G-15/EF-01 đã đọc code, **chưa runtime nghiệp vụ**. G-26 vẫn chưa sửa. Swagger/OpenAPI200 chỉ chứng minh tài liệu kỹ thuật, không migration/schema/data/ACL runtime. Giữ160endpoint/208records-enums, API layer hiện có được tái sử dụng, không cleanup legacy code ngoài phạm vi.
+
+Kiểm tra và giới hạn mới nhất tại [current-work](../../docs/current-work.md) và [demo-readiness](../../docs/demo-readiness.md); thông tin below phiên13/14 là lịch sử nếu khác. Tests gồm47 Node regressions và browser adapter fixtures; không có authenticated live E2E hoặc ghi DB hiện tại. Backend working tree không thay đổi.
+
 ## Phiên tiếp tục 2026-10-14 — trạng thái ưu tiên hiện hành
 
 BE HEAD `1a78898`, working tree sạch, không sửa BE. Có SDK10.0.401 và API5113 đang chạy; blocker thiếu SDK của phiên13 **đã hết**, nhưng chưa có session/quyền DB test cho end-to-end có ghi. Không đọc/in `.env`, không ghi đè cấu hình người dùng.

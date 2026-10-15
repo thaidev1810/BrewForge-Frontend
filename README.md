@@ -51,6 +51,8 @@ Các slice/service mock cũ còn được giữ làm reference lịch sử, khô
 
 ## Kiểm tra và build
 
+Phiên tích hợp BE `f7c43d5` sửa serialized RTK errors, dialog giữ state khi refetch, course readiness/quiz keys, impact empty header/409 và trace-bound auditor retraining. Backend cần migration006 cho impact mới; frontend không tự chạy migration. Dedicated active staff/trainer/course lookup vẫn thiếu, CertifiedStaff history không phải roster. Xem [current work](../docs/current-work.md) và [integration gaps](../docs/integration-gaps.md) để phân biệt code/test fixtures với business runtime.
+
 ```powershell
 npm.cmd run typecheck
 npm.cmd run lint
@@ -60,6 +62,8 @@ npm.cmd run preview
 ```
 
 `verify:auth` và `verify:business` chạy riêng các suite trong `scripts/verify-integration.mjs`. Tests dùng transport adapter chỉ trong test để kiểm tra concurrency, cache, request thật, role/route matrix và business validation; không ghi backend/database. Các script verify đời trước không phải suite tích hợp hiện hành.
+
+`npm test` còn chạy `verify-authoring.mjs` cho error unwrap, course content, quiz answer keys, cache policy, status/sort và impact empty/conflict. Browser regression tùy chọn: chạy Vite ở localhost5174 rồi `node scripts/browser-authoring.mjs` (hoặc FE_SMOKE_URL chỉ định localhost). Script dùng **TEST_ONLY transport fixtures**, chặn backend URLs, kiểm UI của ứng dụng thật, không là bằng chứng E2E với BE. Khi chạy SSR Node tests và Vite song song có thể làm cache dependency dev cũ; khởi động lại Vite riêng với `--force` trước browser regression nếu cần. Không dùng fixture này trong production/browser application code.
 
 Smoke browser tùy chọn trên Windows có Chrome: khi Vite đang chạy, chạy `node scripts/browser-smoke.mjs`. Script dùng profile tạm riêng, kiểm guard/validation/responsive và xuất ảnh vào thư mục temp, không gọi BE. Có thể đặt `CHROME_PATH` hoặc `FE_SMOKE_URL` (chỉ localhost).
 
