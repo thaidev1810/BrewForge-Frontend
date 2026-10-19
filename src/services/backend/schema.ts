@@ -500,6 +500,32 @@ export const schemas = {
     {
       "type": "IReadOnlyList<ChecklistItemDto>",
       "name": "practicalChecklist"
+    },
+    {
+      "type": "RecertificationDto?",
+      "name": "recertification"
+    }
+  ],
+  "RecertificationDto": [
+    {
+      "type": "long",
+      "name": "fromVersionId"
+    },
+    {
+      "type": "int",
+      "name": "fromVersionNo"
+    },
+    {
+      "type": "int",
+      "name": "added"
+    },
+    {
+      "type": "int",
+      "name": "removed"
+    },
+    {
+      "type": "int",
+      "name": "changed"
     }
   ],
   "CourseModuleDto": [
@@ -534,6 +560,40 @@ export const schemas = {
     {
       "type": "IReadOnlyList<LessonDto>",
       "name": "lessons"
+    },
+    {
+      "type": "IReadOnlyList<FieldNoteDto>?",
+      "name": "fieldNotes"
+    }
+  ],
+  "FieldNoteDto": [
+    {
+      "type": "long",
+      "name": "feedbackId"
+    },
+    {
+      "type": "FeedbackCategory",
+      "name": "category"
+    },
+    {
+      "type": "string",
+      "name": "content"
+    },
+    {
+      "type": "long?",
+      "name": "recipeStepId"
+    },
+    {
+      "type": "int",
+      "name": "versionNo"
+    },
+    {
+      "type": "string?",
+      "name": "from"
+    },
+    {
+      "type": "DateTimeOffset?",
+      "name": "acceptedAt"
     }
   ],
   "LessonDto": [
@@ -568,6 +628,48 @@ export const schemas = {
     {
       "type": "object?",
       "name": "reference"
+    },
+    {
+      "type": "IReadOnlyList<LessonMediaDto>?",
+      "name": "media"
+    },
+    {
+      "type": "IReadOnlyList<FieldNoteDto>?",
+      "name": "fieldNotes"
+    }
+  ],
+  "LessonMediaDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "long",
+      "name": "lessonId"
+    },
+    {
+      "type": "int",
+      "name": "sortOrder"
+    },
+    {
+      "type": "string",
+      "name": "fileName"
+    },
+    {
+      "type": "string",
+      "name": "contentType"
+    },
+    {
+      "type": "long",
+      "name": "sizeBytes"
+    },
+    {
+      "type": "string",
+      "name": "url"
+    },
+    {
+      "type": "DateTimeOffset",
+      "name": "uploadedAt"
     }
   ],
   "QuizDto": [
@@ -590,6 +692,14 @@ export const schemas = {
     {
       "type": "int",
       "name": "questionCount"
+    },
+    {
+      "type": "int?",
+      "name": "drawPerModule"
+    },
+    {
+      "type": "int",
+      "name": "questionsPerAttempt"
     }
   ],
   "QuizQuestionDto": [
@@ -842,6 +952,10 @@ export const schemas = {
     {
       "type": "int?",
       "name": "passScore"
+    },
+    {
+      "type": "int?",
+      "name": "drawPerModule"
     }
   ],
   "QuizQuestionRequest": [
@@ -888,6 +1002,28 @@ export const schemas = {
     {
       "type": "string?",
       "name": "comment"
+    }
+  ],
+  "TrainerOptionDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "string",
+      "name": "fullName"
+    },
+    {
+      "type": "long?",
+      "name": "branchId"
+    },
+    {
+      "type": "bool",
+      "name": "eligible"
+    },
+    {
+      "type": "string?",
+      "name": "reason"
     }
   ],
   "TrainingProgressRowDto": [
@@ -1726,6 +1862,14 @@ export const schemas = {
     {
       "type": "CatalogStatus",
       "name": "status"
+    },
+    {
+      "type": "decimal?",
+      "name": "brewTempMinC"
+    },
+    {
+      "type": "decimal?",
+      "name": "brewTempMaxC"
     }
   ],
   "IngredientRequest": [
@@ -1752,6 +1896,14 @@ export const schemas = {
     {
       "type": "CatalogStatus?",
       "name": "status"
+    },
+    {
+      "type": "decimal?",
+      "name": "brewTempMinC"
+    },
+    {
+      "type": "decimal?",
+      "name": "brewTempMaxC"
     }
   ],
   "ProductDto": [
@@ -1902,6 +2054,38 @@ export const schemas = {
       "name": "publicKey"
     }
   ],
+  "NotificationDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "string",
+      "name": "subject"
+    },
+    {
+      "type": "string",
+      "name": "message"
+    },
+    {
+      "type": "DateTimeOffset",
+      "name": "createdAt"
+    },
+    {
+      "type": "DateTimeOffset?",
+      "name": "readAt"
+    },
+    {
+      "type": "bool",
+      "name": "read"
+    }
+  ],
+  "UnreadCountDto": [
+    {
+      "type": "int",
+      "name": "count"
+    }
+  ],
   "CorrectiveActionDto": [
     {
       "type": "long",
@@ -1970,6 +2154,50 @@ export const schemas = {
     {
       "type": "DateOnly?",
       "name": "deadline"
+    }
+  ],
+  "RetrainingCourseOption": [
+    {
+      "type": "long",
+      "name": "courseId"
+    },
+    {
+      "type": "string",
+      "name": "title"
+    },
+    {
+      "type": "CourseType",
+      "name": "courseType"
+    },
+    {
+      "type": "long",
+      "name": "recipeVersionId"
+    },
+    {
+      "type": "bool",
+      "name": "currentVersion"
+    }
+  ],
+  "RetrainingOptionsDto": [
+    {
+      "type": "long",
+      "name": "correctiveActionId"
+    },
+    {
+      "type": "long",
+      "name": "branchAuditId"
+    },
+    {
+      "type": "long",
+      "name": "auditedRecipeVersionId"
+    },
+    {
+      "type": "IReadOnlyList<long>",
+      "name": "employeeIds"
+    },
+    {
+      "type": "IReadOnlyList<RetrainingCourseOption>",
+      "name": "courses"
     }
   ],
   "EvidenceDto": [
@@ -2370,6 +2598,10 @@ export const schemas = {
     {
       "type": "IReadOnlyList<StepDto>",
       "name": "steps"
+    },
+    {
+      "type": "IReadOnlyList<VariantDto>",
+      "name": "variants"
     }
   ],
   "StepDto": [
@@ -2404,6 +2636,14 @@ export const schemas = {
     {
       "type": "IReadOnlyList<StepDependencyDto>",
       "name": "dependsOn"
+    },
+    {
+      "type": "decimal?",
+      "name": "temperatureC"
+    },
+    {
+      "type": "decimal?",
+      "name": "pressureBar"
     }
   ],
   "StepIngredientDto": [
@@ -2442,6 +2682,352 @@ export const schemas = {
       "name": "type"
     }
   ],
+  "ExtractionStepDto": [
+    {
+      "type": "int",
+      "name": "stepOrder"
+    },
+    {
+      "type": "string",
+      "name": "sourceQuote"
+    },
+    {
+      "type": "bool",
+      "name": "grounded"
+    }
+  ],
+  "ExtractionReportDto": [
+    {
+      "type": "long",
+      "name": "versionId"
+    },
+    {
+      "type": "string?",
+      "name": "fileName"
+    },
+    {
+      "type": "string",
+      "name": "sourceSha256"
+    },
+    {
+      "type": "int",
+      "name": "sourceChars"
+    },
+    {
+      "type": "string",
+      "name": "documentText"
+    },
+    {
+      "type": "string",
+      "name": "model"
+    },
+    {
+      "type": "long?",
+      "name": "extractedBy"
+    },
+    {
+      "type": "DateTimeOffset",
+      "name": "extractedAt"
+    },
+    {
+      "type": "int",
+      "name": "totalSteps"
+    },
+    {
+      "type": "int",
+      "name": "groundedSteps"
+    },
+    {
+      "type": "IReadOnlyList<ExtractionStepDto>",
+      "name": "steps"
+    },
+    {
+      "type": "IReadOnlyList<string>",
+      "name": "unmapped"
+    }
+  ],
+  "ExtractionResultDto": [
+    {
+      "type": "DraftResultDto",
+      "name": "draft"
+    },
+    {
+      "type": "ExtractionReportDto",
+      "name": "extraction"
+    }
+  ],
+  "VersionRefDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "int",
+      "name": "versionNo"
+    },
+    {
+      "type": "VersionState",
+      "name": "state"
+    }
+  ],
+  "IngredientChangeDto": [
+    {
+      "type": "long",
+      "name": "ingredientId"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientCode"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientName"
+    },
+    {
+      "type": "decimal?",
+      "name": "quantityBefore"
+    },
+    {
+      "type": "string?",
+      "name": "unitBefore"
+    },
+    {
+      "type": "decimal?",
+      "name": "quantityAfter"
+    },
+    {
+      "type": "string?",
+      "name": "unitAfter"
+    }
+  ],
+  "StepChangeDto": [
+    {
+      "type": "StepChangeKind",
+      "name": "kind"
+    },
+    {
+      "type": "StepDto?",
+      "name": "before"
+    },
+    {
+      "type": "StepDto?",
+      "name": "after"
+    },
+    {
+      "type": "IReadOnlyList<string>",
+      "name": "changedFields"
+    },
+    {
+      "type": "IReadOnlyList<IngredientChangeDto>",
+      "name": "ingredientChanges"
+    }
+  ],
+  "RecipeVersionDiffDto": [
+    {
+      "type": "long",
+      "name": "recipeId"
+    },
+    {
+      "type": "VersionRefDto",
+      "name": "before"
+    },
+    {
+      "type": "VersionRefDto",
+      "name": "after"
+    },
+    {
+      "type": "bool",
+      "name": "hasChanges"
+    },
+    {
+      "type": "int",
+      "name": "added"
+    },
+    {
+      "type": "int",
+      "name": "removed"
+    },
+    {
+      "type": "int",
+      "name": "changed"
+    },
+    {
+      "type": "int",
+      "name": "unchanged"
+    },
+    {
+      "type": "IReadOnlyList<StepChangeDto>",
+      "name": "steps"
+    }
+  ],
+  "VariantDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "string",
+      "name": "code"
+    },
+    {
+      "type": "string",
+      "name": "name"
+    },
+    {
+      "type": "decimal",
+      "name": "scale"
+    },
+    {
+      "type": "IReadOnlyList<VariantIngredientDto>",
+      "name": "ingredients"
+    }
+  ],
+  "VariantIngredientDto": [
+    {
+      "type": "long",
+      "name": "ingredientId"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientCode"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientName"
+    },
+    {
+      "type": "decimal",
+      "name": "scale"
+    }
+  ],
+  "VariantsRequest": [
+    {
+      "type": "IReadOnlyList<VariantRequest>?",
+      "name": "variants"
+    }
+  ],
+  "VariantRequest": [
+    {
+      "type": "string?",
+      "name": "code"
+    },
+    {
+      "type": "string?",
+      "name": "name"
+    },
+    {
+      "type": "decimal?",
+      "name": "scale"
+    },
+    {
+      "type": "IReadOnlyList<VariantIngredientRequest>?",
+      "name": "ingredients"
+    }
+  ],
+  "VariantIngredientRequest": [
+    {
+      "type": "long?",
+      "name": "ingredientId"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientCode"
+    },
+    {
+      "type": "decimal?",
+      "name": "scale"
+    }
+  ],
+  "ServedRecipeDto": [
+    {
+      "type": "long",
+      "name": "versionId"
+    },
+    {
+      "type": "int",
+      "name": "versionNo"
+    },
+    {
+      "type": "string",
+      "name": "variantCode"
+    },
+    {
+      "type": "string",
+      "name": "variantName"
+    },
+    {
+      "type": "decimal",
+      "name": "scale"
+    },
+    {
+      "type": "IReadOnlyList<ServedStepDto>",
+      "name": "steps"
+    }
+  ],
+  "ServedStepDto": [
+    {
+      "type": "long",
+      "name": "stepId"
+    },
+    {
+      "type": "int",
+      "name": "stepOrder"
+    },
+    {
+      "type": "string",
+      "name": "actionText"
+    },
+    {
+      "type": "string?",
+      "name": "equipmentClass"
+    },
+    {
+      "type": "string?",
+      "name": "techniqueGate"
+    },
+    {
+      "type": "int?",
+      "name": "durationSeconds"
+    },
+    {
+      "type": "decimal?",
+      "name": "temperatureC"
+    },
+    {
+      "type": "decimal?",
+      "name": "pressureBar"
+    },
+    {
+      "type": "IReadOnlyList<ServedIngredientDto>",
+      "name": "ingredients"
+    }
+  ],
+  "ServedIngredientDto": [
+    {
+      "type": "long",
+      "name": "ingredientId"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientCode"
+    },
+    {
+      "type": "string?",
+      "name": "ingredientName"
+    },
+    {
+      "type": "decimal",
+      "name": "quantity"
+    },
+    {
+      "type": "decimal",
+      "name": "baseQuantity"
+    },
+    {
+      "type": "string",
+      "name": "unit"
+    }
+  ],
   "RecipeContentRequest": [
     {
       "type": "IReadOnlyList<StepRequest>?",
@@ -2476,6 +3062,14 @@ export const schemas = {
     {
       "type": "IReadOnlyList<StepDependencyRequest>?",
       "name": "dependsOn"
+    },
+    {
+      "type": "decimal?",
+      "name": "temperatureC"
+    },
+    {
+      "type": "decimal?",
+      "name": "pressureBar"
     }
   ],
   "StepIngredientRequest": [
@@ -2570,6 +3164,10 @@ export const schemas = {
     {
       "type": "string",
       "name": "actual"
+    },
+    {
+      "type": "string?",
+      "name": "variant"
     }
   ],
   "GenerateDraftRequest": [
@@ -2612,6 +3210,202 @@ export const schemas = {
     {
       "type": "int",
       "name": "aiRepairsLeft"
+    }
+  ],
+  "RecipeFeedbackDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "long",
+      "name": "recipeId"
+    },
+    {
+      "type": "string?",
+      "name": "recipeCode"
+    },
+    {
+      "type": "string?",
+      "name": "recipeName"
+    },
+    {
+      "type": "long",
+      "name": "recipeVersionId"
+    },
+    {
+      "type": "int?",
+      "name": "versionNo"
+    },
+    {
+      "type": "long?",
+      "name": "recipeStepId"
+    },
+    {
+      "type": "int?",
+      "name": "stepOrder"
+    },
+    {
+      "type": "long?",
+      "name": "branchId"
+    },
+    {
+      "type": "string?",
+      "name": "branchCode"
+    },
+    {
+      "type": "FeedbackSource",
+      "name": "source"
+    },
+    {
+      "type": "FeedbackCategory",
+      "name": "category"
+    },
+    {
+      "type": "string",
+      "name": "content"
+    },
+    {
+      "type": "int?",
+      "name": "rating"
+    },
+    {
+      "type": "long",
+      "name": "submittedBy"
+    },
+    {
+      "type": "string?",
+      "name": "submittedByName"
+    },
+    {
+      "type": "DateTimeOffset",
+      "name": "createdAt"
+    },
+    {
+      "type": "FeedbackState",
+      "name": "state"
+    },
+    {
+      "type": "long?",
+      "name": "reviewedBy"
+    },
+    {
+      "type": "DateTimeOffset?",
+      "name": "reviewedAt"
+    },
+    {
+      "type": "string?",
+      "name": "reviewNote"
+    },
+    {
+      "type": "long?",
+      "name": "addressedInVersionId"
+    },
+    {
+      "type": "int?",
+      "name": "addressedInVersionNo"
+    }
+  ],
+  "RecipeFeedbackRequest": [
+    {
+      "type": "FeedbackSource?",
+      "name": "source"
+    },
+    {
+      "type": "FeedbackCategory?",
+      "name": "category"
+    },
+    {
+      "type": "string?",
+      "name": "content"
+    },
+    {
+      "type": "int?",
+      "name": "rating"
+    },
+    {
+      "type": "long?",
+      "name": "recipeVersionId"
+    },
+    {
+      "type": "long?",
+      "name": "recipeStepId"
+    }
+  ],
+  "FeedbackReviewRequest": [
+    {
+      "type": "string?",
+      "name": "note"
+    }
+  ],
+  "FeedbackAddressRequest": [
+    {
+      "type": "long?",
+      "name": "recipeVersionId"
+    }
+  ],
+  "FeedbackVersionSummaryDto": [
+    {
+      "type": "long",
+      "name": "recipeVersionId"
+    },
+    {
+      "type": "int?",
+      "name": "versionNo"
+    },
+    {
+      "type": "int",
+      "name": "fromStaff"
+    },
+    {
+      "type": "int",
+      "name": "fromCustomers"
+    },
+    {
+      "type": "double?",
+      "name": "averageRating"
+    }
+  ],
+  "RecipeFeedbackSummaryDto": [
+    {
+      "type": "long",
+      "name": "recipeId"
+    },
+    {
+      "type": "int",
+      "name": "total"
+    },
+    {
+      "type": "int",
+      "name": "new"
+    },
+    {
+      "type": "int",
+      "name": "open"
+    },
+    {
+      "type": "int",
+      "name": "rejected"
+    },
+    {
+      "type": "int",
+      "name": "addressed"
+    },
+    {
+      "type": "int",
+      "name": "fromStaff"
+    },
+    {
+      "type": "int",
+      "name": "fromCustomers"
+    },
+    {
+      "type": "double?",
+      "name": "averageRating"
+    },
+    {
+      "type": "IReadOnlyList<FeedbackVersionSummaryDto>",
+      "name": "versions"
     }
   ],
   "ReviewRequest": [
@@ -2982,6 +3776,10 @@ export const schemas = {
     {
       "type": "IReadOnlyList<LearnerQuestionDto>",
       "name": "questions"
+    },
+    {
+      "type": "int",
+      "name": "attemptNo"
     }
   ],
   "QuizAttemptRequest": [
@@ -3288,12 +4086,112 @@ export const schemas = {
       "name": "progressPercent"
     },
     {
-      "type": "AssignmentStatus",
-      "name": "status"
+      "type": "AssignmentStage",
+      "name": "stage"
+    },
+    {
+      "type": "bool",
+      "name": "isOverdue"
     },
     {
       "type": "EnrollmentState",
       "name": "enrollmentState"
+    }
+  ],
+  "PathCourseDto": [
+    {
+      "type": "long",
+      "name": "courseId"
+    },
+    {
+      "type": "string",
+      "name": "title"
+    },
+    {
+      "type": "long?",
+      "name": "recipeVersionId"
+    },
+    {
+      "type": "string",
+      "name": "status"
+    },
+    {
+      "type": "long?",
+      "name": "enrollmentId"
+    },
+    {
+      "type": "EnrollmentState?",
+      "name": "enrollmentState"
+    },
+    {
+      "type": "DateOnly?",
+      "name": "dueDate"
+    },
+    {
+      "type": "long?",
+      "name": "certificateId"
+    }
+  ],
+  "PathStageDto": [
+    {
+      "type": "CourseType",
+      "name": "courseType"
+    },
+    {
+      "type": "CourseType?",
+      "name": "prerequisiteType"
+    },
+    {
+      "type": "bool",
+      "name": "blocked"
+    },
+    {
+      "type": "long",
+      "name": "regulationId"
+    },
+    {
+      "type": "int",
+      "name": "dueDays"
+    },
+    {
+      "type": "IReadOnlyList<PathCourseDto>",
+      "name": "courses"
+    }
+  ],
+  "LearningPathDto": [
+    {
+      "type": "long",
+      "name": "userId"
+    },
+    {
+      "type": "string",
+      "name": "username"
+    },
+    {
+      "type": "string",
+      "name": "fullName"
+    },
+    {
+      "type": "RoleName",
+      "name": "role"
+    },
+    {
+      "type": "long?",
+      "name": "branchId"
+    },
+    {
+      "type": "IReadOnlyList<PathStageDto>",
+      "name": "stages"
+    }
+  ],
+  "PathAssignmentDto": [
+    {
+      "type": "LearningPathDto",
+      "name": "path"
+    },
+    {
+      "type": "IReadOnlyList<long>",
+      "name": "enrollmentIds"
     }
   ],
   "PracticalScheduleDto": [
@@ -3740,6 +4638,12 @@ export const schemas = {
       "name": "traineeIds"
     }
   ],
+  "CancelClassRequest": [
+    {
+      "type": "string?",
+      "name": "reason"
+    }
+  ],
   "OpenClassResultDto": [
     {
       "type": "TrainingClassDto",
@@ -3888,6 +4792,32 @@ export const schemas = {
     {
       "type": "DateTimeOffset?",
       "name": "completedAt"
+    },
+    {
+      "type": "int",
+      "name": "lessonsRead"
+    },
+    {
+      "type": "int",
+      "name": "lessonsTotal"
+    },
+    {
+      "type": "IReadOnlyList<long>?",
+      "name": "readLessonIds"
+    }
+  ],
+  "LessonCompletionDto": [
+    {
+      "type": "EnrollmentDto",
+      "name": "enrollment"
+    },
+    {
+      "type": "long",
+      "name": "courseModuleId"
+    },
+    {
+      "type": "bool",
+      "name": "moduleCompleted"
     }
   ],
   "MissingModuleDto": [
@@ -3966,6 +4896,36 @@ export const schemas = {
     {
       "type": "DateTimeOffset",
       "name": "createdAt"
+    }
+  ],
+  "UserLookupDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "string",
+      "name": "username"
+    },
+    {
+      "type": "string",
+      "name": "fullName"
+    },
+    {
+      "type": "RoleName",
+      "name": "role"
+    },
+    {
+      "type": "long?",
+      "name": "branchId"
+    },
+    {
+      "type": "string?",
+      "name": "branchName"
+    },
+    {
+      "type": "bool",
+      "name": "active"
     }
   ],
   "CreateUserRequest": [
@@ -4238,14 +5198,13 @@ export const enumValues = {
     "AI",
     "MANUAL"
   ],
-  "AssignmentStatus": [
+  "AssignmentStage": [
     "ASSIGNED",
     "IN_PROGRESS",
     "THEORY_COMPLETED",
     "QUIZ_PASSED",
     "PRACTICAL_PENDING",
     "COMPLETED",
-    "OVERDUE",
     "LOCKED",
     "CLOSED"
   ],
@@ -4408,6 +5367,22 @@ export const enumValues = {
     "ORDERING",
     "INGREDIENT"
   ],
+  "FeedbackSource": [
+    "STAFF",
+    "CUSTOMER"
+  ],
+  "FeedbackCategory": [
+    "PREPARATION_NOTE",
+    "COMMON_MISTAKE",
+    "TASTE",
+    "OTHER"
+  ],
+  "FeedbackState": [
+    "NEW",
+    "ACCEPTED",
+    "REJECTED",
+    "ADDRESSED"
+  ],
   "ReviewAction": [
     "ACCEPT",
     "EDIT",
@@ -4417,6 +5392,12 @@ export const enumValues = {
     "ACCEPTED",
     "EDITED",
     "REJECTED"
+  ],
+  "StepChangeKind": [
+    "UNCHANGED",
+    "CHANGED",
+    "ADDED",
+    "REMOVED"
   ],
   "SalesGrouping": [
     "BRANCH",
@@ -5189,8 +6170,12 @@ export const endpoints = {
         "type": "long?"
       },
       {
-        "name": "status",
+        "name": "stage",
         "type": "string?"
+      },
+      {
+        "name": "overdue",
+        "type": "bool?"
       }
     ],
     "params": [],
@@ -5833,6 +6818,29 @@ export const endpoints = {
     "idempotency": false,
     "status": 200
   },
+  "Courses.EligibleTrainers": {
+    "method": "GET",
+    "path": "/api/v1/courses/{id:long}/eligible-trainers",
+    "roles": [
+      "TRAINER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "IReadOnlyList<TrainerOptionDto>",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
   "Courses.GetQuiz": {
     "method": "GET",
     "path": "/api/v1/courses/{id:long}/quiz",
@@ -6163,6 +7171,79 @@ export const endpoints = {
     "idempotency": false,
     "status": 204
   },
+  "Lessons.AddMedia": {
+    "method": "POST",
+    "path": "/api/v1/lessons/{id:long}/media",
+    "roles": [
+      "TRAINER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "LessonMediaDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 201
+  },
+  "LessonMedia.Get": {
+    "method": "GET",
+    "path": "/api/v1/lesson-media/{id:long}",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "IActionResult",
+    "binary": true,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "LessonMedia.Delete": {
+    "method": "DELETE",
+    "path": "/api/v1/lesson-media/{id:long}",
+    "roles": [
+      "TRAINER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "IActionResult",
+    "binary": true,
+    "upload": false,
+    "idempotency": false,
+    "status": 204
+  },
   "EquipmentClasses.List": {
     "method": "GET",
     "path": "/api/v1/equipment-classes",
@@ -6429,6 +7510,70 @@ export const endpoints = {
     "idempotency": false,
     "status": 200
   },
+  "LearningPath.Mine": {
+    "method": "GET",
+    "path": "/api/v1/me/learning-path",
+    "roles": [
+      "TRAINEE",
+      "TRAINER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/LearningPathController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [],
+    "response": "LearningPathDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "LearningPath.Get": {
+    "method": "GET",
+    "path": "/api/v1/learning-paths/{userId:long}",
+    "roles": [
+      "TRAINER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/LearningPathController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "userId"
+      }
+    ],
+    "response": "LearningPathDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "LearningPath.Assign": {
+    "method": "POST",
+    "path": "/api/v1/learning-paths/{userId:long}/assign",
+    "roles": [
+      "TRAINER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/LearningPathController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "userId"
+      }
+    ],
+    "response": "PathAssignmentDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
   "Notifications.PushConfig": {
     "method": "GET",
     "path": "/api/v1/push/config",
@@ -6448,6 +7593,124 @@ export const endpoints = {
     "query": [],
     "params": [],
     "response": "PushConfigDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "Notifications.Inbox": {
+    "method": "GET",
+    "path": "/api/v1/me/notifications",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/NotificationsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [
+      {
+        "name": "page",
+        "type": "int?"
+      },
+      {
+        "name": "size",
+        "type": "int?"
+      },
+      {
+        "name": "sort",
+        "type": "string?"
+      },
+      {
+        "name": "unread",
+        "type": "bool?"
+      }
+    ],
+    "params": [],
+    "response": "PagedResult<NotificationDto>",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "Notifications.UnreadCount": {
+    "method": "GET",
+    "path": "/api/v1/me/notifications/unread-count",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/NotificationsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [],
+    "response": "UnreadCountDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "Notifications.MarkRead": {
+    "method": "POST",
+    "path": "/api/v1/me/notifications/{id:long}/read",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/NotificationsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "NotificationDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "Notifications.MarkAllRead": {
+    "method": "POST",
+    "path": "/api/v1/me/notifications/read-all",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/NotificationsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [],
+    "response": "UnreadCountDto",
     "binary": false,
     "upload": false,
     "idempotency": false,
@@ -7073,6 +8336,28 @@ export const endpoints = {
     "idempotency": false,
     "status": 200
   },
+  "CorrectiveActions.RetrainingOptions": {
+    "method": "GET",
+    "path": "/api/v1/corrective-actions/{id:long}/retraining-options",
+    "roles": [
+      "QUALITY_AUDITOR"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/QualityController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RetrainingOptionsDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
   "CorrectiveActions.AssignRetraining": {
     "method": "POST",
     "path": "/api/v1/corrective-actions/{id:long}/assign-retraining",
@@ -7112,6 +8397,216 @@ export const endpoints = {
       }
     ],
     "response": "CorrectiveActionDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeFeedback.Submit": {
+    "method": "POST",
+    "path": "/api/v1/recipes/{id:long}/feedback",
+    "roles": [
+      "TRAINEE",
+      "TRAINER",
+      "BRANCH_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": "RecipeFeedbackRequest",
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeFeedbackDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 201
+  },
+  "RecipeFeedback.Summary": {
+    "method": "GET",
+    "path": "/api/v1/recipes/{id:long}/feedback-summary",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "QUALITY_AUDITOR",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeFeedbackSummaryDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeFeedback.List": {
+    "method": "GET",
+    "path": "/api/v1/recipe-feedback",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [
+      {
+        "name": "page",
+        "type": "int?"
+      },
+      {
+        "name": "size",
+        "type": "int?"
+      },
+      {
+        "name": "sort",
+        "type": "string?"
+      },
+      {
+        "name": "recipeId",
+        "type": "long?"
+      },
+      {
+        "name": "state",
+        "type": "string?"
+      },
+      {
+        "name": "source",
+        "type": "string?"
+      },
+      {
+        "name": "category",
+        "type": "string?"
+      },
+      {
+        "name": "branchId",
+        "type": "long?"
+      },
+      {
+        "name": "mine",
+        "type": "bool"
+      }
+    ],
+    "params": [],
+    "response": "PagedResult<RecipeFeedbackDto>",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeFeedback.Get": {
+    "method": "GET",
+    "path": "/api/v1/recipe-feedback/{id:long}",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeFeedbackDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeFeedback.Accept": {
+    "method": "POST",
+    "path": "/api/v1/recipe-feedback/{id:long}/accept",
+    "roles": [
+      "RD_SPECIALIST",
+      "RD_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": "FeedbackReviewRequest",
+    "optionalBody": true,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeFeedbackDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeFeedback.Reject": {
+    "method": "POST",
+    "path": "/api/v1/recipe-feedback/{id:long}/reject",
+    "roles": [
+      "RD_SPECIALIST",
+      "RD_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": "FeedbackReviewRequest",
+    "optionalBody": true,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeFeedbackDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeFeedback.Address": {
+    "method": "POST",
+    "path": "/api/v1/recipe-feedback/{id:long}/address",
+    "roles": [
+      "RD_SPECIALIST",
+      "RD_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeFeedbackController.cs",
+    "body": "FeedbackAddressRequest",
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeFeedbackDto",
     "binary": false,
     "upload": false,
     "idempotency": false,
@@ -7305,6 +8800,38 @@ export const endpoints = {
     "idempotency": false,
     "status": 200
   },
+  "RecipeVersions.Diff": {
+    "method": "GET",
+    "path": "/api/v1/recipe-versions/{id:long}/diff",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "QUALITY_AUDITOR",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeVersionsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [
+      {
+        "name": "against",
+        "type": "long?"
+      }
+    ],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeVersionDiffDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
   "RecipeVersions.Update": {
     "method": "PUT",
     "path": "/api/v1/recipe-versions/{id:long}",
@@ -7344,6 +8871,108 @@ export const endpoints = {
       }
     ],
     "response": "DraftResultDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeVersions.ReplaceVariants": {
+    "method": "PUT",
+    "path": "/api/v1/recipe-versions/{id:long}/variants",
+    "roles": [
+      "RD_SPECIALIST"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeVersionsController.cs",
+    "body": "VariantsRequest",
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "RecipeVersionDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeVersions.Served": {
+    "method": "GET",
+    "path": "/api/v1/recipe-versions/{id:long}/variants/{code}",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "QUALITY_AUDITOR",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeVersionsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      },
+      {
+        "type": "string",
+        "name": "code"
+      }
+    ],
+    "response": "ServedRecipeDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeVersions.ExtractDocument": {
+    "method": "POST",
+    "path": "/api/v1/recipe-versions/{id:long}/extract-document",
+    "roles": [
+      "RD_SPECIALIST"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeVersionsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "ExtractionResultDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "RecipeVersions.Extraction": {
+    "method": "GET",
+    "path": "/api/v1/recipe-versions/{id:long}/extraction",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "QUALITY_AUDITOR",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RecipeVersionsController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "ExtractionReportDto",
     "binary": false,
     "upload": false,
     "idempotency": false,
@@ -7934,6 +9563,28 @@ export const endpoints = {
     "idempotency": false,
     "status": 200
   },
+  "TrainingClasses.Cancel": {
+    "method": "POST",
+    "path": "/api/v1/training-classes/{id:long}/cancel",
+    "roles": [
+      "TRAINER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/TrainingController.cs",
+    "body": "CancelClassRequest",
+    "optionalBody": true,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      }
+    ],
+    "response": "TrainingClassDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
   "TrainingSessions.Update": {
     "method": "PUT",
     "path": "/api/v1/training-sessions/{id:long}",
@@ -8108,6 +9759,33 @@ export const endpoints = {
       }
     ],
     "response": "EnrollmentDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "Enrollments.CompleteLesson": {
+    "method": "POST",
+    "path": "/api/v1/enrollments/{id:long}/lessons/{lessonId:long}/complete",
+    "roles": [
+      "TRAINEE",
+      "TRAINER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/TrainingController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [
+      {
+        "type": "long",
+        "name": "id"
+      },
+      {
+        "type": "long",
+        "name": "lessonId"
+      }
+    ],
+    "response": "LessonCompletionDto",
     "binary": false,
     "upload": false,
     "idempotency": false,
@@ -8465,6 +10143,56 @@ export const endpoints = {
       }
     ],
     "response": "UserDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "UserLookup.Lookup": {
+    "method": "GET",
+    "path": "/api/v1/users/lookup",
+    "roles": [
+      "ADMIN",
+      "TRAINER",
+      "TRAINING_MANAGER",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/UsersController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [
+      {
+        "name": "page",
+        "type": "int?"
+      },
+      {
+        "name": "size",
+        "type": "int?"
+      },
+      {
+        "name": "sort",
+        "type": "string?"
+      },
+      {
+        "name": "q",
+        "type": "string?"
+      },
+      {
+        "name": "role",
+        "type": "string?"
+      },
+      {
+        "name": "branchId",
+        "type": "long?"
+      },
+      {
+        "name": "includeInactive",
+        "type": "bool"
+      }
+    ],
+    "params": [],
+    "response": "PagedResult<UserLookupDto>",
     "binary": false,
     "upload": false,
     "idempotency": false,

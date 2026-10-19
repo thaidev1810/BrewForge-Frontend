@@ -10,6 +10,9 @@ export function navigationFor(role: Role) {
     ...(canCall('ImpactAnalysis.Analyze', role) ? [{ key: 'impact', title: 'Phân tích ảnh hưởng', group: 'Tiêu chuẩn & vận hành' }] : []),
     ...(canCall('AuditLog.Trace', role) ? [{ key: 'trace', title: 'Truy vết tiêu chuẩn', group: 'Chất lượng' }] : []),
     ...(canCall('Reports.Compliance', role) ? [{ key: 'compliance', title: 'Xuất báo cáo chứng nhận', group: 'Báo cáo' }] : []),
+    ...(canCall('LearningPath.Mine', role) || canCall('LearningPath.Get', role) ? [{ key: 'learning-path', title: 'Lộ trình học', group: 'Đào tạo' }] : []),
+    ...(canCall('Courses.Approve', role) ? [{ key: 'courses/pending', title: 'Khóa chờ duyệt', group: 'Đào tạo' }] : []),
+    { key: 'notifications', title: 'Hộp thông báo', group: 'Cá nhân' },
     { key: 'account', title: 'Tài khoản', group: 'Cá nhân' }, { key: 'push', title: 'Thông báo trình duyệt', group: 'Cá nhân' },
   ]
 }

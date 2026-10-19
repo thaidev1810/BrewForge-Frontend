@@ -51,7 +51,8 @@ export interface AssignmentDto {
   courseTitle: string
   dueDate: string | null
   progressPercent: number
-  status: AssignmentStatus
+  stage: AssignmentStage
+  isOverdue: boolean
   enrollmentState: EnrollmentState
 }
 
@@ -72,8 +73,8 @@ export interface AssignmentResultDto {
   alreadyEnrolled: Array<number>
 }
 
-export const AssignmentStatusValues = ["ASSIGNED","IN_PROGRESS","THEORY_COMPLETED","QUIZ_PASSED","PRACTICAL_PENDING","COMPLETED","OVERDUE","LOCKED","CLOSED"] as const
-export type AssignmentStatus = typeof AssignmentStatusValues[number]
+export const AssignmentStageValues = ["ASSIGNED","IN_PROGRESS","THEORY_COMPLETED","QUIZ_PASSED","PRACTICAL_PENDING","COMPLETED","LOCKED","CLOSED"] as const
+export type AssignmentStage = typeof AssignmentStageValues[number]
 
 /** backend/src/BrewForge.Application/Training/TrainingDtos.cs */
 export interface AttendanceEntryDto {
@@ -293,6 +294,11 @@ export interface BranchResult {
 export const BranchStatusValues = ["ACTIVE","CLOSED"] as const
 export type BranchStatus = typeof BranchStatusValues[number]
 
+/** backend/src/BrewForge.Application/Training/TrainingDtos.cs */
+export interface CancelClassRequest {
+  reason: string | null
+}
+
 export const CatalogStatusValues = ["ACTIVE","INACTIVE"] as const
 export type CatalogStatus = typeof CatalogStatusValues[number]
 
@@ -427,6 +433,7 @@ export interface CourseDetailDto {
   modules: Array<CourseModuleDto>
   quiz: QuizDto
   practicalChecklist: Array<ChecklistItemDto>
+  recertification: RecertificationDto | null
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -478,6 +485,7 @@ export interface CourseModuleDto {
   durationMinutes: number | null
   state: ModuleState
   lessons: Array<LessonDto>
+  fieldNotes: Array<FieldNoteDto> | null
 }
 
 /** backend/src/BrewForge.Application/Dashboards/DashboardService.cs */
@@ -606,6 +614,9 @@ export interface EnrollmentModuleDto {
   module: CourseModuleDto
   completed: boolean
   completedAt: string | null
+  lessonsRead: number
+  lessonsTotal: number
+  readLessonIds: Array<number> | null
 }
 
 export const EnrollmentStateValues = ["ASSIGNED","IN_PROGRESS","ELIGIBLE","PASSED","LOCKED","CLOSED"] as const
@@ -670,6 +681,74 @@ export interface EvidenceDto {
 }
 
 /** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface ExtractionReportDto {
+  versionId: number
+  fileName: string | null
+  sourceSha256: string
+  sourceChars: number
+  documentText: string
+  model: string
+  extractedBy: number | null
+  extractedAt: string
+  totalSteps: number
+  groundedSteps: number
+  steps: Array<ExtractionStepDto>
+  unmapped: Array<string>
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface ExtractionResultDto {
+  draft: DraftResultDto
+  extraction: ExtractionReportDto
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface ExtractionStepDto {
+  stepOrder: number
+  sourceQuote: string
+  grounded: boolean
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeFeedbackService.cs */
+export interface FeedbackAddressRequest {
+  recipeVersionId: number | null
+}
+
+export const FeedbackCategoryValues = ["PREPARATION_NOTE","COMMON_MISTAKE","TASTE","OTHER"] as const
+export type FeedbackCategory = typeof FeedbackCategoryValues[number]
+
+/** backend/src/BrewForge.Application/Recipes/RecipeFeedbackService.cs */
+export interface FeedbackReviewRequest {
+  note: string | null
+}
+
+export const FeedbackSourceValues = ["STAFF","CUSTOMER"] as const
+export type FeedbackSource = typeof FeedbackSourceValues[number]
+
+export const FeedbackStateValues = ["NEW","ACCEPTED","REJECTED","ADDRESSED"] as const
+export type FeedbackState = typeof FeedbackStateValues[number]
+
+/** backend/src/BrewForge.Application/Recipes/RecipeFeedbackService.cs */
+export interface FeedbackVersionSummaryDto {
+  recipeVersionId: number
+  versionNo: number | null
+  fromStaff: number
+  fromCustomers: number
+  averageRating: number | null
+}
+
+/** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
+export interface FieldNoteDto {
+  feedbackId: number
+  category: FeedbackCategory
+  content: string
+  recipeStepId: number | null
+  versionNo: number
+  from: string | null
+  acceptedAt: string | null
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
 export interface GenerateDraftRequest {
   description: string | null
 }
@@ -719,6 +798,17 @@ export interface ImportedRecipeDto {
   validation: ValidationResultDto
 }
 
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface IngredientChangeDto {
+  ingredientId: number
+  ingredientCode: string | null
+  ingredientName: string | null
+  quantityBefore: number | null
+  unitBefore: string | null
+  quantityAfter: number | null
+  unitAfter: string | null
+}
+
 /** backend/src/BrewForge.Application/MasterData/IngredientService.cs */
 export interface IngredientDto {
   id: number
@@ -728,6 +818,8 @@ export interface IngredientDto {
   shelfLifeHours: number
   storageRule: string | null
   status: CatalogStatus
+  brewTempMinC: number | null
+  brewTempMaxC: number | null
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -750,6 +842,8 @@ export interface IngredientRequest {
   shelfLifeHours: number | null
   storageRule: string | null
   status: CatalogStatus | null
+  brewTempMinC: number | null
+  brewTempMaxC: number | null
 }
 
 export const IngredientUnitValues = ["g","ml","pcs"] as const
@@ -790,6 +884,24 @@ export interface LearnerQuizDto {
   passScore: number
   retakesLeft: number
   questions: Array<LearnerQuestionDto>
+  attemptNo: number
+}
+
+/** backend/src/BrewForge.Application/Training/LearningPathService.cs */
+export interface LearningPathDto {
+  userId: number
+  username: string
+  fullName: string
+  role: RoleName
+  branchId: number | null
+  stages: Array<PathStageDto>
+}
+
+/** backend/src/BrewForge.Application/Training/TrainingDtos.cs */
+export interface LessonCompletionDto {
+  enrollment: EnrollmentDto
+  courseModuleId: number
+  moduleCompleted: boolean
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -802,6 +914,20 @@ export interface LessonDto {
   mediaUrl: string | null
   generated: boolean
   reference: unknown | null
+  media: Array<LessonMediaDto> | null
+  fieldNotes: Array<FieldNoteDto> | null
+}
+
+/** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
+export interface LessonMediaDto {
+  id: number
+  lessonId: number
+  sortOrder: number
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  url: string
+  uploadedAt: string
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -868,6 +994,16 @@ export type ModuleState = typeof ModuleStateValues[number]
 export const ModuleTypeValues = ["PRODUCT_OVERVIEW","INGREDIENTS","EQUIPMENT","SOP","TECHNIQUE","COMMON_MISTAKES","EXCEPTION_HANDLING"] as const
 export type ModuleType = typeof ModuleTypeValues[number]
 
+/** backend/src/BrewForge.Application/Notifications/NotificationService.cs */
+export interface NotificationDto {
+  id: number
+  subject: string
+  message: string
+  createdAt: string
+  readAt: string | null
+  read: boolean
+}
+
 /** backend/src/BrewForge.Application/Training/TrainingDtos.cs */
 export interface OpenClassRequest {
   traineeIds: Array<number> | null
@@ -888,6 +1024,34 @@ export interface OverviewReference {
   versionNo: number
   stepCount: number
   totalDurationSeconds: number
+}
+
+/** backend/src/BrewForge.Application/Training/LearningPathService.cs */
+export interface PathAssignmentDto {
+  path: LearningPathDto
+  enrollmentIds: Array<number>
+}
+
+/** backend/src/BrewForge.Application/Training/LearningPathService.cs */
+export interface PathCourseDto {
+  courseId: number
+  title: string
+  recipeVersionId: number | null
+  status: string
+  enrollmentId: number | null
+  enrollmentState: EnrollmentState | null
+  dueDate: string | null
+  certificateId: number | null
+}
+
+/** backend/src/BrewForge.Application/Training/LearningPathService.cs */
+export interface PathStageDto {
+  courseType: CourseType
+  prerequisiteType: CourseType | null
+  blocked: boolean
+  regulationId: number
+  dueDays: number
+  courses: Array<PathCourseDto>
 }
 
 /** backend/src/BrewForge.Application/Audit/AuditService.cs */
@@ -1166,6 +1330,8 @@ export interface QuizDto {
   title: string
   passScore: number
   questionCount: number
+  drawPerModule: number | null
+  questionsPerAttempt: number
 }
 
 /** backend/src/BrewForge.Domain/Courses/Quiz.cs */
@@ -1202,6 +1368,16 @@ export interface QuizQuestionRequest {
 export interface QuizRequest {
   title: string | null
   passScore: number | null
+  drawPerModule: number | null
+}
+
+/** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
+export interface RecertificationDto {
+  fromVersionId: number
+  fromVersionNo: number
+  added: number
+  removed: number
+  changed: number
 }
 
 export const RecipeCategoryValues = ["TEA","COFFEE","OTHER"] as const
@@ -1227,11 +1403,75 @@ export interface RecipeDto {
   versionCount: number
 }
 
+/** backend/src/BrewForge.Application/Recipes/RecipeFeedbackService.cs */
+export interface RecipeFeedbackDto {
+  id: number
+  recipeId: number
+  recipeCode: string | null
+  recipeName: string | null
+  recipeVersionId: number
+  versionNo: number | null
+  recipeStepId: number | null
+  stepOrder: number | null
+  branchId: number | null
+  branchCode: string | null
+  source: FeedbackSource
+  category: FeedbackCategory
+  content: string
+  rating: number | null
+  submittedBy: number
+  submittedByName: string | null
+  createdAt: string
+  state: FeedbackState
+  reviewedBy: number | null
+  reviewedAt: string | null
+  reviewNote: string | null
+  addressedInVersionId: number | null
+  addressedInVersionNo: number | null
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeFeedbackService.cs */
+export interface RecipeFeedbackRequest {
+  source: FeedbackSource | null
+  category: FeedbackCategory | null
+  content: string | null
+  rating: number | null
+  recipeVersionId: number | null
+  recipeStepId: number | null
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeFeedbackService.cs */
+export interface RecipeFeedbackSummaryDto {
+  recipeId: number
+  total: number
+  new: number
+  open: number
+  rejected: number
+  addressed: number
+  fromStaff: number
+  fromCustomers: number
+  averageRating: number | null
+  versions: Array<FeedbackVersionSummaryDto>
+}
+
 export const RecipeOriginValues = ["NEW","EXISTING"] as const
 export type RecipeOrigin = typeof RecipeOriginValues[number]
 
 export const RecipeStatusValues = ["ACTIVE","DISCONTINUED"] as const
 export type RecipeStatus = typeof RecipeStatusValues[number]
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface RecipeVersionDiffDto {
+  recipeId: number
+  before: VersionRefDto
+  after: VersionRefDto
+  hasChanges: boolean
+  added: number
+  removed: number
+  changed: number
+  unchanged: number
+  steps: Array<StepChangeDto>
+}
 
 /** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
 export interface RecipeVersionDto {
@@ -1246,6 +1486,7 @@ export interface RecipeVersionDto {
   releasedAt: string | null
   supersededAt: string | null
   steps: Array<StepDto>
+  variants: Array<VariantDto>
 }
 
 /** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
@@ -1283,6 +1524,24 @@ export type RepairMode = typeof RepairModeValues[number]
 export interface RepairRequest {
   mode: RepairMode | null
   patch: RecipeContentRequest | null
+}
+
+/** backend/src/BrewForge.Application/Quality/CorrectiveActionService.cs */
+export interface RetrainingCourseOption {
+  courseId: number
+  title: string
+  courseType: CourseType
+  recipeVersionId: number
+  currentVersion: boolean
+}
+
+/** backend/src/BrewForge.Application/Quality/CorrectiveActionService.cs */
+export interface RetrainingOptionsDto {
+  correctiveActionId: number
+  branchAuditId: number
+  auditedRecipeVersionId: number
+  employeeIds: Array<number>
+  courses: Array<RetrainingCourseOption>
 }
 
 /** backend/src/BrewForge.Application/Quality/CorrectiveActionService.cs */
@@ -1400,6 +1659,39 @@ export interface SellableDrinkDto {
   coverageMet: boolean
 }
 
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface ServedIngredientDto {
+  ingredientId: number
+  ingredientCode: string | null
+  ingredientName: string | null
+  quantity: number
+  baseQuantity: number
+  unit: string
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface ServedRecipeDto {
+  versionId: number
+  versionNo: number
+  variantCode: string
+  variantName: string
+  scale: number
+  steps: Array<ServedStepDto>
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface ServedStepDto {
+  stepId: number
+  stepOrder: number
+  actionText: string
+  equipmentClass: string | null
+  techniqueGate: string | null
+  durationSeconds: number | null
+  temperatureC: number | null
+  pressureBar: number | null
+  ingredients: Array<ServedIngredientDto>
+}
+
 /** backend/src/BrewForge.Application/Training/TrainingDtos.cs */
 export interface SessionRequest {
   sessionNo: number | null
@@ -1437,6 +1729,18 @@ export interface SkillDto {
 export const SkillStatusValues = ["CERTIFIED","NEEDS_RECERT","TRAINING","NOT_CERTIFIED"] as const
 export type SkillStatus = typeof SkillStatusValues[number]
 
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface StepChangeDto {
+  kind: StepChangeKind
+  before: StepDto | null
+  after: StepDto | null
+  changedFields: Array<string>
+  ingredientChanges: Array<IngredientChangeDto>
+}
+
+export const StepChangeKindValues = ["UNCHANGED","CHANGED","ADDED","REMOVED"] as const
+export type StepChangeKind = typeof StepChangeKindValues[number]
+
 /** backend/src/BrewForge.Application/Recipes/RecipeReleaseService.cs */
 export interface StepDecisionRequest {
   stepId: number | null
@@ -1468,6 +1772,8 @@ export interface StepDto {
   durationSeconds: number | null
   ingredients: Array<StepIngredientDto>
   dependsOn: Array<StepDependencyDto>
+  temperatureC: number | null
+  pressureBar: number | null
 }
 
 /** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
@@ -1515,6 +1821,8 @@ export interface StepRequest {
   durationSeconds: number | null
   ingredients: Array<StepIngredientRequest> | null
   dependsOn: Array<StepDependencyRequest> | null
+  temperatureC: number | null
+  pressureBar: number | null
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -1589,6 +1897,15 @@ export interface TraceVersionDto {
   approver: PersonDto | null
   releasedAt: string | null
   supersededAt: string | null
+}
+
+/** backend/src/BrewForge.Application/Courses/CourseService.cs */
+export interface TrainerOptionDto {
+  id: number
+  fullName: string
+  branchId: number | null
+  eligible: boolean
+  reason: string | null
 }
 
 /** backend/src/BrewForge.Application/Training/TrainingDtos.cs */
@@ -1683,6 +2000,11 @@ export interface TrainingSessionDto {
   moduleIds: Array<number>
 }
 
+/** backend/src/BrewForge.Application/Notifications/NotificationService.cs */
+export interface UnreadCountDto {
+  count: number
+}
+
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
 export interface UpdateModuleRequest {
   durationMinutes: number | null
@@ -1711,6 +2033,17 @@ export interface UserDto {
   createdAt: string
 }
 
+/** backend/src/BrewForge.Application/Users/UserService.cs */
+export interface UserLookupDto {
+  id: number
+  username: string
+  fullName: string
+  role: RoleName
+  branchId: number | null
+  branchName: string | null
+  active: boolean
+}
+
 export const UserStatusValues = ["ACTIVE","INACTIVE"] as const
 export type UserStatus = typeof UserStatusValues[number]
 
@@ -1722,8 +2055,52 @@ export interface ValidationResultDto {
   checks: Array<CheckDto>
 }
 
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface VariantDto {
+  id: number
+  code: string
+  name: string
+  scale: number
+  ingredients: Array<VariantIngredientDto>
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface VariantIngredientDto {
+  ingredientId: number
+  ingredientCode: string | null
+  ingredientName: string | null
+  scale: number
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface VariantIngredientRequest {
+  ingredientId: number | null
+  ingredientCode: string | null
+  scale: number | null
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface VariantRequest {
+  code: string | null
+  name: string | null
+  scale: number | null
+  ingredients: Array<VariantIngredientRequest> | null
+}
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface VariantsRequest {
+  variants: Array<VariantRequest> | null
+}
+
 export const VerdictValues = ["PASS","FAIL","INCOMPLETE"] as const
 export type Verdict = typeof VerdictValues[number]
+
+/** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
+export interface VersionRefDto {
+  id: number
+  versionNo: number
+  state: VersionState
+}
 
 export const VersionStateValues = ["DRAFT","VALIDATED","REJECTED","RELEASED","SUPERSEDED"] as const
 export type VersionState = typeof VersionStateValues[number]
@@ -1751,6 +2128,7 @@ export interface ViolationDto {
   message: string
   expected: string
   actual: string
+  variant: string | null
 }
 
 /** backend/src/BrewForge.Domain/Launch/PilotEvaluation.cs */
@@ -1790,7 +2168,7 @@ export interface EndpointContracts {
   'QuestionBank.Update': { request: QuestionBankRequest; response: QuestionBankDto; params: {id: number;}; query: Record<string, never> }
   'QuestionBank.Delete': { request: never; response: Blob; params: {id: number;}; query: Record<string, never> }
   'QuestionBank.AddToCourse': { request: never; response: QuizQuestionDto; params: {id: number;courseId: number;}; query: Record<string, never> }
-  'Assignments.List': { request: never; response: PagedResult<AssignmentDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;branchId?: number | null;courseId?: number | null;status?: string | null;} }
+  'Assignments.List': { request: never; response: PagedResult<AssignmentDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;branchId?: number | null;courseId?: number | null;stage?: string | null;overdue?: boolean | null;} }
   'Assignments.Assign': { request: AssignmentRequest; response: AssignmentResultDto; params: Record<string, never>; query: Record<string, never> }
   'PracticalSchedules.List': { request: never; response: PagedResult<PracticalScheduleDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;status?: string | null;from?: string | null;to?: string | null;} }
   'PracticalSchedules.ForEnrollment': { request: never; response: Array<PracticalScheduleDto>; params: {id: number;}; query: Record<string, never> }
@@ -1816,6 +2194,7 @@ export interface EndpointContracts {
   'Courses.Create': { request: CreateCourseRequest; response: CourseDetailDto; params: Record<string, never>; query: Record<string, never> }
   'Courses.Get': { request: never; response: CourseDetailDto; params: {id: number;}; query: Record<string, never> }
   'Courses.Modules': { request: never; response: Array<CourseModuleDto>; params: {id: number;}; query: Record<string, never> }
+  'Courses.EligibleTrainers': { request: never; response: Array<TrainerOptionDto>; params: {id: number;}; query: Record<string, never> }
   'Courses.GetQuiz': { request: never; response: QuizDto; params: {id: number;}; query: Record<string, never> }
   'Courses.UpdateQuiz': { request: QuizRequest; response: QuizDto; params: {id: number;}; query: Record<string, never> }
   'Courses.ListQuestions': { request: never; response: Array<QuizQuestionDto>; params: {id: number;}; query: Record<string, never> }
@@ -1831,6 +2210,9 @@ export interface EndpointContracts {
   'CourseModules.AddLesson': { request: LessonRequest; response: LessonDto; params: {id: number;}; query: Record<string, never> }
   'Lessons.Update': { request: LessonRequest; response: LessonDto; params: {id: number;}; query: Record<string, never> }
   'Lessons.Delete': { request: never; response: Blob; params: {id: number;}; query: Record<string, never> }
+  'Lessons.AddMedia': { request: never; response: LessonMediaDto; params: {id: number;}; query: Record<string, never> }
+  'LessonMedia.Get': { request: never; response: Blob; params: {id: number;}; query: Record<string, never> }
+  'LessonMedia.Delete': { request: never; response: Blob; params: {id: number;}; query: Record<string, never> }
   'EquipmentClasses.List': { request: never; response: PagedResult<EquipmentClassDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;status?: string | null;} }
   'EquipmentClasses.Get': { request: never; response: EquipmentClassDto; params: {id: number;}; query: Record<string, never> }
   'EquipmentClasses.Create': { request: EquipmentClassRequest; response: EquipmentClassDto; params: Record<string, never>; query: Record<string, never> }
@@ -1841,7 +2223,14 @@ export interface EndpointContracts {
   'Ingredients.Create': { request: IngredientRequest; response: IngredientDto; params: Record<string, never>; query: Record<string, never> }
   'Ingredients.Update': { request: IngredientRequest; response: IngredientDto; params: {id: number;}; query: Record<string, never> }
   'Ingredients.Deactivate': { request: never; response: IngredientDto; params: {id: number;}; query: Record<string, never> }
+  'LearningPath.Mine': { request: never; response: LearningPathDto; params: Record<string, never>; query: Record<string, never> }
+  'LearningPath.Get': { request: never; response: LearningPathDto; params: {userId: number;}; query: Record<string, never> }
+  'LearningPath.Assign': { request: never; response: PathAssignmentDto; params: {userId: number;}; query: Record<string, never> }
   'Notifications.PushConfig': { request: never; response: PushConfigDto; params: Record<string, never>; query: Record<string, never> }
+  'Notifications.Inbox': { request: never; response: PagedResult<NotificationDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;unread?: boolean | null;} }
+  'Notifications.UnreadCount': { request: never; response: UnreadCountDto; params: Record<string, never>; query: Record<string, never> }
+  'Notifications.MarkRead': { request: never; response: NotificationDto; params: {id: number;}; query: Record<string, never> }
+  'Notifications.MarkAllRead': { request: never; response: UnreadCountDto; params: Record<string, never>; query: Record<string, never> }
   'Notifications.Mine': { request: never; response: Array<PushSubscriptionDto>; params: Record<string, never>; query: Record<string, never> }
   'Notifications.Subscribe': { request: PushSubscriptionRequest; response: PushSubscriptionDto; params: Record<string, never>; query: Record<string, never> }
   'Notifications.Unsubscribe': { request: never; response: Blob; params: Record<string, never>; query: {endpoint?: string | null;} }
@@ -1866,8 +2255,16 @@ export interface EndpointContracts {
   'CorrectiveActions.List': { request: never; response: PagedResult<CorrectiveActionDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;branchId?: number | null;status?: string | null;} }
   'CorrectiveActions.Get': { request: never; response: CorrectiveActionDto; params: {id: number;}; query: Record<string, never> }
   'CorrectiveActions.Start': { request: never; response: CorrectiveActionDto; params: {id: number;}; query: Record<string, never> }
+  'CorrectiveActions.RetrainingOptions': { request: never; response: RetrainingOptionsDto; params: {id: number;}; query: Record<string, never> }
   'CorrectiveActions.AssignRetraining': { request: RetrainingRequest; response: AssignmentResultDto; params: {id: number;}; query: Record<string, never> }
   'CorrectiveActions.Close': { request: CloseCorrectiveActionRequest; response: CorrectiveActionDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeFeedback.Submit': { request: RecipeFeedbackRequest; response: RecipeFeedbackDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeFeedback.Summary': { request: never; response: RecipeFeedbackSummaryDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeFeedback.List': { request: never; response: PagedResult<RecipeFeedbackDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;recipeId?: number | null;state?: string | null;source?: string | null;category?: string | null;branchId?: number | null;mine?: boolean;} }
+  'RecipeFeedback.Get': { request: never; response: RecipeFeedbackDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeFeedback.Accept': { request: FeedbackReviewRequest; response: RecipeFeedbackDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeFeedback.Reject': { request: FeedbackReviewRequest; response: RecipeFeedbackDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeFeedback.Address': { request: FeedbackAddressRequest; response: RecipeFeedbackDto; params: {id: number;}; query: Record<string, never> }
   'Recipes.List': { request: never; response: PagedResult<RecipeDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;category?: string | null;origin?: string | null;status?: string | null;} }
   'Recipes.Create': { request: CreateRecipeRequest; response: RecipeDto; params: Record<string, never>; query: Record<string, never> }
   'Recipes.ImportExisting': { request: ImportExistingRecipeRequest; response: ImportedRecipeDto; params: Record<string, never>; query: Record<string, never> }
@@ -1875,8 +2272,13 @@ export interface EndpointContracts {
   'Recipes.ListVersions': { request: never; response: Array<RecipeVersionSummaryDto>; params: {id: number;}; query: Record<string, never> }
   'Recipes.CreateVersion': { request: CreateVersionRequest; response: RecipeVersionDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.Get': { request: never; response: RecipeVersionDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeVersions.Diff': { request: never; response: RecipeVersionDiffDto; params: {id: number;}; query: {against?: number | null;} }
   'RecipeVersions.Update': { request: RecipeContentRequest; response: RecipeVersionDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.GenerateDraft': { request: GenerateDraftRequest; response: DraftResultDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeVersions.ReplaceVariants': { request: VariantsRequest; response: RecipeVersionDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeVersions.Served': { request: never; response: ServedRecipeDto; params: {id: number;code: string;}; query: Record<string, never> }
+  'RecipeVersions.ExtractDocument': { request: never; response: ExtractionResultDto; params: {id: number;}; query: Record<string, never> }
+  'RecipeVersions.Extraction': { request: never; response: ExtractionReportDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.Validate': { request: never; response: ValidationResultDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.Repair': { request: RepairRequest; response: DraftResultDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.Submit': { request: never; response: ValidationResultDto; params: {id: number;}; query: Record<string, never> }
@@ -1901,6 +2303,7 @@ export interface EndpointContracts {
   'TrainingClasses.AddSession': { request: SessionRequest; response: TrainingSessionDto; params: {id: number;}; query: Record<string, never> }
   'TrainingClasses.Open': { request: OpenClassRequest; response: OpenClassResultDto; params: {id: number;}; query: Record<string, never> }
   'TrainingClasses.Close': { request: never; response: TrainingClassDto; params: {id: number;}; query: Record<string, never> }
+  'TrainingClasses.Cancel': { request: CancelClassRequest; response: TrainingClassDto; params: {id: number;}; query: Record<string, never> }
   'TrainingSessions.Update': { request: SessionRequest; response: TrainingSessionDto; params: {id: number;}; query: Record<string, never> }
   'TrainingSessions.Delete': { request: never; response: Blob; params: {id: number;}; query: Record<string, never> }
   'TrainingSessions.GetAttendance': { request: never; response: AttendanceSheetDto; params: {id: number;}; query: Record<string, never> }
@@ -1909,6 +2312,7 @@ export interface EndpointContracts {
   'Enrollments.Get': { request: never; response: EnrollmentDto; params: {id: number;}; query: Record<string, never> }
   'Enrollments.Modules': { request: never; response: Array<EnrollmentModuleDto>; params: {id: number;}; query: Record<string, never> }
   'Enrollments.CompleteModule': { request: never; response: EnrollmentDto; params: {id: number;moduleId: number;}; query: Record<string, never> }
+  'Enrollments.CompleteLesson': { request: never; response: LessonCompletionDto; params: {id: number;lessonId: number;}; query: Record<string, never> }
   'Enrollments.Eligibility': { request: never; response: EligibilityDto; params: {id: number;}; query: Record<string, never> }
   'Enrollments.Quiz': { request: never; response: LearnerQuizDto; params: {id: number;}; query: Record<string, never> }
   'Enrollments.AttemptQuiz': { request: QuizAttemptRequest; response: QuizAttemptResultDto; params: {id: number;}; query: Record<string, never> }
@@ -1924,5 +2328,6 @@ export interface EndpointContracts {
   'Users.Create': { request: CreateUserRequest; response: UserDto; params: Record<string, never>; query: Record<string, never> }
   'Users.Update': { request: UpdateUserRequest; response: UserDto; params: {id: number;}; query: Record<string, never> }
   'Users.Deactivate': { request: never; response: UserDto; params: {id: number;}; query: Record<string, never> }
+  'UserLookup.Lookup': { request: never; response: PagedResult<UserLookupDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;role?: string | null;branchId?: number | null;includeInactive?: boolean;} }
 }
 export type Operation = keyof EndpointContracts

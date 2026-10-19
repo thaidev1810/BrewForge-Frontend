@@ -1,5 +1,25 @@
 # Kết quả triển khai frontend theo backend
 
+## 19/10/2026 — learning flow, working tree BE trên `6ef17b0`
+
+Giữ thay đổi FE trước phiên; BE nhiều staged changes và unmerged index, **không sửa BE**. Đã đọc drawio XML và đối chiếu controller→DTO/service/domain/filters/tests/OpenAPI. Điểm khác sơ đồ: duyệt khóa vẫn TRAINING_MANAGER, không RD_MANAGER. Generator187operations/248types-enums; live OpenAPI187operations/148paths chỉ xác minh kỹ thuật.
+
+Đã code: learner lesson CTA/read IDs/counts/media, bỏ complete-module CTA; fail/reset refetch progress/current-cycle; learner/manager learning path + scoped user picker + explicit assign + link enrollment thật; TM pending courses; trainer cancel class/reason; notification inbox/bell/count/read/read-all và cache; trainer branch/default/filter/lookup theo identity. Giữ practical ownership/BR-34/cert server, lỗi metadata/dialog/refetch/auth và no unsafe replay. Bell/inbox không phụ thuộc Push permission, không đoán deep link khi DTO thiếu context.
+
+Cache Training mutations làm mới path/progress/coverage/quality/notifications; Users.Create refresh path/inbox qua cache, không gọi auto-assign ở FE. Hủy lớp không tự đóng enrollment client; response/refetch quyết định. Backend chưa enforce lesson-only vì module endpoint cũ còn; G-26 old schedule/certificate, retrain SOP enforcement/report, manager read scopes và G-06 vẫn cần BE.
+
+Kết quả kiểm tra cuối tại [current-work](../../docs/current-work.md). Business live E2E chưa chạy, migrations/DB/merge/build hash chưa xác minh; không coi fixtures hoặc OpenAPI là PASS_RUNTIME nghiệp vụ.
+
+## Phiên 16/10/2026 — BE `6ef17b0`, ưu tiên hiện hành
+
+Đã sinh163operations/212types-enums và trực tiếp tích hợp stage/isOverdue/enrollmentState, filter stage+overdue, badge/sort/paging không dùng status cũ. Practical eligibility vẫn dùng enrollment+current attempts/schedules; không tính stage thay BE. G-26 còn câu hỏi lịch/cert cũ sau reset, không chứng nhận đã sửa đầy đủ.
+
+PeoplePicker dùng GET users/lookup cho assignment/audit/class roster/userId, server search debounce300ms/page20/total/role/branch/active; giữ tên/chọn qua trang, clear theo scope. Session create/edit dùng course eligible-trainers, chọn trainer khác nếu server eligible, hiển thị lý do ineligible/BR-34; không own-only/default-self. API trainer chưa search/page; không giả capability.
+
+Auditor retraining chuyển sang GET corrective-actions/{id}/retraining-options; giữ course/version/action employeeIds constraints ở UI và kết quả enrollmentIds/alreadyEnrolled thật. Không Trace fallback hoặc CertifiedStaff roster. Audit mới chọn nhân viên active đúng branch qua directory. POST vẫn cần BE enforce SOP relation và báo inactive-skipped nếu muốn report đầy đủ. Không mở RD_MANAGER course detail hay TM/BM enrollment detail khi controller chưa cấp quyền; G-06 vẫn role matrix.
+
+Giữ ServerError metadata/unwrap/Vietnamese, dialog qua refetch, quiz answer picker/course preflight và no unsafe mutation replay. Cache cập nhật tracking/coverage/options sau các training/quality/user mutations. Regression suite56Node + browser TEST_ONLY; trạng thái kiểm tra cuối và business runtime chưa chạy tại [current-work](../../docs/current-work.md). Không sửa BE hoặc DB; OpenAPI163/125 chỉ kiểm chứng kỹ thuật.
+
 ## Phiên tích hợp BE `f7c43d5` — ưu tiên hiện hành
 
 Đã trực tiếp sửa FE-01 serialized errors và FE-02 background-refetch dialog; thêm scoped cache invalidation và focus/reconnect/mount refresh. User deactivate/move branch invalidate Coverage theo server fix active/recount. Course có readiness/thiếu text từng lesson/duration và SOP-vs-instructor labels; **MIXED mọi lesson cần prose**, không chỉ một lesson đã sửa. Quiz default2 lựa chọn, correct answer select, đổi/xóa keys clear stale answer. Save giữ draft khi lỗi và chặn double submit; không đổi policy BE.

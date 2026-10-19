@@ -1,5 +1,9 @@
 # BrewForge frontend
 
+Phiên19/10/2026 theo **working tree BE trên6ef17b0** (đang staged/unmerged):187operations/248types-enums. Đã tích hợp lesson-by-lesson, own/manager learning path, TM pending review, trainer branch scope/cancel và inbox/bell/read/read-all. BE duyệt khóa vẫn TRAINING_MANAGER dù drawio ghi RD_MANAGER. Hướng dẫn/mâu thuẫn/migrations cần xác nhận tại [current-work](../docs/current-work.md). `npm test` gồm67Node checks; browser authoring suite30fixture checks trên FE dev riêng5174, không gọi business BE hoặc fake success trong app. Không tự khởi động BE/migrate/seed; inbox/progress cần BE đã áp dụng schema tương ứng.
+
+Tích hợp hiện hành 16/10/2026: BE `6ef17b0`,163operations/212types-enums. Assignments dùng stage/isOverdue/enrollmentState; directory `/users/lookup` có server search/page20; session dùng course eligible-trainers và auditor dùng corrective-action retraining-options. Không mở manager read scopes chưa có trong controller. Regression mới tại `npm test` và `node scripts/browser-authoring.mjs` (FE dev riêng ở5174); chỉ test-only adapters, không mutation BE thật. Sau SSR tests hoặc thay đổi source khi đang kiểm browser, khởi động lại Vite riêng với `--force` trước khi chạy lại browser suite để tránh optimize/HMR cache cũ. Contract/giới hạn tại [current-work](../docs/current-work.md).
+
 React 19 + TypeScript + Vite, React Router, Redux Toolkit/RTK Query, Axios và Tailwind 4. Giữ feature folders, alias `@`, component và giao diện espresso/caramel của dự án. Các route hiện tại gọi backend thật, không dùng tài khoản demo hoặc dữ liệu mock.
 
 ## Chạy cục bộ

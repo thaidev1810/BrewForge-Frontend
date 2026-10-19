@@ -2,7 +2,7 @@ import type { Operation } from './contracts'
 type Scope = 'Catalog' | 'Recipes' | 'Training' | 'Coverage' | 'Quality' | 'Reports' | 'Users' | 'Notifications' | 'Settings' | 'Sales' | 'Impact'
 function scope(operation: Operation): Scope {
   const family = operation.split('.')[0]
-  if (family === 'Users' || family === 'Auth') return 'Users'
+  if (family === 'UserLookup' || family === 'Users' || family === 'Auth') return 'Users'
   if (family === 'Notifications') return 'Notifications'
   if (family === 'Settings') return 'Settings'
   if (family === 'ImpactAnalysis') return 'Impact'
@@ -21,8 +21,9 @@ export function mutationTags(operation: Operation) {
   if (current === 'Users') for (const s of ['Catalog', 'Coverage', 'Training', 'Quality', 'Recipes'] as const) scopes.add(s)
   if (current === 'Catalog' || current === 'Recipes' || current === 'Impact') for (const s of ['Catalog', 'Recipes', 'Impact', 'Training', 'Coverage'] as const) scopes.add(s)
   if (current === 'Catalog') for (const s of ['Users', 'Quality', 'Sales'] as const) scopes.add(s)
-  if (current === 'Training') scopes.add('Coverage')
+  if (current === 'Training') { scopes.add('Coverage'); scopes.add('Quality'); scopes.add('Notifications') }
   if (current === 'Coverage') { scopes.add('Sales'); scopes.add('Training') }
-  if (current === 'Quality') scopes.add('Training')
+  if (current === 'Quality') { scopes.add('Training'); scopes.add('Notifications') }
+  if (current === 'Users' || current === 'Impact' || current === 'Recipes') scopes.add('Notifications')
   return [...scopes].map(tag)
 }

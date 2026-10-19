@@ -11,7 +11,12 @@ try {
   const {errorMessage}=await server.ssrLoadModule('/src/services/errorPresentation.ts')
   const {changeQuestionField,courseReadiness}=await server.ssrLoadModule('/src/services/backend/authoringRules.ts')
   const {formDefaults}=await server.ssrLoadModule('/src/services/backend/formValues.ts')
+  const {validateRequest}=await server.ssrLoadModule('/src/services/backend/validation.ts')
   const {mutationTags}=await server.ssrLoadModule('/src/services/backend/cachePolicy.ts')
+  const {clearDependentPeople,mergePeopleSelection}=await server.ssrLoadModule('/src/services/backend/lookupRules.ts')
+  const {canCall}=await server.ssrLoadModule('/src/services/backend/operations.ts')
+  const {endpoints}=await server.ssrLoadModule('/src/services/backend/schema.ts')
+  const {confinedBranch,canReadLesson,pathEnrollmentLink}=await server.ssrLoadModule('/src/services/backend/learningFlow.ts')
   configureApiAuth(()=>null,()=>{throw new Error('Business errors must not log out')})
   const reply=(config,data,status=200)=>({config,data,status,statusText:String(status),headers:{}})
   const fail=(config,status,data)=>Promise.reject({isAxiosError:true,config,response:{config,status,data}})
@@ -31,7 +36,7 @@ try {
   check('user change invalidates server coverage, notification mutation does not evict course forms',()=>{assert(mutationTags('Users.Update').some(t=>t.id==='Coverage'));assert(!mutationTags('Notifications.Subscribe').some(t=>t.id==='Training'))})
   let last
   apiClient.defaults.adapter=async config=>{last=config;return reply(config,{items:[],page:1,size:20,total:0})}
-  for(const direction of ['asc','desc']){await executeOperation('Assignments.List',{query:{status:'QUIZ_PASSED',sort:'dueDate,'+direction,page:2,size:20}});check('status filter and '+direction+' survive transport with page',()=>{assert.equal(last.params.status,'QUIZ_PASSED');assert.equal(last.params.sort,'dueDate,'+direction);assert.equal(last.params.page,2)})}
+  for(const direction of ['asc','desc']){await executeOperation('Assignments.List',{query:{stage:'QUIZ_PASSED',overdue:false,sort:'dueDate,'+direction,page:2,size:20}});check('stage filter and '+direction+' survive transport with page',()=>{assert.equal(last.params.stage,'QUIZ_PASSED');assert.equal(last.params.sort,'dueDate,'+direction);assert.equal(last.params.page,2)})}
   let committed=false
   const run={runId:'11111111111111111111111111111111',trigger:{entityType:'Ingredient',entityId:1},affected:{recipeVersions:[],courses:[],certificates:[],liveBranches:[]},committed:false,warning:null}
   apiClient.defaults.adapter=async config=>{if(config.url.endsWith('/commit')){if(committed)return fail(config,409,{code:'RULE_VIOLATION',rule:'IMPACT_ALREADY_COMMITTED',message:'Already committed',details:[]});committed=true}return reply(config,{...run,committed})}
@@ -40,5 +45,46 @@ try {
   check('empty persisted impact can be read and committed with actual endpoint shape',()=>{assert.deepEqual(empty.affected,run.affected);assert.equal(applied.committed,true)})
   await assert.rejects(executeOperation('ImpactAnalysis.Commit',{params:{runId:run.runId}}),e=>e.status===409&&e.rule==='IMPACT_ALREADY_COMMITTED')
   check('second commit conflict retains specific server rule for UI',()=>assert.equal(committed,true))
+  check('branch changes clear people and course changes clear trainer without clearing unrelated draft',()=>{assert.deepEqual(clearDependentPeople({branchId:1,employeeIds:[7],traineeIds:[8],userId:7,trainerId:8,note:'keep'},'branchId',2),{branchId:2,employeeIds:[],traineeIds:[],userId:null,trainerId:null,note:'keep'});assert.equal(clearDependentPeople({courseId:1,trainerId:7},'courseId',2).trainerId,null);assert.deepEqual(clearDependentPeople({branchId:1,employeeIds:[7]},'branchId',1).employeeIds,[7])})
+  check('paged multiselect preserves other-page choices while allowing visible deselection',()=>{assert.deepEqual(mergePeopleSelection(['1','2'],[2,3],[3]),[1,3]);assert.deepEqual(mergePeopleSelection(['1'],[1],[]),[])})
+  check('new lookup roles do not grant course detail, enrollment detail or authoring',()=>{for(const role of ['ADMIN','TRAINER','TRAINING_MANAGER','QUALITY_AUDITOR','BRANCH_MANAGER'])assert(canCall('UserLookup.Lookup',role));for(const role of ['TRAINEE','RD_MANAGER','RD_SPECIALIST'])assert(!canCall('UserLookup.Lookup',role));assert(!canCall('Courses.Get','RD_MANAGER'));assert(!canCall('Enrollments.Get','TRAINING_MANAGER'));assert(!canCall('Courses.Create','TRAINING_MANAGER'));assert(canCall('CorrectiveActions.RetrainingOptions','QUALITY_AUDITOR'));assert(!canCall('CorrectiveActions.RetrainingOptions','BRANCH_MANAGER'))})
+  check('assignment contract separates stage and overdue and removes legacy status',()=>{const names=endpoints['Assignments.List'].query.map(q=>q.name);assert(names.includes('stage')&&names.includes('overdue'));assert(!names.includes('status'))})
+  apiClient.defaults.adapter=async config=>{last=config;return reply(config,{items:[{enrollmentId:8,stage:'ASSIGNED',isOverdue:false,enrollmentState:'ASSIGNED'}],page:2,size:20,total:21})}
+  const stageResult=await executeOperation('Assignments.List',{query:{stage:'ASSIGNED',overdue:false,page:2,size:20,sort:'dueDate,desc'}})
+  check('server stage after reset is retained without deriving it from old history',()=>{assert.equal(stageResult.items[0].stage,'ASSIGNED');assert.equal(stageResult.items[0].isOverdue,false);assert.equal(last.params.overdue,false);assert.equal(last.params.page,2)})
+  await executeOperation('UserLookup.Lookup',{query:{q:'An',role:'TRAINER',branchId:2,page:3,size:20,includeInactive:false,sort:'fullName,asc'}})
+  check('directory search, branch, role and third page go to real lookup without ADMIN users',()=>{assert.equal(last.url,'/users/lookup');assert.equal(last.params.q,'An');assert.equal(last.params.page,3);assert.equal(last.params.branchId,2);assert.equal(last.params.includeInactive,false);assert.equal(last.params.role,'TRAINER')})
+  apiClient.defaults.adapter=async config=>{last=config;return reply(config,[{id:7,fullName:'TEST_ONLY trainer',branchId:2,eligible:false,reason:'not certified on recipe version 5'}])}
+  const trainers=await executeOperation('Courses.EligibleTrainers',{params:{id:5}})
+  check('trainer eligibility is read from course endpoint including refusal reason',()=>{assert.equal(last.url,'/courses/5/eligible-trainers');assert.equal(trainers[0].eligible,false);assert.match(trainers[0].reason,/version 5/)})
+  apiClient.defaults.adapter=async config=>{last=config;return reply(config,{courseId:5,enrollmentIds:[10],alreadyEnrolled:[11]})}
+  const assigned=await executeOperation('CorrectiveActions.AssignRetraining',{params:{id:6},body:{courseId:5,deadline:null}})
+  check('retraining sends only course/deadline and preserves created and already-enrolled IDs',()=>{assert.equal(last.url,'/corrective-actions/6/assign-retraining');assert.deepEqual(JSON.parse(last.data),{courseId:5,deadline:null});assert.deepEqual(assigned.enrollmentIds,[10]);assert.deepEqual(assigned.alreadyEnrolled,[11]);assert(!('assigned' in assigned));assert(!('skipped' in assigned))})
+  check('assignment, assessment, reset, close and retraining invalidate tracking and options',()=>{for(const op of ['Assignments.Assign','Enrollments.EvaluatePractical','Enrollments.Reset','Enrollments.Close','CorrectiveActions.AssignRetraining']){const tags=mutationTags(op);assert(tags.some(t=>t.id==='Training'));assert(tags.some(t=>t.id==='Quality'))}})
+  check('branch trainer is confined while branchless trainer remains global',()=>{assert.equal(confinedBranch({role:'TRAINER',branchId:2}),2);assert.equal(confinedBranch({role:'TRAINER',branchId:null}),undefined);assert.equal(confinedBranch({role:'ADMIN',branchId:2}),undefined);assert.equal(confinedBranch({role:'BRANCH_MANAGER',branchId:2}),2)})
+  check('approval remains training manager despite the diagram; manager read gaps stay guarded',()=>{assert(canCall('Courses.Approve','TRAINING_MANAGER'));assert(canCall('Courses.Return','TRAINING_MANAGER'));assert(!canCall('Courses.Approve','RD_MANAGER'));assert(!canCall('Courses.Return','TRAINER'));assert(!canCall('LearningPath.Get','BRANCH_MANAGER'))})
+  const enrollment={id:70,userId:1,state:'ASSIGNED',enrolledAt:'2026-10-19T00:00:00Z',progressPercent:0}
+  const moduleProgress={module:{id:5},completed:false,readLessonIds:[],lessonsRead:0,lessonsTotal:2}
+  check('lesson CTA uses server read IDs, owner and state; reset response has no stale checkmarks',()=>{assert(canReadLesson(enrollment,1,moduleProgress,8));assert(!canReadLesson(enrollment,2,moduleProgress,8));for(const state of ['CLOSED','LOCKED','PASSED'])assert(!canReadLesson({...enrollment,state},1,moduleProgress,8));assert(!canReadLesson(enrollment,1,{...moduleProgress,readLessonIds:[8]},8));assert(canReadLesson(enrollment,1,moduleProgress,8))})
+  apiClient.defaults.adapter=async config=>{last=config;return reply(config,{enrollment:{...enrollment,state:'ELIGIBLE',progressPercent:100},courseModuleId:5,moduleCompleted:true})}
+  const lesson=await executeOperation('Enrollments.CompleteLesson',{params:{id:70,lessonId:8}})
+  check('complete lesson sends real no-body route and retains server module and eligibility state',()=>{assert.equal(last.url,'/enrollments/70/lessons/8/complete');assert(last.data===undefined);assert.equal(lesson.courseModuleId,5);assert.equal(lesson.moduleCompleted,true);assert.equal(lesson.enrollment.state,'ELIGIBLE');assert(mutationTags('Enrollments.CompleteLesson').some(t=>t.id==='Training'))})
+  check('learning path does not invent enrollment links for blocked or unavailable courses',()=>{assert.equal(pathEnrollmentLink('/barista',{enrollmentId:null},true,false),undefined);assert.equal(pathEnrollmentLink('/training-manager',{enrollmentId:70},false,false),undefined);assert.equal(pathEnrollmentLink('/trainer',{enrollmentId:70},false,true),'/trainer/assessment/70');assert.equal(pathEnrollmentLink('/barista',{enrollmentId:70},true,false),'/barista/learning/70')})
+  let pathAssignments=0
+  apiClient.defaults.adapter=async config=>reply(config,{path:{userId:1,stages:[{courseType:'PRODUCT',blocked:true,courses:[]}]},enrollmentIds:pathAssignments++?[]:[70]})
+  const firstPath=await executeOperation('LearningPath.Assign',{params:{userId:1}}),secondPath=await executeOperation('LearningPath.Assign',{params:{userId:1}})
+  check('path assignment preserves blocked stages and dedup IDs returned by server',()=>{assert.deepEqual(firstPath.enrollmentIds,[70]);assert.deepEqual(secondPath.enrollmentIds,[]);assert(firstPath.path.stages[0].blocked)})
+  apiClient.defaults.adapter=async config=>{last=config;return reply(config,{id:4,state:'CANCELLED'})}
+  const cancelled=await executeOperation('TrainingClasses.Cancel',{params:{id:4},body:{reason:'TEST_ONLY reason'}})
+  check('cancel reason and server CANCELLED state survive with scoped refresh',()=>{assert.equal(last.url,'/training-classes/4/cancel');assert.deepEqual(JSON.parse(last.data),{reason:'TEST_ONLY reason'});assert.equal(cancelled.state,'CANCELLED');for(const group of ['Training','Coverage','Notifications'])assert(mutationTags('TrainingClasses.Cancel').some(t=>t.id===group));assert(validateRequest('CancelClassRequest',{reason:'x'.repeat(501)}).length)})
+  apiClient.defaults.adapter=async config=>{last=config;return reply(config,config.url.endsWith('unread-count')?{count:2}:config.url.endsWith('read-all')?{count:2}:config.method==='post'?{id:8,read:true,readAt:'2026-10-19T00:00:00Z'}:{items:[],page:2,size:20,total:30})}
+  await executeOperation('Notifications.Inbox',{query:{unread:true,page:2,size:20,sort:'id,desc'}})
+  check('inbox filters and pagination use caller endpoint without guessed context links',()=>{assert.equal(last.url,'/me/notifications');assert.equal(last.params.unread,true);assert.equal(last.params.page,2);assert(!('userId' in last.params))})
+  const count=await executeOperation('Notifications.UnreadCount'),read=await executeOperation('Notifications.MarkRead',{params:{id:8}}),all=await executeOperation('Notifications.MarkAllRead')
+  check('read/read-all/count keep actual timestamps and result semantics; invalidate only notifications',()=>{assert.equal(count.count,2);assert.equal(read.read,true);assert.equal(all.count,2);for(const op of ['Notifications.MarkRead','Notifications.MarkAllRead']){assert(mutationTags(op).some(t=>t.id==='Notifications'));assert(!mutationTags(op).some(t=>t.id==='Training'))}})
+  apiClient.defaults.adapter=config=>fail(config,404,{code:'NOT_FOUND',message:'Not your notification',details:[],traceId:'TEST_ONLY_OWNERSHIP'})
+  await assert.rejects(executeOperation('Notifications.MarkRead',{params:{id:999}}),e=>e.status===404&&e.traceId==='TEST_ONLY_OWNERSHIP')
+  check('notification ownership refusal preserves metadata instead of faking read success',()=>assert(true))
+  check('certification and user creation refresh paths and inbox without client auto-assignment',()=>{for(const op of ['Users.Create','Enrollments.AttemptQuiz','Enrollments.EvaluatePractical','LearningPath.Assign'])for(const group of ['Training','Notifications'])assert(mutationTags(op).some(t=>t.id===group))})
   console.log(`Completed ${checks} additional authoring/RTK regression checks with test-only transports.`)
 } finally {await server.close()}

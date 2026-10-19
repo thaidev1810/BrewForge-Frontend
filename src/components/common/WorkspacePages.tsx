@@ -13,3 +13,5 @@ export const AssessmentPage = lazy(() => import('@/features/assessments/Assessme
 export const RecordPage = lazy(() => import('@/features/workspace/RecordPage').then(m => ({ default: m.RecordPage })))
 export const VideoPage = lazy(() => import('@/features/workspace/RecordPage').then(m => ({ default: m.VideoPage })))
 export const ImportResultPage = lazy(() => import('@/features/workspace/RecordPage').then(m => ({ default: m.ImportResultPage })))
+export const LearningPathPage = lazy(() => import('@/features/training/LearningPathPage').then(m => ({ default: m.LearningPathPage })))
+export const InboxPage = lazy(() => import('@/features/notifications/InboxPage').then(m => ({ default: m.InboxPage })))

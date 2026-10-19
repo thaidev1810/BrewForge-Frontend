@@ -1,3 +1,4 @@
+import { confinedBranch } from '@/services/backend/learningFlow'
 import { saveBlob } from '@/utils/download'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -40,8 +41,8 @@ export function VersionPage() {
 }
 export function ReportPage({ page }: { page: string }) {
   const spec = reportPages.find(p => p.key === page)!, user = useAppSelector(s => s.auth.user), [filters, setFilters] = useState<RecordData>({}), [row, setRow] = useState<RecordData | null>(null)
-  const query = useReadQuery({ operation: spec.operation, query: filters })
-  return <><PageHeader title={spec.title} description="Chỉ số tổng hợp từ dữ liệu thực tế của hệ thống." /><FilterBar filters={spec.filters.filter(f => user?.role !== 'BRANCH_MANAGER' || f.name !== 'branchId')} onApply={v => { setFilters(v); setRow(null) }} />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : <section className="panel">{spec.operation === 'BranchAudits.Summary' ? <DataView value={query.data} /> : <DataTable data={query.data} onRow={setRow} />}</section>}{row && <section className="panel mt-6"><div className="section-header"><h2>Chi tiết</h2><Button variant="ghost" onClick={() => setRow(null)}>Đóng</Button></div><DataView value={row} /></section>}</>
+  const query = useReadQuery({ operation: spec.operation, query: { ...filters, ...(confinedBranch(user) && spec.filters.some(f => f.name === 'branchId') ? { branchId: confinedBranch(user) } : {}) } })
+  return <><PageHeader title={spec.title} description="Chỉ số tổng hợp từ dữ liệu thực tế của hệ thống." /><FilterBar filters={spec.filters.filter(f => !confinedBranch(user) || f.name !== 'branchId')} onApply={v => { setFilters(v); setRow(null) }} />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : <section className="panel">{spec.operation === 'BranchAudits.Summary' ? <DataView value={query.data} /> : <DataTable data={query.data} onRow={setRow} />}</section>}{row && <section className="panel mt-6"><div className="section-header"><h2>Chi tiết</h2><Button variant="ghost" onClick={() => setRow(null)}>Đóng</Button></div><DataView value={row} /></section>}</>
 }
 export function ImpactPage() {
   const { runId } = useParams(), user = useAppSelector(s => s.auth.user)

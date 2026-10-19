@@ -9,15 +9,15 @@ import { RoleDashboard } from '@/components/common/RoleDashboard'
 import { roleConfig } from '@/constants/roles'
 import { canCall } from '@/services/backend/operations'
 import { resources, reportPages } from '@/features/workspace/resources'
-import { ResourcePage, VersionPage, ReportPage, ImpactPage, TracePage, CompliancePage, SalesAnalyticsPage, AccountPage, PushPage, LearningPage, AssessmentPage, RecordPage, VideoPage, ImportResultPage } from '@/components/common/WorkspacePages'
+import { ResourcePage, VersionPage, ReportPage, ImpactPage, TracePage, CompliancePage, SalesAnalyticsPage, AccountPage, PushPage, LearningPage, AssessmentPage, RecordPage, VideoPage, ImportResultPage, LearningPathPage, InboxPage } from '@/components/common/WorkspacePages'
 export const router = createBrowserRouter([{ errorElement: <RouteError />, children: [
   { path: '/', element: <HomeRedirect /> },
   { element: <PublicRoute />, children: [{ path: '/login', element: <LoginPage /> }] },
   { element: <ProtectedRoute />, children: ROLES.map(role => ({ path: roleConfig[role].prefix, element: <RoleBasedRoute allowedRoles={[role]} />, children: [{ element: <DashboardLayout />, children: [
     { index: true, element: <Navigate to="dashboard" replace /> }, { path: 'dashboard', element: <RoleDashboard role={role} /> },
     ...resources.filter(r => canCall(r.list, role)).flatMap(r => [
-      { path: r.key, element: <ResourcePage resource={r.key} /> },
-      ...(r.detail && canCall(r.detail, role) ? [{ path: r.key + '/:id', element: r.key === 'learning' ? <LearningPage /> : <ResourcePage resource={r.key} /> }] : []),
+      { path: r.key, element: <ResourcePage key={r.key} resource={r.key} /> },
+      ...(r.detail && canCall(r.detail, role) ? [{ path: r.key + '/:id', element: r.key === 'learning' ? <LearningPage /> : <ResourcePage key={r.key} resource={r.key} /> }] : []),
     ]),
     ...reportPages.filter(p => canCall(p.operation, role)).map(p => ({ path: p.key, element: <ReportPage page={p.key} /> })),
     ...(canCall('RecipeVersions.Get', role) ? [{ path: 'versions/:id', element: <VersionPage /> }] : []),
@@ -31,6 +31,9 @@ export const router = createBrowserRouter([{ errorElement: <RouteError />, child
     ...(canCall('ImpactAnalysis.Analyze', role) ? [{ path: 'impact', element: <ImpactPage /> }, { path: 'impact/:runId', element: <ImpactPage /> }] : []),
     ...(canCall('AuditLog.Trace', role) ? [{ path: 'trace', element: <TracePage /> }, { path: 'trace/:entityType/:id', element: <TracePage /> }] : []),
     ...(canCall('Reports.Compliance', role) ? [{ path: 'compliance', element: <CompliancePage /> }] : []),
+    ...(canCall('LearningPath.Mine', role) || canCall('LearningPath.Get', role) ? [{ path: 'learning-path', element: <LearningPathPage /> }] : []),
+    ...(canCall('Courses.Approve', role) ? [{ path: 'courses/pending', element: <ResourcePage key="courses-pending" resource="courses" initialFilters={{ state: 'PENDING_APPROVAL' }} /> }] : []),
+    { path: 'notifications', element: <InboxPage /> },
     { path: 'account', element: <AccountPage /> }, { path: 'push', element: <PushPage /> },
   ] }] })) },
   { path: '*', element: <NotFound /> },

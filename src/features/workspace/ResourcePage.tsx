@@ -16,22 +16,24 @@ import { ResourcePicker } from '@/components/common/ContractForm'
 import { endpoints } from '@/services/backend/schema'
 import { canCall, asRecord, useReadQuery, type RecordData } from '@/services/backend/operations'
 import { resourceByKey, type ActionSpec, type Filter } from './resources'
+import { confinedBranch } from '@/services/backend/learningFlow'
 import { RetrainingPanel } from './RetrainingPanel'
 import { RecipeSections, CourseSections, ClassSections, PilotSections, AuditEvidence, AssignmentActions } from './sections'
 export function FilterBar({ filters, initial = {}, onApply }: { filters: Filter[]; initial?: RecordData; onApply: (query: RecordData) => void }) {
+  const scope = confinedBranch(useAppSelector(s => s.auth.user))
   const [values, setValues] = useState<RecordData>(initial), [error, setError] = useState('')
-  return <form className="filter-bar" onSubmit={e => { e.preventDefault(); if (values.from && values.to && String(values.from) > String(values.to)) { setError('Ngày bắt đầu không sau ngày kết thúc.'); return } setError(''); onApply(Object.fromEntries(Object.entries(values).filter(([, v]) => v !== '' && v !== null && v !== undefined))) }}><div className="filter-fields">{filters.map(f => <div className="form-field" key={f.name}><label htmlFor={'filter-' + f.name}>{f.label}</label>{f.options ? <select id={'filter-' + f.name} value={String(values[f.name] ?? '')} onChange={e => setValues({ ...values, [f.name]: e.target.value })}><option value="">Tất cả</option>{f.options.map(o => <option key={o} value={o}>{display(o)}</option>)}</select> : <Input id={'filter-' + f.name} type={f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : 'search'} min={f.type === 'number' ? 1 : undefined} value={String(values[f.name] ?? '')} onChange={e => setValues({ ...values, [f.name]: f.type === 'number' ? e.target.value ? Number(e.target.value) : null : e.target.value })} />}</div>)}</div><Button variant="outline" type="submit"><Search size={16} />Áp dụng</Button>{error && <p className="field-error" role="alert">{error}</p>}</form>
+  return <form className="filter-bar" onSubmit={e => { e.preventDefault(); if (values.from && values.to && String(values.from) > String(values.to)) { setError('Ngày bắt đầu không sau ngày kết thúc.'); return } setError(''); onApply(Object.fromEntries(Object.entries<unknown>({ ...values, ...(scope && filters.some(f => f.name === 'branchId') ? { branchId: scope } : {}) }).filter(([, v]) => v !== '' && v !== null && v !== undefined))) }}><div className="filter-fields">{filters.filter(f => !scope || f.name !== 'branchId').map(f => <div className="form-field" key={f.name}><label htmlFor={'filter-' + f.name}>{f.label}</label>{f.options ? <select id={'filter-' + f.name} value={String(values[f.name] ?? '')} onChange={e => setValues({ ...values, [f.name]: e.target.value })}><option value="">Tất cả</option>{f.options.map(o => <option key={o} value={o}>{display(o)}</option>)}</select> : <Input id={'filter-' + f.name} type={f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : 'search'} min={f.type === 'number' ? 1 : undefined} value={String(values[f.name] ?? '')} onChange={e => setValues({ ...values, [f.name]: f.type === 'number' ? e.target.value ? Number(e.target.value) : null : e.target.value })} />}</div>)}</div><Button variant="outline" type="submit"><Search size={16} />Áp dụng</Button>{error && <p className="field-error" role="alert">{error}</p>}</form>
 }
 export function ReferenceFilter({ field, value, onChange }: { field: string; value: unknown; onChange: (value: unknown) => void }) {
   return <ResourcePicker field={field} value={value} onChange={onChange} />
 }
-export function ResourcePage({ resource }: { resource: string }) {
+export function ResourcePage({ resource, initialFilters = {} }: { resource: string; initialFilters?: RecordData }) {
   const spec = resourceByKey[resource], user = useAppSelector(s => s.auth.user), navigate = useNavigate(), { id } = useParams(), location = useLocation()
-  const [filters, setFilters] = useState<RecordData>({}), [page, setPage] = useState(1), [size, setSize] = useState(20), [sort, setSort] = useState('')
+  const [filters, setFilters] = useState<RecordData>(initialFilters), [page, setPage] = useState(1), [size, setSize] = useState(20), [sort, setSort] = useState('')
   const [selected, setSelected] = useState<RecordData | null>(null), [action, setAction] = useState<ActionSpec | null>(null)
   const detailAllowed = !!spec?.detail && canCall(spec.detail, user?.role)
   const paging = spec ? endpoints[spec.list].query.some(q => q.name === 'page') : false
-  const result = useReadQuery(id && spec?.detail && detailAllowed ? { operation: spec.detail, params: { id: Number(id) } } : { operation: spec.list, query: { ...filters, ...(paging ? { page, size, ...(sort ? { sort } : {}) } : {}) } }, { skip: !spec || !user || !canCall(id && spec.detail ? spec.detail : spec.list, user.role) })
+  const result = useReadQuery(id && spec?.detail && detailAllowed ? { operation: spec.detail, params: { id: Number(id) } } : { operation: spec.list, query: { ...filters, ...(confinedBranch(user) && endpoints[spec.list].query.some(q => q.name === 'branchId') ? { branchId: confinedBranch(user) } : {}), ...(paging ? { page, size, ...(sort ? { sort } : {}) } : {}) } }, { skip: !spec || !user || !canCall(id && spec.detail ? spec.detail : spec.list, user.role) })
   if (!spec || !user) return null
   if (!canCall(id && spec.detail ? spec.detail : spec.list, user.role)) return <Notice>Bạn không có quyền đọc màn hình này.</Notice>
   const record = id ? asRecord(result.currentData) : selected ?? {}, isDetail = !!id || selected !== null
@@ -49,7 +51,7 @@ export function ResourcePage({ resource }: { resource: string }) {
     {isDetail && <Button variant="ghost" className="mb-4" onClick={() => { if (id) navigate(prefix + '/' + resource); else setSelected(null) }}>← {spec.title}</Button>}
     <PageHeader title={heading} description={spec.description} action={<div className="flex gap-2"><Button variant="outline" onClick={() => void result.refetch()} aria-label="Tải lại"><RefreshCw size={16} /></Button>{!isDetail && spec.create && canCall(spec.create, user.role) && <Button onClick={() => setAction({ operation: spec.create!, label: 'Tạo ' + spec.title.toLowerCase() })}><Plus size={16} />Thêm mới</Button>}</div>} />
     {spec.notice && <Notice>{spec.notice}</Notice>}
-    {!isDetail && spec.filters?.length ? <FilterBar filters={spec.filters.filter(f => user.role !== 'BRANCH_MANAGER' && user.role !== 'TRAINEE' || f.name !== 'branchId')} onApply={q => { setFilters(q); setPage(1) }} /> : null}
+    {!isDetail && spec.filters?.length ? <FilterBar initial={filters} filters={spec.filters.filter(f => !confinedBranch(user) || f.name !== 'branchId')} onApply={q => { setFilters(q); setPage(1) }} /> : null}
     {result.error && result.currentData !== undefined && <ErrorState error={result.error} retry={() => void result.refetch()} />}
     {result.isFetching && result.currentData !== undefined && <p role="status" className="muted">Đang cập nhật dữ liệu…</p>}
     {(result.isLoading || result.isFetching && result.currentData === undefined) ? <LoadingState /> : result.error && result.currentData === undefined ? <ErrorState error={result.error} retry={() => void result.refetch()} /> : isDetail ? <>
