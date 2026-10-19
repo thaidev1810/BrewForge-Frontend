@@ -1,5 +1,21 @@
 # BrewForge frontend
 
+## Cập nhật auth 19/10/2026
+
+`npm.cmd test` hiện chạy86checks (34integration +33authoring +19session). Sau Node SSR tests, khởi động lại Vite riêng để chạy browser fixtures:
+
+```powershell
+npm.cmd run dev -- --host 127.0.0.1 --port 5174 --strictPort --force
+# Trong terminal khác, mặc định dùng Chrome trên Windows:
+node scripts/browser-session.mjs
+node scripts/browser-authoring.mjs
+$env:FE_SMOKE_URL='http://127.0.0.1:5174'
+node scripts/browser-smoke.mjs
+```
+
+Session suite12checks, authoring30checks, public smoke5checks. Auth/business fixtures chỉ nằm trong test scripts, chặn API BE; không phải live nghiệp vụ. `.env.example` và cách cấu hình base URL bên dưới không đổi, không cần secret mới. Các mô tả số lượng test và staged/unmerged trong lịch sử bên dưới được thay thế bởi mục này và `docs/current-work.md`: index BE hiện không còn UU, source review vẫn chỉ cấp TM.
+
+
 Phiên19/10/2026 theo **working tree BE trên6ef17b0** (đang staged/unmerged):187operations/248types-enums. Đã tích hợp lesson-by-lesson, own/manager learning path, TM pending review, trainer branch scope/cancel và inbox/bell/read/read-all. BE duyệt khóa vẫn TRAINING_MANAGER dù drawio ghi RD_MANAGER. Hướng dẫn/mâu thuẫn/migrations cần xác nhận tại [current-work](../docs/current-work.md). `npm test` gồm67Node checks; browser authoring suite30fixture checks trên FE dev riêng5174, không gọi business BE hoặc fake success trong app. Không tự khởi động BE/migrate/seed; inbox/progress cần BE đã áp dụng schema tương ứng.
 
 Tích hợp hiện hành 16/10/2026: BE `6ef17b0`,163operations/212types-enums. Assignments dùng stage/isOverdue/enrollmentState; directory `/users/lookup` có server search/page20; session dùng course eligible-trainers và auditor dùng corrective-action retraining-options. Không mở manager read scopes chưa có trong controller. Regression mới tại `npm test` và `node scripts/browser-authoring.mjs` (FE dev riêng ở5174); chỉ test-only adapters, không mutation BE thật. Sau SSR tests hoặc thay đổi source khi đang kiểm browser, khởi động lại Vite riêng với `--force` trước khi chạy lại browser suite để tránh optimize/HMR cache cũ. Contract/giới hạn tại [current-work](../docs/current-work.md).
@@ -20,7 +36,9 @@ Trên hệ điều hành khác dùng `npm`. `npm.cmd` tránh lỗi execution pol
 
 Backend yêu cầu .NET 10 và PostgreSQL. Khởi động backend có thể chạy migration/tác vụ ghi, nên chỉ khởi động trong môi trường đã cấu hình và được phép. Lần triển khai này không khởi động backend, không thay database. Đăng nhập bằng **username**, password của tài khoản backend do quản trị viên cung cấp.
 
-Access token, refresh token và identity chỉ ở Redux memory; tải lại trang cần đăng nhập lại. Axios tự gắn Bearer, refresh token tuần tự khi có nhiều 401; tự thử lại GET một lần, mutation chỉ replay sau refresh khi endpoint hỗ trợ idempotency và có key. Mutation khác yêu cầu người dùng xác nhận lại, không tự gửi lần hai. Refresh hết hạn xóa session/cache. Đăng xuất gọi revoke backend rồi xóa session cục bộ. Nếu role/chi nhánh đổi khi refresh, yêu cầu đăng nhập lại. Route guard hỗ trợ điều hướng; quyền và ownership vẫn do BE kiểm tra.
+Access token và refresh token được lưu thành một cặp trong sessionStorage (`brewforge.session.v1`) để giữ phiên qua F5 trong cùng tab. Không lưu user/role hay dữ liệu nghiệp vụ. Khi tải lại, AuthBootstrap gọi `/auth/me` để xác thực identity mới trước khi mở trang; access hết hạn dùng refresh single-flight, lưu pair mới rồi đọc identity. Lỗi mạng/timeout/5xx/403 giữ token và hiển thị Retry; refresh invalid/revoked xóa phiên/cache. Giữ nguyên pathname/query/hash; sau login chỉ quay lại route nội bộ thuộc quyền role. Storage bị chặn không crash nhưng không thể khôi phục qua reload.
+
+Logout xóa persisted session và Redux/RTK Query cache ngay trước khi đợi BE revoke; response cũ không khôi phục phiên. Identity/scope đổi cũng reset cache. Axios giữ quy tắc không replay mutation thiếu idempotency. Quyền thực tế và ownership vẫn do BE kiểm tra. RD_MANAGER hiện chưa có course detail/modules/approve/return; TRAINING_MANAGER vẫn duyệt/trả theo source BE.
 
 ## Workspace và chức năng
 

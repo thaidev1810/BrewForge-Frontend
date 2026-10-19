@@ -42,7 +42,7 @@ try {
     apiClient.defaults.adapter = async config => config.headers.get('Authorization') === 'Bearer old-token' ? reject(config, 401, { code: 'UNAUTHENTICATED', message: 'Expired', details: [] }) : reply(config, { ok: true })
     await Promise.all([apiClient.get('/branches'), apiClient.get('/products'), apiClient.get('/users')])
     check('concurrent 401s rotate once and retry with the new Bearer', () => { assert.equal(refreshCalls, 1); assert.equal(expired, 0) })
-    configureApiAuth(() => token, () => { expired++ }, async () => { throw new Error('Refresh revoked') }, () => generation)
+    configureApiAuth(() => token, () => { expired++ }, async () => { throw normalizeApiError({ isAxiosError: true, response: { status: 401, data: { message: 'Refresh revoked' } } }) }, () => generation)
     apiClient.defaults.adapter = async config => reject(config, 401, { message: 'Expired' })
     await assert.rejects(apiClient.get('/branches'), /Refresh revoked/)
     check('revoked refresh expires session instead of faking success', () => assert.equal(expired, 1))

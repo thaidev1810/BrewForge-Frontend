@@ -1,7 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
-import authReducer, { logout, sessionRotated } from '@/features/auth/authSlice'
-import { authTransport, configureApiAuth } from '@/services/apiClient'
+import authReducer, { logout, restoring, tokensRotated, sessionVerified, restoreFailed, restoreEmpty } from '@/features/auth/authSlice'
+import { apiClient, authTransport, configureApiAuth } from '@/services/apiClient'
+import { readStoredSession, writeStoredSession } from '@/features/auth/sessionStorage'
+import { ApiError, normalizeApiError } from '@/services/apiError'
 import { identityFromWire } from '@/features/auth/authTypes'
 import type { LoginResponse, MeResponse } from '@/services/backend/contracts'
 import { backendApi } from '@/services/backend/operations'
@@ -33,23 +35,57 @@ export const store = configureStore({
 })
 configureApiAuth(() => store.getState().auth.accessToken, () => { store.dispatch(logout()) }, async () => {
   const before = store.getState().auth
-  if (!before.refreshToken) throw new Error('Phiên đăng nhập đã hết hạn.')
+  if (!before.refreshToken) throw new ApiError('Phiên đăng nhập đã hết hạn.', 401)
   const { data } = await authTransport.post<LoginResponse>('/auth/refresh', { refreshToken: before.refreshToken })
-  const me = await authTransport.get<MeResponse>('/auth/me', { headers: { Authorization: `Bearer ${data.accessToken}` } })
-  if (store.getState().auth.generation !== before.generation) throw new Error('Phiên đăng nhập đã thay đổi.')
-  const user = identityFromWire(me.data)
-  if (user.role !== before.user?.role || user.branchId !== before.user?.branchId) {
-    store.dispatch(logout())
-    throw new Error('Quyền tài khoản đã thay đổi. Vui lòng đăng nhập lại.')
+  if (store.getState().auth.generation !== before.generation) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
+  // Save the rotated pair before /me: the old refresh token is already revoked by BE.
+  store.dispatch(tokensRotated({ generation: before.generation, tokens: { accessToken: data.accessToken, refreshToken: data.refreshToken } }))
+  if (before.status === 'authenticated') {
+    try {
+      const me = await authTransport.get<MeResponse>('/auth/me', { headers: { Authorization: `Bearer ${data.accessToken}` } })
+      if (store.getState().auth.generation !== before.generation) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
+      store.dispatch(sessionVerified({ generation: before.generation, user: identityFromWire(me.data) }))
+    } catch (error) {
+      if (normalizeApiError(error).status !== 401) store.dispatch(restoreFailed({ generation: before.generation, message: normalizeApiError(error).message }))
+      throw error
+    }
   }
-  store.dispatch(sessionRotated({ user, accessToken: data.accessToken, refreshToken: data.refreshToken }))
   return data.accessToken
 }, () => store.getState().auth.generation)
 setupListeners(store.dispatch)
 let generation = store.getState().auth.generation
+let savedTokens = ''
 store.subscribe(() => {
-  const current = store.getState().auth.generation
+  const auth = store.getState().auth, current = auth.generation
+  const signature = JSON.stringify([auth.accessToken, auth.refreshToken])
+  if (signature !== savedTokens || current !== generation && !auth.accessToken) {
+    savedTokens = signature
+    writeStoredSession(auth.accessToken && auth.refreshToken ? { accessToken: auth.accessToken, refreshToken: auth.refreshToken } : null)
+  }
   if (current !== generation) { generation = current; store.dispatch(backendApi.util.resetApiState()) }
 })
+let bootstrap: { generation: number; promise: Promise<void> } | null = null
+export function bootstrapAuth(): Promise<void> {
+  const before = store.getState().auth
+  if (before.status === 'authenticated') return Promise.resolve()
+  if (bootstrap?.generation === before.generation) return bootstrap.promise
+  const tokens = before.accessToken && before.refreshToken ? { accessToken: before.accessToken, refreshToken: before.refreshToken } : readStoredSession()
+  if (!tokens) { store.dispatch(restoreEmpty(before.generation)); return Promise.resolve() }
+  store.dispatch(restoring({ generation: before.generation, tokens }))
+  const run = { generation: before.generation, promise: Promise.resolve() }
+  bootstrap = run
+  run.promise = (async () => {
+    try {
+      const { data } = await apiClient.get<MeResponse>('/auth/me')
+      store.dispatch(sessionVerified({ generation: before.generation, user: identityFromWire(data) }))
+    } catch (error) {
+      if (store.getState().auth.generation !== before.generation) return
+      const refusal = normalizeApiError(error)
+      if (refusal.status === 401) store.dispatch(logout())
+      else store.dispatch(restoreFailed({ generation: before.generation, message: refusal.message }))
+    } finally { if (bootstrap === run) bootstrap = null }
+  })()
+  return run.promise
+}
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

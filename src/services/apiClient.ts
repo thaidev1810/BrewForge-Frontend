@@ -12,10 +12,11 @@ export function configureApiAuth(getToken: () => string | null, unauthorized: ()
 export const authTransport = axios.create({ baseURL: apiBaseUrl, timeout: 20000, headers: { Accept: 'application/json' } })
 export const apiClient = axios.create({ baseURL: apiBaseUrl, timeout: 30000, headers: { Accept: 'application/json' } })
 type SessionRequest = InternalAxiosRequestConfig & { sessionGeneration?: number; retried?: boolean; usedToken?: string | null; retryAfterRefresh?: boolean }
-apiClient.interceptors.request.use((config: SessionRequest) => {
+apiClient.interceptors.request.use(async (config: SessionRequest) => {
   if (!config.baseURL) throw new ApiError('Chưa cấu hình VITE_API_BASE_URL.')
-  if (config.sessionGeneration !== undefined && config.sessionGeneration !== getGeneration()) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
   config.sessionGeneration ??= getGeneration()
+  if (refreshing?.generation === config.sessionGeneration) await refreshing.promise
+  if (config.sessionGeneration !== undefined && config.sessionGeneration !== getGeneration()) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
   const token = getAccessToken(); config.usedToken = token
   if (token) config.headers.set('Authorization', `Bearer ${token}`); else config.headers.delete('Authorization')
   return config
@@ -34,13 +35,14 @@ apiClient.interceptors.response.use(response => {
   if (config.retried || !refreshSession || !getAccessToken()) { onUnauthorized(); throw normalized }
   config.retried = true
   try {
-    if (config.usedToken === getAccessToken()) {
-      const generation = getGeneration()
+    const generation = getGeneration()
+    if (refreshing?.generation === generation) await refreshing.promise
+    else if (config.usedToken === getAccessToken()) {
       if (!refreshing || refreshing.generation !== generation) refreshing = { generation, promise: refreshSession().finally(() => { if (refreshing?.generation === generation) refreshing = null }) }
       await refreshing.promise
     }
     if (config.sessionGeneration !== getGeneration()) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
-  } catch (refreshError) { if (config.sessionGeneration === getGeneration()) onUnauthorized(); throw normalizeApiError(refreshError) }
+  } catch (refreshError) { const refusal = normalizeApiError(refreshError); if (config.sessionGeneration === getGeneration() && refusal.status === 401) onUnauthorized(); throw refusal }
   if (!['get', 'head', 'options'].includes((config.method ?? 'get').toLowerCase()) && !config.retryAfterRefresh) {
     throw new ApiError('Phiên đăng nhập đã được làm mới. Yêu cầu thay đổi chưa được gửi lại; hãy kiểm tra và xác nhận lại thao tác.', 401)
   }

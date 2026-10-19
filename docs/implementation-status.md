@@ -1,5 +1,13 @@
 # Kết quả triển khai frontend theo backend
 
+## 19/10/2026 — auth persistence hoàn thành, RD review bị chặn BE
+
+sessionStorage token pair/version, AuthBootstrap fresh /me + single-flight refresh/StrictMode, atomic rotation, recovery Retry, generation guards và clear mọi cache khi logout/account/scope đổi đã tích hợp. Route giữ path/query/hash, return URL nội bộ theo capability role. Login/logout/header/guard/API client và legacy reducers cập nhật, không persist user hoặc dữ liệu server.
+
+RD_MANAGER vẫn chỉ course list theo controller; detail/modules/approve/return chưa được cấp. Giữ TM approval hiện hành và không thêm RD approval giả. Full contract regenerated vẫn187operations/248types-enums. BE chỉ đọc, không startup/migration/DB mutations.
+
+Validation: typecheck/lint/test86checks/build; Chrome session12, authoring30 và public smoke5. Các auth/business browser responses đều fixtures chặn BE, chưa live authenticated E2E; warning main bundle>500KB. Chi tiết hiện hành tại ../docs/current-work.md và integration-gaps.md ở root workspace.
+
 ## 19/10/2026 — learning flow, working tree BE trên `6ef17b0`
 
 Giữ thay đổi FE trước phiên; BE nhiều staged changes và unmerged index, **không sửa BE**. Đã đọc drawio XML và đối chiếu controller→DTO/service/domain/filters/tests/OpenAPI. Điểm khác sơ đồ: duyệt khóa vẫn TRAINING_MANAGER, không RD_MANAGER. Generator187operations/248types-enums; live OpenAPI187operations/148paths chỉ xác minh kỹ thuật.

@@ -5,7 +5,7 @@ export type Role = typeof ROLES[number]
 export interface User { id: string; name: string; email: string; role: Role; branchId: string | null; username?: string; permissions?: string[] }
 export interface AuthSession { user: User; accessToken: string; refreshToken: string }
 export interface LoginCredentials { username: string; password: string }
-export interface AuthState { user: User | null; accessToken: string | null; refreshToken: string | null; isAuthenticated: boolean; loading: boolean; error: string | null; requestId: string | null; generation: number }
+export interface AuthState { user: User | null; accessToken: string | null; refreshToken: string | null; isAuthenticated: boolean; loading: boolean; error: string | null; requestId: string | null; generation: number; status: 'initializing' | 'authenticated' | 'unauthenticated'; bootstrapError: string | null }
 export interface AuthService { login(credentials: LoginCredentials): Promise<AuthSession> }
 export function identityFromWire(me: MeResponse): User {
   if (!ROLES.includes(me.role) || !Number.isSafeInteger(me.id) || me.status !== 'ACTIVE') throw new Error('Tài khoản hoặc role trả về không hợp lệ.')
