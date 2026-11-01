@@ -1,5 +1,43 @@
 # Kết quả triển khai frontend theo backend
 
+## 22/10/2026 — đồng bộ merge 52be9a7 (ưu tiên hiện hành)
+
+BE HEAD **52be9a7093069e4ac9e1aa8c03ff9d09212a06b3**, merge parents e4e95b4 / b9c4df5. Baseline hiện hành trước đó e4e95b435b9fa71aebdb3008221da1b9774fbf7a chính là first parent; diff 23 file. BE Git sạch, không sửa BE/.env/DB, không chạy startup/migration/seed hoặc authenticated mutation. Không thấy AGENTS.md áp dụng. Giữ mọi thay đổi FE chưa commit trước lượt này.
+
+### FE đã đồng bộ
+
+- Auth giữ sessionStorage token pair atomic, bootstrap/me và 401 single-flight, generation guard/logout chống response cũ, cache reset theo identity/role/branch. Network/timeout khi refresh đánh dấu brewforge.refresh-uncertain.v1 (chỉ flag theo tab, không thêm bản sao token/file); giữ pair nhưng chặn consume lại token cũ kể cả F5, yêu cầu nút xóa phiên/đăng nhập lại. /me network/5xx/403 vẫn có Retry; refresh503 vẫn cho retry, refresh401 clear session. Cờ xóa khi logout/login hoặc rotation thành công cùng generation. Không generic auto-replay mutation; POS có key mới được retry sau refresh.
+- Form người dùng tải GET roles thật: loading/empty/error+Retry, chỉ role enum được biết; không thêm trang role CRUD hoặc chuyển dynamic ACL. Login độc lập metadata.
+- Corrective action close hiện giải thích server gate khi retrainingRequired, error/details giữ note draft. Không client suy đoán học xong từ certificate cũ. Retraining options/outcomes theo người, reload scope conflict giữ deadline; tracking vẫn dùng stage wire. Stage CLOSED/LOCKED ưu tiên, PASSED→COMPLETED, NEEDS_RECERT không tự biến thành stage; lịch chỉ CreatedAt>=EnrolledAt, overdue tách biệt. Cache reset/retraining/assessment refresh Training/Quality/Coverage/Reports/options hiện có.
+- POS dialog giữ cùng File object/key qua manual retry/refetch, input file change tạo submission/key mới, double-submit guard. Khi lỗi giải thích ghi dữ liệu có thể đã xảy ra, retry cùng tệp lấy replay; không khẳng định chưa import, không tự đổi key sau conflict. Không lưu pending/file xuống storage; đóng/reload mất key nên không thể cam kết safe-retry submission cũ qua reload. Kết quả dùng accepted/rejected/replaced/replayed/errors thật.
+- Impact empty/header/legacy GET theo server, committed và409 already committed khóa lần gửi tiếp, reload trạng thái; không giả lập stale conflict hoặc auto analyze/commit. Các mutation invalidation giữ luồng hiện có.
+- **RD_MANAGER chưa có quyền approve/return course**: chỉ đọc List/Get/Modules. Approve/Return vẫn TRAINING_MANAGER. TRAINING_MANAGER/BRANCH_MANAGER đọc enrollment Get/Modules/Eligibility/QuizAttempts theo scope; không cấp learner completion/quiz submit/video listing/evaluation. Sidebar và trang manager summary giữ giới hạn này.
+
+### Gap và giới hạn phải giữ
+
+G-11 PARTIAL: live active/role đã có; branch/password-reset/access-logout invalidation chưa có. G-09 direct assignment prerequisite đã có, retraining bypass prerequisite và certificate validity check cần BE xác nhận. G-19 PARTIAL: close gate đã có nhưng chấp nhận historical PASSED, chưa có action-cycle relation/API progress obligations. POS idempotency concurrency ledger đã có nếu016 áp dụng; **payload binding/conflict, expiry policy, legacy audit backfill chưa có**. Impact concurrent same-run đã bảo vệ bằng xmin; stale preview snapshot/version chưa có. Không dùng metadata permissions thay policy matrix; RD approval gap vẫn còn.
+
+Môi trường: localhost:5113/openapi/v1.json không truy cập được trong lượt22/10. Chưa chứng minh build52be9a7 hoặc schema014/015/016. Không tự áp dụng migration; ngay cả OpenAPI200 cũng không chứng minh migration. Chưa có account/test environment được cấp cho authenticated mutation; không báo PASS_RUNTIME cho refresh race, POS persistence/race, action close/prerequisite, impact concurrency/legacy. Cần người vận hành triển khai build/schema trên test/demo rồi cấp tài khoản theo role để chạy nghiệp vụ thật.
+
+### Kiểm chứng
+
+Typecheck, lint, production build pass; build còn warning main chunk >500kB (~556kB minified). **92 Node regression checks** (36 integration +36 authoring +20 session) pass với TEST_ONLY adapters; gồm route matrix188, catalogue role read-only, POS cùng payload/key sau lost response, refresh mất response không consume lại, rotation/logout/identity cache. **89 browser checks pass** (72 authoring/UI +12 session +5 public smoke), gồm role picker và POS mất response giữ cùng File/key, replay/row errors; kiểm tra desktop/mobile, refetch draft, F5/deep link, quyền manager/approval. Đã sửa đồng bộ event React trong fixture và chỉ bỏ qua CDP interception hết hiệu lực khi có bằng chứng Network.loadingFailed.canceled; vẫn assert không có lỗi app/giao thức khác. Fixture browser/Node chỉ chứng minh FE, không chứng minh nghiệp vụ BE/DB. Trạng thái: READY_STATIC; PASS_RUNTIME chưa xác minh.
+
+
+## 20/10/2026 — BE e4e95b4 first parent df8fb9a, delta14files
+
+Đã tái sinh metadata187operations/251types-enums. Retraining dùng ResultDto/results per employee, typed outcomes, lookup IDs/history names, partial outcome không fake success; stale scope giữ modal/deadline và reload options, invalidate Quality/Training/Coverage/Reports/Notifications. PeoplePicker resolve IDs inactive, trainer paged/search300ms/page20. Manager review page `/enrollments/:id` chỉ Get/Modules/Eligibility/QuizAttempts, links từ assignment/TM path, giữ role guard/intended URL/parent active. RD course Get/Modules mở, approve/return vẫn TM. Assessment selected video cũ không còn bật evaluation sau reset/refetch.
+
+Giữ toàn bộ UI/sidebar/tabs/accordion/dirty/auth trước phiên (đang uncommitted), không client/store song song, không đổi .env/dependencies/BE/database. Typecheck/lint/89Node/build pass;70UI/12session/5public Chrome fixtures pass. READY_STATIC, chưa authenticated live E2E; main>500KB warning. Anonymous OpenAPI200 có schema mới, không chứng minh build hash/schema applied.
+
+Còn BE: RD approval nếu muốn đổi role; manager practical summary; persisted retraining action-enrollment-cycle, prerequisite/role gate và close gate. Chi tiết hiện hành ở root current-work.md, api-contract.md và integration-gaps.md; các nhận định cũ về read gaps/array/response bên dưới là lịch sử.
+
+## UI/UX 19/10/2026
+
+Đã nâng shared navigation/layout theo role, desktop collapse/mobile drawer, breadcrumbs và compact detail components. Course tabs/module accordion/quiz outline, learner một bài/danh mục, SOP step+validation links, class session/attendance tabs+local paging, audit fail-first/evidence, corrective retraining và learning path collapsible đã dùng API hiện có. Dirty modal/quiz, tab keyboard, focus lỗi, form dài và long text cải thiện; không đổi auth/API/business rules/dependencies.
+
+Typecheck/lint/86Node/build pass; Chrome59UI-authoring +12session +5public smoke. Tests cô lập BE, chưa live authenticated E2E; warning main>500KB. Các scope/backend gaps tại root docs/current-work.md và integration-gaps.md là nguồn hiện hành. RD review chưa được BE cấp quyền, class chưa có roster endpoint riêng và SOP GET chưa có validation history.
+
 ## 19/10/2026 — auth persistence hoàn thành, RD review bị chặn BE
 
 sessionStorage token pair/version, AuthBootstrap fresh /me + single-flight refresh/StrictMode, atomic rotation, recovery Retry, generation guards và clear mọi cache khi logout/account/scope đổi đã tích hợp. Route giữ path/query/hash, return URL nội bộ theo capability role. Login/logout/header/guard/API client và legacy reducers cập nhật, không persist user hoặc dữ liệu server.

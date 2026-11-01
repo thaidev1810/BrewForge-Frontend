@@ -24,6 +24,7 @@ export function mutationTags(operation: Operation) {
   if (current === 'Training') { scopes.add('Coverage'); scopes.add('Quality'); scopes.add('Notifications') }
   if (current === 'Coverage') { scopes.add('Sales'); scopes.add('Training') }
   if (current === 'Quality') { scopes.add('Training'); scopes.add('Notifications') }
+  if (operation === 'CorrectiveActions.AssignRetraining') scopes.add('Coverage')
   if (current === 'Users' || current === 'Impact' || current === 'Recipes') scopes.add('Notifications')
   return [...scopes].map(tag)
 }

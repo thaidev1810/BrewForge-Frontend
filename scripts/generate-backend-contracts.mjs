@@ -41,7 +41,7 @@ for (const { file, text } of sources.filter(s => s.file.includes('/Controllers/'
     }
   }
 }
-if (Object.keys(endpoints).length !== 187) throw new Error('Controller endpoint coverage changed: ' + Object.keys(endpoints).length + '; review before generating')
+if (Object.keys(endpoints).length !== 188) throw new Error('Controller endpoint coverage changed: ' + Object.keys(endpoints).length + '; review before generating')
 const used = new Set(['RoleName', 'ErrorEnvelope', 'ErrorDetail'])
 function collect(t) { if (!t) return; const tokens = t.match(/\b\w+\b/g) ?? []; for (const n of tokens) if ((records[n] || enums[n]) && !used.has(n)) { used.add(n); records[n]?.fields.forEach(f => collect(f.type)) } }
 Object.values(endpoints).forEach(e => { collect(e.body); collect(e.response) })

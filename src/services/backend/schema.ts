@@ -364,6 +364,16 @@ export const schemas = {
       "name": "permissions"
     }
   ],
+  "RoleDto": [
+    {
+      "type": "RoleName",
+      "name": "role"
+    },
+    {
+      "type": "IReadOnlyList<string>",
+      "name": "permissions"
+    }
+  ],
   "PagedResult": [
     {
       "type": "IReadOnlyList<T>",
@@ -2176,6 +2186,46 @@ export const schemas = {
     {
       "type": "bool",
       "name": "currentVersion"
+    }
+  ],
+  "RetrainingResultItem": [
+    {
+      "type": "long",
+      "name": "employeeId"
+    },
+    {
+      "type": "RetrainingOutcome",
+      "name": "outcome"
+    },
+    {
+      "type": "long?",
+      "name": "enrollmentId"
+    },
+    {
+      "type": "string?",
+      "name": "reasonCode"
+    }
+  ],
+  "RetrainingResultDto": [
+    {
+      "type": "long",
+      "name": "correctiveActionId"
+    },
+    {
+      "type": "long",
+      "name": "courseId"
+    },
+    {
+      "type": "IReadOnlyList<RetrainingResultItem>",
+      "name": "results"
+    },
+    {
+      "type": "IReadOnlyList<long>",
+      "name": "enrollmentIds"
+    },
+    {
+      "type": "IReadOnlyList<long>",
+      "name": "alreadyEnrolled"
     }
   ],
   "RetrainingOptionsDto": [
@@ -5194,6 +5244,11 @@ export const schemas = {
   ]
 } as const
 export const enumValues = {
+  "RetrainingOutcome": [
+    "ASSIGNED",
+    "ALREADY_ENROLLED",
+    "SKIPPED"
+  ],
   "RepairMode": [
     "AI",
     "MANUAL"
@@ -6777,7 +6832,8 @@ export const endpoints = {
     "path": "/api/v1/courses/{id:long}",
     "roles": [
       "TRAINER",
-      "TRAINING_MANAGER"
+      "TRAINING_MANAGER",
+      "RD_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
     "body": null,
@@ -6800,7 +6856,8 @@ export const endpoints = {
     "path": "/api/v1/courses/{id:long}/modules",
     "roles": [
       "TRAINER",
-      "TRAINING_MANAGER"
+      "TRAINING_MANAGER",
+      "RD_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
     "body": null,
@@ -6828,14 +6885,31 @@ export const endpoints = {
     "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
     "body": null,
     "optionalBody": false,
-    "query": [],
+    "query": [
+      {
+        "name": "page",
+        "type": "int?"
+      },
+      {
+        "name": "size",
+        "type": "int?"
+      },
+      {
+        "name": "sort",
+        "type": "string?"
+      },
+      {
+        "name": "q",
+        "type": "string?"
+      }
+    ],
     "params": [
       {
         "type": "long",
         "name": "id"
       }
     ],
-    "response": "IReadOnlyList<TrainerOptionDto>",
+    "response": "PagedResult<TrainerOptionDto>",
     "binary": false,
     "upload": false,
     "idempotency": false,
@@ -8374,7 +8448,7 @@ export const endpoints = {
         "name": "id"
       }
     ],
-    "response": "AssignmentResultDto",
+    "response": "RetrainingResultDto",
     "binary": false,
     "upload": false,
     "idempotency": false,
@@ -9111,6 +9185,30 @@ export const endpoints = {
     "idempotency": false,
     "status": 201
   },
+  "Roles.List": {
+    "method": "GET",
+    "path": "/api/v1/roles",
+    "roles": [
+      "ADMIN",
+      "RD_SPECIALIST",
+      "RD_MANAGER",
+      "TRAINER",
+      "TRAINEE",
+      "QUALITY_AUDITOR",
+      "BRANCH_MANAGER",
+      "TRAINING_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/RolesController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [],
+    "params": [],
+    "response": "IReadOnlyList<RoleDto>",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
   "Sales.List": {
     "method": "GET",
     "path": "/api/v1/sales",
@@ -9696,7 +9794,9 @@ export const endpoints = {
     "path": "/api/v1/enrollments/{id:long}",
     "roles": [
       "TRAINEE",
-      "TRAINER"
+      "TRAINER",
+      "TRAINING_MANAGER",
+      "BRANCH_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/TrainingController.cs",
     "body": null,
@@ -9719,7 +9819,9 @@ export const endpoints = {
     "path": "/api/v1/enrollments/{id:long}/modules",
     "roles": [
       "TRAINEE",
-      "TRAINER"
+      "TRAINER",
+      "TRAINING_MANAGER",
+      "BRANCH_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/TrainingController.cs",
     "body": null,
@@ -9796,7 +9898,9 @@ export const endpoints = {
     "path": "/api/v1/enrollments/{id:long}/eligibility",
     "roles": [
       "TRAINEE",
-      "TRAINER"
+      "TRAINER",
+      "TRAINING_MANAGER",
+      "BRANCH_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/TrainingController.cs",
     "body": null,
@@ -9865,7 +9969,9 @@ export const endpoints = {
     "path": "/api/v1/enrollments/{id:long}/quiz-attempts",
     "roles": [
       "TRAINEE",
-      "TRAINER"
+      "TRAINER",
+      "TRAINING_MANAGER",
+      "BRANCH_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/TrainingController.cs",
     "body": null,
@@ -10189,6 +10295,10 @@ export const endpoints = {
       {
         "name": "includeInactive",
         "type": "bool"
+      },
+      {
+        "name": "ids",
+        "type": "string?"
       }
     ],
     "params": [],

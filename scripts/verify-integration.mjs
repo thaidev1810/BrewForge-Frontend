@@ -70,7 +70,7 @@ try {
     check('practical opens after quiz in the current ELIGIBLE cycle, not certification', () => { assert.equal(practicalBookingIssue(cycle,[pass],[]),null); assert(practicalBookingIssue(cycle,[],[])); assert(practicalBookingIssue({...cycle,state:'PASSED'},[pass],[])); assert(practicalBookingIssue(cycle,[{...pass,attemptedAt:'2026-10-13T00:00:00Z'}],[])) })
     check('open appointment blocks duplicates; cancelled/completed history permits a new appointment', () => { assert(practicalBookingIssue(cycle,[pass],[{status:'SCHEDULED'}])); assert.equal(practicalBookingIssue(cycle,[pass],[{status:'CANCELLED'},{status:'COMPLETED'}]),null) })
     check('practical actions require the owning trainer and an open appointment', () => { const s={status:'SCHEDULED',trainerId:12}; assert(canManagePractical(s,'TRAINER','12')); assert(!canManagePractical(s,'TRAINER','13')); assert(!canManagePractical(s,'TRAINEE','12')); assert(!canManagePractical({...s,status:'COMPLETED'},'TRAINER','12')) })
-    check('187 actual routes, no SOP phantom endpoint or legacy roles', () => { assert.equal(Object.keys(endpoints).length, 187); for (const ep of Object.values(endpoints)) { assert(ep.path.startsWith('/api/v1/')); assert(!ep.roles.includes('BARISTA')); assert(!ep.roles.includes('STORE_MANAGER')) } assert(!Object.values(endpoints).some(ep => ep.path.startsWith('/api/v1/sops'))) })
+    check('188 actual routes, no SOP phantom endpoint or legacy roles', () => { assert.equal(Object.keys(endpoints).length, 188); for (const ep of Object.values(endpoints)) { assert(ep.path.startsWith('/api/v1/')); assert(!ep.roles.includes('BARISTA')); assert(!ep.roles.includes('STORE_MANAGER')) } assert(!Object.values(endpoints).some(ep => ep.path.startsWith('/api/v1/sops'))) })
     const matrix = fs.readFileSync('../backend/tests/BrewForge.Api.Tests/AuthorizationMatrix.cs','utf8')
     const fromTests = [...matrix.matchAll(/new\("(GET|POST|PUT|DELETE)",\s*"([^"]+)"/g)].map(m => m[1] + ' /api/v1' + m[2]).sort()
     const fromClient = Object.values(endpoints).map(e => e.method + ' ' + e.path.replace(/\{\*\*([^}]+)\}/g, '{$1}').replace(/:long/g, '')).sort()
@@ -108,6 +108,14 @@ try {
     await executeOperation('Sales.Import',{body:replayForm,idempotencyKey:'TEST_ONLY_STABLE_KEY'})
     check('supported POS idempotency replays once after refresh with the same key',()=>{assert.equal(replayCount,2);assert.equal(expired,0)})
     configureApiAuth(()=>null,()=>{})
+    check('role catalogue is authenticated reference data for all eight roles, without role writes',()=>{assert.equal(endpoints['Roles.List'].path,'/api/v1/roles');assert.deepEqual([...endpoints['Roles.List'].roles].sort(),[...ROLES].sort());assert.equal(endpoints['Roles.List'].response,'IReadOnlyList<RoleDto>');assert.deepEqual(Object.keys(endpoints).filter(id=>id.startsWith('Roles.')),['Roles.List'])})
+    let uploads=0
+    const file=new FormData();file.append('file',new Blob(['TEST_ONLY_same_payload']),'same.csv')
+    apiClient.defaults.adapter=async config=>{uploads++;assert.equal(config.data,file);assert.equal(config.headers.get('Idempotency-Key'),'TEST_ONLY_LOST_RESPONSE');if(uploads===1)throw new Error('TEST_ONLY network timeout');return reply(config,{jobId:'TEST_ONLY',accepted:1,rejected:1,replaced:1,replayed:true,errors:[{row:3,code:'TEST_ONLY',message:'TEST_ONLY row error'}]})}
+    await assert.rejects(executeOperation('Sales.Import',{body:file,idempotencyKey:'TEST_ONLY_LOST_RESPONSE'}))
+    assert.equal(uploads,1)
+    const replay=await executeOperation('Sales.Import',{body:file,idempotencyKey:'TEST_ONLY_LOST_RESPONSE'})
+    check('POS uncertain write is manually retried with identical payload/key and real replay/partial result',()=>{assert.equal(uploads,2);assert.equal(replay.replayed,true);assert.equal(replay.rejected,1);assert.equal(replay.errors[0].row,3)})
     apiClient.defaults.adapter = async config => { last=config; return reply(config,{accepted:1,rejected:0}) }
     const form = new FormData();form.append('file',new Blob(['TEST_ONLY']), 'test.csv')
     await executeOperation('Sales.Import',{body:form,idempotencyKey:'TEST_KEY'})

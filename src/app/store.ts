@@ -1,3 +1,4 @@
+import { refreshUncertain, markRefreshUncertain, clearRefreshUncertain } from '@/features/auth/refreshRecovery'
 import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import authReducer, { logout, restoring, tokensRotated, sessionVerified, restoreFailed, restoreEmpty } from '@/features/auth/authSlice'
@@ -36,8 +37,18 @@ export const store = configureStore({
 configureApiAuth(() => store.getState().auth.accessToken, () => { store.dispatch(logout()) }, async () => {
   const before = store.getState().auth
   if (!before.refreshToken) throw new ApiError('Phiên đăng nhập đã hết hạn.', 401)
-  const { data } = await authTransport.post<LoginResponse>('/auth/refresh', { refreshToken: before.refreshToken })
+  if (refreshUncertain()) throw new ApiError('Không xác định được lần làm mới trước đã hoàn tất hay chưa. Token dùng một lần không thể khôi phục; hãy xóa phiên và đăng nhập lại.')
+  let data: LoginResponse
+  try { ({ data } = await authTransport.post<LoginResponse>('/auth/refresh', { refreshToken: before.refreshToken })) }
+  catch (error) {
+    if (store.getState().auth.generation === before.generation && normalizeApiError(error).status === undefined) {
+      markRefreshUncertain()
+      store.dispatch(restoreFailed({ generation: before.generation, message: 'Mất kết nối khi làm mới phiên; máy chủ có thể đã đổi token. Hãy xóa phiên và đăng nhập lại.' }))
+    }
+    throw error
+  }
   if (store.getState().auth.generation !== before.generation) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
+  clearRefreshUncertain()
   // Save the rotated pair before /me: the old refresh token is already revoked by BE.
   store.dispatch(tokensRotated({ generation: before.generation, tokens: { accessToken: data.accessToken, refreshToken: data.refreshToken } }))
   if (before.status === 'authenticated') {
@@ -59,6 +70,7 @@ store.subscribe(() => {
   const auth = store.getState().auth, current = auth.generation
   const signature = JSON.stringify([auth.accessToken, auth.refreshToken])
   if (signature !== savedTokens || current !== generation && !auth.accessToken) {
+    if (!auth.accessToken) clearRefreshUncertain()
     savedTokens = signature
     writeStoredSession(auth.accessToken && auth.refreshToken ? { accessToken: auth.accessToken, refreshToken: auth.refreshToken } : null)
   }

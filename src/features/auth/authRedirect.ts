@@ -22,6 +22,7 @@ export function authDestination(value: unknown, role: Role): string {
     ['LearningPath.Mine', ['learning-path']], ['LearningPath.Get', ['learning-path']], ['Courses.Approve', ['courses/pending']],
   ]
   for (const [operation, allowed] of optional) if (canCall(operation, role)) paths.push(...allowed)
+  if (['TRAINING_MANAGER','BRANCH_MANAGER'].includes(role)&&canCall('Enrollments.Get',role)) paths.push('enrollments/:id')
   if (role === 'TRAINER') paths.push('assessment/:id')
   // A dynamic course ID must not accidentally grant a reserved review route.
   if (url.pathname.replace(/\/+$/, '') === prefix + '/courses/pending' && !canCall('Courses.Approve', role)) return fallback

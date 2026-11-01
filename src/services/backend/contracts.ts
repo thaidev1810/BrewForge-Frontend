@@ -1544,10 +1544,30 @@ export interface RetrainingOptionsDto {
   courses: Array<RetrainingCourseOption>
 }
 
+export const RetrainingOutcomeValues = ["ASSIGNED","ALREADY_ENROLLED","SKIPPED"] as const
+export type RetrainingOutcome = typeof RetrainingOutcomeValues[number]
+
 /** backend/src/BrewForge.Application/Quality/CorrectiveActionService.cs */
 export interface RetrainingRequest {
   courseId: number | null
   deadline: string | null
+}
+
+/** backend/src/BrewForge.Application/Quality/CorrectiveActionService.cs */
+export interface RetrainingResultDto {
+  correctiveActionId: number
+  courseId: number
+  results: Array<RetrainingResultItem>
+  enrollmentIds: Array<number>
+  alreadyEnrolled: Array<number>
+}
+
+/** backend/src/BrewForge.Application/Quality/CorrectiveActionService.cs */
+export interface RetrainingResultItem {
+  employeeId: number
+  outcome: RetrainingOutcome
+  enrollmentId: number | null
+  reasonCode: string | null
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -1570,6 +1590,12 @@ export interface ReviewRequest {
 export interface ReviewResultDto {
   outcome: ReviewOutcome
   version: RecipeVersionDto
+}
+
+/** backend/src/BrewForge.Application/Auth/AuthService.cs */
+export interface RoleDto {
+  role: RoleName
+  permissions: Array<string>
 }
 
 export const RoleNameValues = ["ADMIN","RD_SPECIALIST","RD_MANAGER","TRAINER","TRAINEE","QUALITY_AUDITOR","BRANCH_MANAGER","TRAINING_MANAGER"] as const
@@ -2194,7 +2220,7 @@ export interface EndpointContracts {
   'Courses.Create': { request: CreateCourseRequest; response: CourseDetailDto; params: Record<string, never>; query: Record<string, never> }
   'Courses.Get': { request: never; response: CourseDetailDto; params: {id: number;}; query: Record<string, never> }
   'Courses.Modules': { request: never; response: Array<CourseModuleDto>; params: {id: number;}; query: Record<string, never> }
-  'Courses.EligibleTrainers': { request: never; response: Array<TrainerOptionDto>; params: {id: number;}; query: Record<string, never> }
+  'Courses.EligibleTrainers': { request: never; response: PagedResult<TrainerOptionDto>; params: {id: number;}; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;} }
   'Courses.GetQuiz': { request: never; response: QuizDto; params: {id: number;}; query: Record<string, never> }
   'Courses.UpdateQuiz': { request: QuizRequest; response: QuizDto; params: {id: number;}; query: Record<string, never> }
   'Courses.ListQuestions': { request: never; response: Array<QuizQuestionDto>; params: {id: number;}; query: Record<string, never> }
@@ -2256,7 +2282,7 @@ export interface EndpointContracts {
   'CorrectiveActions.Get': { request: never; response: CorrectiveActionDto; params: {id: number;}; query: Record<string, never> }
   'CorrectiveActions.Start': { request: never; response: CorrectiveActionDto; params: {id: number;}; query: Record<string, never> }
   'CorrectiveActions.RetrainingOptions': { request: never; response: RetrainingOptionsDto; params: {id: number;}; query: Record<string, never> }
-  'CorrectiveActions.AssignRetraining': { request: RetrainingRequest; response: AssignmentResultDto; params: {id: number;}; query: Record<string, never> }
+  'CorrectiveActions.AssignRetraining': { request: RetrainingRequest; response: RetrainingResultDto; params: {id: number;}; query: Record<string, never> }
   'CorrectiveActions.Close': { request: CloseCorrectiveActionRequest; response: CorrectiveActionDto; params: {id: number;}; query: Record<string, never> }
   'RecipeFeedback.Submit': { request: RecipeFeedbackRequest; response: RecipeFeedbackDto; params: {id: number;}; query: Record<string, never> }
   'RecipeFeedback.Summary': { request: never; response: RecipeFeedbackSummaryDto; params: {id: number;}; query: Record<string, never> }
@@ -2285,6 +2311,7 @@ export interface EndpointContracts {
   'RecipeVersions.Review': { request: ReviewRequest; response: ReviewResultDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.Release': { request: never; response: ReleaseResultDto; params: {id: number;}; query: Record<string, never> }
   'RecipeVersions.Rollback': { request: never; response: RecipeVersionDto; params: {id: number;}; query: Record<string, never> }
+  'Roles.List': { request: never; response: Array<RoleDto>; params: Record<string, never>; query: Record<string, never> }
   'Sales.List': { request: never; response: PagedResult<SalesRecordDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;branchId?: number | null;recipeId?: number | null;from?: string | null;to?: string | null;} }
   'Sales.Drinks': { request: never; response: Array<SellableDrinkDto>; params: Record<string, never>; query: {branchId?: number | null;tradingDate?: string | null;} }
   'Sales.Create': { request: SalesRecordRequest; response: SalesRecordDto; params: Record<string, never>; query: Record<string, never> }
@@ -2328,6 +2355,6 @@ export interface EndpointContracts {
   'Users.Create': { request: CreateUserRequest; response: UserDto; params: Record<string, never>; query: Record<string, never> }
   'Users.Update': { request: UpdateUserRequest; response: UserDto; params: {id: number;}; query: Record<string, never> }
   'Users.Deactivate': { request: never; response: UserDto; params: {id: number;}; query: Record<string, never> }
-  'UserLookup.Lookup': { request: never; response: PagedResult<UserLookupDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;role?: string | null;branchId?: number | null;includeInactive?: boolean;} }
+  'UserLookup.Lookup': { request: never; response: PagedResult<UserLookupDto>; params: Record<string, never>; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;role?: string | null;branchId?: number | null;includeInactive?: boolean;ids?: string | null;} }
 }
 export type Operation = keyof EndpointContracts

@@ -1,5 +1,22 @@
 # BrewForge frontend
 
+### Đồng bộ BE 52be9a7 (22/10/2026)
+
+Contract hiện có 188 endpoint. Không đổi npm commands hoặc biến môi trường; giữ .env hiện tại. Form người dùng lấy role catalogue từ GET /api/v1/roles. Token vẫn theo sessionStorage từng tab. Nếu mất response refresh, giữ pair nhưng đánh dấu không chắc đã rotate, yêu cầu xóa phiên/đăng nhập lại thay vì gửi lại token single-use. POS retry trong cùng dialog giữ file/key; đóng hoặc reload không khôi phục pending upload. Cần người vận hành áp dụng migrations014–016 trên môi trường test phù hợp; FE không tự migrate. Xem ../docs/current-work.md và ../docs/integration-gaps.md để phân biệt READY_STATIC với runtime chưa xác minh.
+
+
+## Đồng bộ BE 20/10/2026
+
+Theo merge `e4e95b4` (first parent `df8fb9a`): registry187operations/251types-enums, retraining per-employee results + stale-options retry, user IDs/history labels và trainer search/pagination. RD_MANAGER đọc course detail/modules nhưng **chưa duyệt/trả**; TM/BM có trang đọc enrollment từ tiến độ, không cấp quiz answers/evaluate. UI và auth19/10 giữ nguyên, không đổi env hoặc dependency.
+
+`npm.cmd test` hiện89checks (34+36+19); `browser-authoring.mjs`70checks, `browser-session.mjs`12, public smoke5. Browser scripts dùng TEST_ONLY transports, không phải live business E2E. Sau SSR tests, khởi động lại FE dev riêng với `--force` như hướng dẫn dưới trước browser suite. Backend không được tự startup/migrate/seed trong workflow này; API đang chạy có OpenAPI mới nhưng chưa có build hash xác minh commit. Xem ../docs/current-work.md và integration-gaps.md cho trạng thái hiện hành.
+
+## Cập nhật UI/UX 19/10/2026
+
+Sidebar theo role có nhóm thu gọn, icon mode trên desktop và drawer trên mobile. Các trang dài dùng tab/accordion; learner đọc một bài, giữ vị trí qua refetch. Form chưa lưu có xác nhận rời trang/đóng, lỗi dẫn tới field; không đổi API/auth. Chi tiết tại ../docs/current-work.md.
+
+Browser authoring suite hiện **59checks**, session12 và public smoke5 (76tổng), thay số30trong ghi chú lịch sử. Chạy các script như phần auth bên dưới; test fixtures chặn BE, không cần tài khoản thật. Typecheck/lint/npm test86checks/build vẫn là các lệnh chuẩn. Giữ base URL/.env.example hiện có, không thêm cấu hình hoặc dependency. RD_MANAGER vẫn chưa được BE cấp quyền duyệt khóa.
+
 ## Cập nhật auth 19/10/2026
 
 `npm.cmd test` hiện chạy86checks (34integration +33authoring +19session). Sau Node SSR tests, khởi động lại Vite riêng để chạy browser fixtures:

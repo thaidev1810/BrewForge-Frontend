@@ -1,7 +1,9 @@
+import { DetailTabs, Fold } from '@/components/common/DetailLayout'
+import { display } from '@/components/common/presentation'
 import { confinedBranch } from '@/services/backend/learningFlow'
 import { saveBlob } from '@/utils/download'
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { roleConfig } from '@/constants/roles'
 import { Button } from '@/components/ui/button'
@@ -21,8 +23,10 @@ import { reportPages } from './resources'
 import { FilterBar } from './ResourcePage'
 
 export function VersionPage() {
-  const { id } = useParams(), user = useAppSelector(s => s.auth.user), [action, setAction] = useState<ActionSpec | null>(null)
-  const query = useReadQuery({ operation: 'RecipeVersions.Get', params: { id: Number(id) } }), version = asRecord(query.data)
+  const navigate = useNavigate()
+  const { id } = useParams(), user = useAppSelector(s => s.auth.user), [action, setAction] = useState<ActionSpec | null>(null), [validation,setValidation] = useState<unknown>(null)
+  const query = useReadQuery({ operation: 'RecipeVersions.Get', params: { id: Number(id) } }), version = asRecord(query.currentData)
+  const currentValidation=asRecord(validation).versionId===Number(id)?validation:null
   const mutable = !version.isImmutable && ['DRAFT', 'REJECTED'].includes(String(version.state))
   const candidates: ActionSpec[] = [
     { operation: 'RecipeVersions.Update', label: 'Sửa các bước', gate: () => mutable },
@@ -37,7 +41,11 @@ export function VersionPage() {
   const steps = Array.isArray(version.steps) ? version.steps as RecordData[] : []
   const initial = action?.operation === 'RecipeVersions.Update' ? requestFields('RecipeContentRequest', version) : action?.operation === 'RecipeVersions.Repair' ? { mode: 'MANUAL', patch: requestFields('RecipeContentRequest', version) } : action?.operation === 'RecipeVersions.Review' ? { decisions: steps.map(s => ({ stepId: s.id, action: 'ACCEPT', editedText: null })) } : undefined
   if (!user) return null
-  return <><Link className="text-link" to={`${roleConfig[user.role].prefix}/recipes/${version.recipeId ?? ''}`}>← Công thức & lịch sử</Link><PageHeader title={`SOP · Phiên bản ${version.versionNo ?? ''}`} description="Nội dung chuẩn, định lượng và phụ thuộc giữa các bước." />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : <><div className="action-bar">{candidates.filter(a => canCall(a.operation, user.role) && (!a.gate || a.gate(version, Number(user.id)))).map(a => <Button key={a.operation} variant={a.operation === 'RecipeVersions.Release' ? 'default' : 'outline'} onClick={() => setAction(a)}>{a.label}</Button>)}</div>{version.createdBy === Number(user.id) && user.role === 'RD_MANAGER' && version.state === 'VALIDATED' && <Notice>Bạn là tác giả hiện tại của phiên bản này; quản lý R&D khác phải phát hành.</Notice>}{version.state === 'DRAFT' && user.role === 'RD_MANAGER' && <Notice>Bản nháp cần chuyên viên R&D hoàn thiện và gửi lại trước khi quản lý duyệt.</Notice>}<section className="panel"><DataView value={version} /></section></>}{action && <ActionDialog action={action} record={version} initial={initial} context={{ choices: { stepId: steps.map(s => ({ value: Number(s.id), label: `${s.stepOrder}. ${s.actionText}` })) } }} onClose={() => setAction(null)} />}</>
+  return <><Link className="text-link" to={`${roleConfig[user.role].prefix}/recipes/${version.recipeId ?? ''}`}>← Công thức & lịch sử</Link><PageHeader title={`SOP · Phiên bản ${version.versionNo ?? ''}`} description="Nội dung chuẩn, định lượng và phụ thuộc giữa các bước." />{query.isFetching && !query.data ? <LoadingState /> : query.error ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : <><div className="action-bar">{candidates.filter(a => canCall(a.operation, user.role) && (!a.gate || a.gate(version, Number(user.id)))).map(a => <Button key={a.operation} variant={a.operation === 'RecipeVersions.Release' ? 'default' : 'outline'} onClick={() => setAction(a)}>{a.label}</Button>)}</div>{version.createdBy === Number(user.id) && user.role === 'RD_MANAGER' && version.state === 'VALIDATED' && <Notice>Bạn là tác giả hiện tại của phiên bản này; quản lý R&D khác phải phát hành.</Notice>}{version.state === 'DRAFT' && user.role === 'RD_MANAGER' && <Notice>Bản nháp cần chuyên viên R&D hoàn thiện và gửi lại trước khi quản lý duyệt.</Notice>}<section className="panel"><DataView value={{versionNo:version.versionNo,state:version.state,stepCount:steps.length}}/></section><DetailTabs tabs={[
+{key:'steps',title:'Các bước thực hiện',content:<section className="panel">{steps.map(step=><Fold key={String(step.id)} id={'step-'+step.id} title={String(step.stepOrder)+'. '+String(step.actionText??'Bước SOP')}><DataView value={step}/></Fold>)}</section>},
+{key:'validation',title:'Kết quả kiểm tra',content:<section className="panel">{currentValidation?<><DataView value={currentValidation}/>{rowsOf({items:asRecord(currentValidation).checks}).flatMap(check=>rowsOf({items:check.violations})).filter(v=>v.stepId).map((v,index)=><a className="text-link block" key={index} href={'?section=steps#step-'+v.stepId} onClick={event=>{event.preventDefault(); const next=new URL(window.location.href);next.searchParams.set('section','steps');next.hash='step-'+v.stepId;navigate(next.pathname+next.search+next.hash,{replace:true,preventScrollReset:true});setTimeout(()=>{const element=document.getElementById('step-'+v.stepId) as HTMLDetailsElement|null;if(element){element.open=true;element.scrollIntoView({block:'center'});element.querySelector('summary')?.focus()}},100)}}>Bước {display(v.stepOrder)}: {String(v.message)}</a>)}</>:<Notice>Chạy kiểm tra để xem kết quả mới. GET phiên bản không trả lịch sử kiểm tra.</Notice>}</section>},
+{key:'information',title:'Thông tin phiên bản',content:<section className="panel"><DataView value={Object.fromEntries(Object.entries(version).filter(([key])=>!['steps','validation'].includes(key)))}/></section>}
+]}/></>}{action && <ActionDialog action={action} record={version} initial={initial} onSuccess={data=>{const value=asRecord(data);if(value.checks)setValidation(value);else if(value.validation)setValidation(value.validation)}} context={{ choices: { stepId: steps.map(s => ({ value: Number(s.id), label: `${s.stepOrder}. ${s.actionText}` })) } }} onClose={() => setAction(null)} />}</>
 }
 export function ReportPage({ page }: { page: string }) {
   const spec = reportPages.find(p => p.key === page)!, user = useAppSelector(s => s.auth.user), [filters, setFilters] = useState<RecordData>({}), [row, setRow] = useState<RecordData | null>(null)
@@ -74,7 +82,7 @@ export function ProtectedMedia({ operation, params, kind }: { operation: Operati
   const [url, setUrl] = useState<string | null>(null), [error, setError] = useState<unknown>(null), [busy, setBusy] = useState(false)
   useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
   async function load() { setBusy(true); setError(null); try { const file = await executeOperation(operation, { params }); setUrl(URL.createObjectURL(file as Blob)) } catch (e) { setError(normalizeApiError(e)) } finally { setBusy(false) } }
-  return <div className="media-panel">{url ? kind === 'image' ? <img src={url} alt="Ảnh minh chứng kiểm định" loading="lazy" /> : <video src={url} controls preload="metadata"><track kind="captions" /></video> : <Button variant="outline" disabled={busy} onClick={() => void load()}>{busy ? 'Đang tải…' : kind === 'image' ? 'Xem ảnh minh chứng' : 'Tải & xem bản ghi'}</Button>}{error !== null && <ErrorState error={error} />}{kind === 'video' && <p className="field-help">Video được tải đầy đủ có xác thực trước khi phát; tệp lớn có thể cần thời gian và bộ nhớ.</p>}</div>
+  return <div className="media-panel">{url ? kind === 'image' ? <a href={url} target="_blank" rel="noreferrer" aria-label="Mở ảnh kích thước đầy đủ"><img src={url} alt="Ảnh đính kèm" loading="lazy"/><span className="text-link block">Mở ảnh đầy đủ ↗</span></a> : <video src={url} controls preload="metadata"><track kind="captions" /></video> : <Button variant="outline" disabled={busy} onClick={() => void load()}>{busy ? 'Đang tải…' : kind === 'image' ? 'Xem ảnh minh chứng' : 'Tải & xem bản ghi'}</Button>}{error !== null && <ErrorState error={error} />}{kind === 'video' && <p className="field-help">Video được tải đầy đủ có xác thực trước khi phát; tệp lớn có thể cần thời gian và bộ nhớ.</p>}</div>
 }
 export function SalesAnalyticsPage() {
   const [body, setBody] = useState<RecordData>({ recipeId: null }), [queryArgs, setQueryArgs] = useState<RecordData | null>(null)
@@ -83,7 +91,7 @@ export function SalesAnalyticsPage() {
 }
 export function AccountPage() {
   const query = useReadQuery({ operation: 'Auth.Me' })
-  return <><PageHeader title="Tài khoản của tôi" description="Thông tin và quyền được backend cấp cho phiên hiện tại." />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} /> : <section className="panel"><DataView value={query.data} /></section>}<Notice>Đổi thông tin tài khoản hoặc mật khẩu thông qua quản trị viên. Phiên được giữ trong bộ nhớ; tải lại trang cần đăng nhập lại.</Notice></>
+  return <><PageHeader title="Tài khoản của tôi" description="Thông tin và quyền được backend cấp cho phiên hiện tại." />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} /> : <section className="panel"><DataView value={query.data} /></section>}<Notice>Đổi thông tin tài khoản hoặc mật khẩu thông qua quản trị viên. Phiên được giữ qua tải lại trang trong cùng tab và xác thực lại trước khi mở dữ liệu.</Notice></>
 }
 export function PushPage() {
   const config = useReadQuery({ operation: 'Notifications.PushConfig' }), mine = useReadQuery({ operation: 'Notifications.Mine' }), [mutate, mutation] = useExecuteMutation(), dispatch = useAppDispatch()

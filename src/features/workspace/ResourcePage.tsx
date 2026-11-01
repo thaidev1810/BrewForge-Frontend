@@ -1,3 +1,4 @@
+import { DetailTabs, Fold } from '@/components/common/DetailLayout'
 import { useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { Plus, Search, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -39,9 +40,16 @@ export function ResourcePage({ resource, initialFilters = {} }: { resource: stri
   const record = id ? asRecord(result.currentData) : selected ?? {}, isDetail = !!id || selected !== null
   const itemId = record.id ?? record[spec.rowKey ?? 'id']
   const prefix = roleConfig[user.role].prefix
+  const summaryFields=['state','status','result','branchName','branchCode','recipeName','recipeCode','versionNo','courseType','dueDate','startDate','endDate','score','progressPercent','totalDurationMin','enrolledCount','trainerName','auditorName','username','role','email','unit','ingredientCode','equipmentCode','productCode']
+  if(!record.branchName&&record.branchId)summaryFields.push('branchId')
+  if(record.recipeVersionId)summaryFields.push('recipeVersionId')
+  const summary=Object.fromEntries(Object.entries(record).filter(([key])=>summaryFields.includes(key)))
+  const extra=Object.fromEntries(Object.entries(record).filter(([key])=>!summaryFields.includes(key)&&!['modules','quiz','practicalChecklist','sessions','items','steps'].includes(key)))
   const heading = isDetail ? String(record.name ?? record.title ?? record.fullName ?? record.courseTitle ?? spec.title) : spec.title
   const writable = !(resource === 'classes' && record.state !== 'PLANNED' || resource === 'pilots' && record.state !== 'DRAFT')
   const context: FormContext = { courseId: Number(record.courseId ?? (resource === 'courses' ? record.id : undefined)) || undefined, recipeId: Number(record.recipeId ?? (resource === 'recipes' ? record.id : undefined)) || undefined, branchId: Number(record.branchId) || undefined, readOnly: !isDetail ? [] : resource === 'users' ? ['username'] : resource === 'branches' ? ['branchCode'] : resource === 'ingredients' ? ['ingredientCode'] : resource === 'equipment' ? ['equipmentCode', 'equipmentClass'] : resource === 'categories' ? ['kind', 'code'] : resource === 'products' ? ['productCode'] : [] }
+  const availableActions = spec.actions?.filter(a=>a.operation!=='CorrectiveActions.AssignRetraining'&&canCall(a.operation,user.role)&&(!a.gate||a.gate(record,Number(user.id))))??[]
+  const primaryAction=availableActions.find(a=>!a.danger&&!/Return|Cancel|Archive|Reject/.test(a.operation))?.operation
   const initial = action && endpoints[action.operation].body ? requestFields(endpoints[action.operation].body!, action.operation === spec.update ? record : {}) : undefined
   function open(row: RecordData) {
     if (spec.detail && canCall(spec.detail, user?.role)) navigate(`${prefix}/${resource}/${row.id}`)
@@ -55,19 +63,25 @@ export function ResourcePage({ resource, initialFilters = {} }: { resource: stri
     {result.error && result.currentData !== undefined && <ErrorState error={result.error} retry={() => void result.refetch()} />}
     {result.isFetching && result.currentData !== undefined && <p role="status" className="muted">Đang cập nhật dữ liệu…</p>}
     {(result.isLoading || result.isFetching && result.currentData === undefined) ? <LoadingState /> : result.error && result.currentData === undefined ? <ErrorState error={result.error} retry={() => void result.refetch()} /> : isDetail ? <>
-      <div className="action-bar">{spec.update && writable && canCall(spec.update, user.role) && <Button variant="outline" onClick={() => setAction({ operation: spec.update!, label: 'Cập nhật ' + spec.title.toLowerCase() })}>Chỉnh sửa</Button>}{spec.actions?.filter(a => a.operation !== 'CorrectiveActions.AssignRetraining' && canCall(a.operation, user.role) && (!a.gate || a.gate(record, Number(user.id)))).map(a => <Button variant={a.danger ? 'outline' : 'default'} key={a.operation} onClick={() => setAction(a)}>{a.label}</Button>)}</div>
-      <div className="panel"><DataView value={record} /></div>
+      <div className="action-bar">{spec.update && writable && canCall(spec.update, user.role) && <Button variant="outline" onClick={() => setAction({ operation: spec.update!, label: 'Cập nhật ' + spec.title.toLowerCase() })}>Chỉnh sửa</Button>}{availableActions.map(a => <Button variant={a.operation===primaryAction?'default':'outline'} key={a.operation} onClick={() => setAction(a)}>{a.label}</Button>)}</div>
+      <div className="panel record-summary"><DataView value={summary} /><Fold title="Thông tin bổ sung"><DataView value={extra} /></Fold></div>
       {resource === 'recipes' && <RecipeSections record={record} />}
       {resource === 'courses' && <CourseSections record={record} />}
       {resource === 'classes' && <ClassSections record={record} />}
       {resource === 'pilots' && <PilotSections record={record} />}
-      {resource === 'branch-audits' && <AuditEvidence record={record} />}
-      {resource === 'corrective-actions' && <RetrainingPanel record={record} />}
+      {resource === 'branch-audits' && <DetailTabs tabs={[
+{key:'checklist',title:'Checklist kiểm định',content:<section className="panel"><DataView value={Array.isArray(record.items)?[...record.items].sort((a,b)=>(Number(asRecord(b).passed===false)*2+Number(asRecord(b).critical===true))-(Number(asRecord(a).passed===false)*2+Number(asRecord(a).critical===true))):[]}/></section>},
+{key:'evidence',title:'Ảnh minh chứng',content:<AuditEvidence record={record}/>}
+]}/>}
+      {resource === 'corrective-actions' && <DetailTabs tabs={[
+{key:'overview',title:'Tổng quan khắc phục',content:<section className="panel"><DataView value={{description:record.description,retrainingRequired:record.retrainingRequired,createdAt:record.createdAt}}/><Fold title="Thông tin kết thúc"><DataView value={{closedAt:record.closedAt,closedBy:record.closedBy,closureNote:record.closureNote}}/></Fold></section>},
+{key:'retraining',title:'Học lại',content:<RetrainingPanel record={record}/>}
+]}/>}
       {resource === 'assignments' && <AssignmentActions record={record} />}
       {resource === 'agenda' && <Button variant="outline" onClick={() => navigate(`${prefix}/assessment/${record.enrollmentId}`)}>Xem học viên & đánh giá thực hành</Button>}
     </> : <>
       {paging && <div className="list-toolbar"><span className="muted">{Number(asRecord(result.currentData).total ?? 0).toLocaleString('vi-VN')} mục</span><div className="flex items-center gap-3"><label htmlFor="sort">Sắp xếp</label><select id="sort" value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}><option value="">Mặc định</option>{spec.sort?.flatMap(f => [<option key={f + 'asc'} value={f + ',asc'}>{display(f)} ↑</option>, <option key={f + 'desc'} value={f + ',desc'}>{display(f)} ↓</option>])}</select></div></div>}
-      <DataTable data={result.currentData} columns={spec.columns} onRow={open} />
+      <DataTable data={result.currentData} columns={spec.columns} onRow={open} />{spec.create&&canCall(spec.create,user.role)&&!Number(asRecord(result.currentData).total)&&Array.isArray(result.currentData)&&!result.currentData.length&&<Button className="mt-3" onClick={()=>setAction({operation:spec.create!,label:'Tạo '+spec.title.toLowerCase()})}>Tạo mục đầu tiên</Button>}
       {paging && <div className="pagination"><select aria-label="Số dòng mỗi trang" value={size} onChange={e => { setSize(Number(e.target.value)); setPage(1) }}>{[20, 50, 100].map(n => <option key={n} value={n}>{n} dòng</option>)}</select><span>Trang {page} / {Math.max(1, Math.ceil(Number(asRecord(result.currentData).total ?? 0) / size))}</span><Button variant="outline" aria-label="Trang trước" disabled={page === 1} onClick={() => setPage(p => p - 1)}><ChevronLeft size={16} /></Button><Button variant="outline" aria-label="Trang sau" disabled={page * size >= Number(asRecord(result.currentData).total ?? 0)} onClick={() => setPage(p => p + 1)}><ChevronRight size={16} /></Button></div>}
       {resource === 'recipes' && canCall('Recipes.ImportExisting', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Recipes.ImportExisting', label: 'Nhập công thức hiện có', note: 'Nhập các bước từ tài liệu hiện có. Công thức bắt đầu ở trạng thái nháp và cần kiểm tra, phát hành.' })}>Nhập công thức hiện có</Button>}
       {resource === 'sales' && canCall('Sales.Import', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Sales.Import', label: 'Nhập doanh số POS', note: 'CSV/XLSX theo thứ tự branch_code, drink_code, trading_date, quantity. drink_code là mã công thức. Dòng hợp lệ có thể thay số liệu đã tồn tại; dòng lỗi được báo riêng.' })}>Nhập CSV / XLSX</Button>}

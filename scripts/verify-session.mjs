@@ -50,6 +50,11 @@ try {
     await bootstrapAuth()
     check('refresh '+(status??'timeout')+' does not revoke a recoverable persisted session',()=>{assert.equal(store.getState().auth.status,'initializing');assert.equal(store.getState().auth.isAuthenticated,false);assert.deepEqual(readStoredSession(),old)})
   }
+  seed(old);let uncertainRefreshCalls=0
+  apiClient.defaults.adapter=config=>fail(config,401)
+  authTransport.defaults.adapter=()=>{uncertainRefreshCalls++;return Promise.reject(new Error('TEST_ONLY lost refresh response'))}
+  await bootstrapAuth();await bootstrapAuth();await bootstrapAuth()
+  check('lost single-use refresh response retains pair but forbids consuming old token again',()=>{assert.equal(uncertainRefreshCalls,1);assert.deepEqual(readStoredSession(),old);assert.equal(store.getState().auth.status,'initializing');assert.match(store.getState().auth.bootstrapError,/token|Token/);assert.equal(storage.getItem('brewforge.refresh-uncertain.v1'),'1')})
   seed(old);refreshCalls=0;let recovered=false
   apiClient.defaults.adapter=config=>config.headers.get('Authorization')==='Bearer '+old.accessToken?fail(config,401):recovered?Promise.resolve(reply(config,me())):fail(config,503)
   authTransport.defaults.adapter=async config=>{refreshCalls++;return reply(config,{...fresh,user:me()})}
@@ -74,7 +79,7 @@ try {
   check('signOut clears tokens and private caches before remote logout completes',()=>{assert.equal(readStoredSession(),null);assert.equal(store.getState().auth.status,'unauthenticated');assert.equal(Object.keys(store.getState().backendApi.queries).length,0)})
   finishLogout();await remoteLogout;read.unsubscribe();await bootstrapAuth()
   check('logout followed by reload bootstrap stays unauthenticated',()=>assert.equal(store.getState().auth.isAuthenticated,false))
-  check('return URLs retain allowed path/query/hash and reject external or wrong-role pages',()=>{assert.equal(authDestination('/trainer/courses/101?tab=modules#lesson','TRAINER'),'/trainer/courses/101?tab=modules#lesson');for(const value of ['//evil.invalid','https://evil.invalid','/\\evil.invalid','/admin/users','/rd-manager/courses/101','/rd-manager/courses/pending'])assert.equal(authDestination(value,'RD_MANAGER'),'/rd-manager/dashboard')})
+  check('return URLs retain allowed path/query/hash and reject external or wrong-role pages',()=>{assert.equal(authDestination('/trainer/courses/101?tab=modules#lesson','TRAINER'),'/trainer/courses/101?tab=modules#lesson');assert.equal(authDestination('/rd-manager/courses/101?section=content#lesson','RD_MANAGER'),'/rd-manager/courses/101?section=content#lesson');assert.equal(authDestination('/training-manager/enrollments/70','TRAINING_MANAGER'),'/training-manager/enrollments/70');assert.equal(authDestination('/barista/enrollments/70','TRAINEE'),'/barista/dashboard');for(const value of ['//evil.invalid','https://evil.invalid','/\\evil.invalid','/admin/users','/rd-manager/courses/pending'])assert.equal(authDestination(value,'RD_MANAGER'),'/rd-manager/dashboard')})
   authTransport.defaults.adapter=async config=>reply(config,config.url==='/auth/me'?me():{...old,user:me()})
   await store.dispatch(login({username:'TEST_ONLY',password:'TEST_ONLY'}));refreshCalls=0;let refreshMe=0
   apiClient.defaults.adapter=config=>config.headers.get('Authorization')==='Bearer '+old.accessToken?fail(config,401):Promise.resolve(reply(config,{ok:true}))
