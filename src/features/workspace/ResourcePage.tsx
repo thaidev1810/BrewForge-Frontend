@@ -19,6 +19,7 @@ import { canCall, asRecord, useReadQuery, type RecordData } from '@/services/bac
 import { resourceByKey, type ActionSpec, type Filter } from './resources'
 import { confinedBranch } from '@/services/backend/learningFlow'
 import { RetrainingPanel } from './RetrainingPanel'
+import { AssignmentResultView } from './AssignmentResultView'
 import { RecipeSections, CourseSections, ClassSections, PilotSections, AuditEvidence, AssignmentActions } from './sections'
 export function FilterBar({ filters, initial = {}, onApply }: { filters: Filter[]; initial?: RecordData; onApply: (query: RecordData) => void }) {
   const scope = confinedBranch(useAppSelector(s => s.auth.user))
@@ -86,6 +87,6 @@ export function ResourcePage({ resource, initialFilters = {} }: { resource: stri
       {resource === 'recipes' && canCall('Recipes.ImportExisting', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Recipes.ImportExisting', label: 'Nhập công thức hiện có', note: 'Nhập các bước từ tài liệu hiện có. Công thức bắt đầu ở trạng thái nháp và cần kiểm tra, phát hành.' })}>Nhập công thức hiện có</Button>}
       {resource === 'sales' && canCall('Sales.Import', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Sales.Import', label: 'Nhập doanh số POS', note: 'CSV/XLSX theo thứ tự branch_code, drink_code, trading_date, quantity. drink_code là mã công thức. Dòng hợp lệ có thể thay số liệu đã tồn tại; dòng lỗi được báo riêng.' })}>Nhập CSV / XLSX</Button>}
     </>}
-    {action && <ActionDialog key={action.operation + String(id ?? itemId ?? '') + location.pathname} action={action} record={record} initial={initial} context={{ ...context, creating: !isDetail }} onClose={() => setAction(null)} onSuccess={data => { if (!id && selected && data && typeof data === 'object' && !Array.isArray(data) && (asRecord(data).id !== undefined || asRecord(data).key !== undefined)) setSelected(asRecord(data)); void result.refetch() }} />}
+    {action && <ActionDialog key={action.operation + String(id ?? itemId ?? '') + location.pathname} action={action} record={record} initial={initial} context={{ ...context, creating: !isDetail }} renderResult={action.operation === 'Assignments.Assign' ? data => <AssignmentResultView result={data as import('@/services/backend/contracts').AssignmentResultDto} /> : undefined} onClose={() => setAction(null)} onSuccess={data => { if (!id && selected && data && typeof data === 'object' && !Array.isArray(data) && (asRecord(data).id !== undefined || asRecord(data).key !== undefined)) setSelected(asRecord(data)); void result.refetch() }} />}
   </>
 }

@@ -2,7 +2,7 @@ import { DetailTabs, Fold } from '@/components/common/DetailLayout'
 import { display } from '@/components/common/presentation'
 import { confinedBranch } from '@/services/backend/learningFlow'
 import { saveBlob } from '@/utils/download'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { roleConfig } from '@/constants/roles'
@@ -78,10 +78,21 @@ export function CompliancePage() {
   }
   return <><PageHeader title="Báo cáo chứng nhận" description="Lịch sử chứng chỉ của nhân viên theo ngày cấp và phạm vi đã chọn." /><FilterBar filters={[{ name: 'format', label: 'Định dạng', options: ['xlsx', 'csv'] }, { name: 'from', label: 'Từ ngày', type: 'date' }, { name: 'to', label: 'Đến ngày', type: 'date' }, { name: 'branchId', label: 'Chi nhánh', type: 'number' }, { name: 'courseId', label: 'Khóa học', type: 'number' }, { name: 'recipeVersionId', label: 'Phiên bản SOP', type: 'number' }]} initial={filters} onApply={setFilters} /><section className="panel"><Notice>Áp dụng bộ lọc trước khi tải. Backend xuất CSV/XLSX và ghi thao tác vào lịch sử. Không có PDF.</Notice><Button disabled={busy} onClick={() => void download()}>{busy ? 'Đang xuất báo cáo…' : 'Tải báo cáo'}</Button>{error !== null && <ErrorState error={error} />}{success && <p className="success-box" role="status">Đã nhận tệp báo cáo từ máy chủ.</p>}</section></>
 }
-export function ProtectedMedia({ operation, params, kind }: { operation: Operation; params: Record<string, string | number>; kind: 'image' | 'video' }) {
+export function ProtectedMedia(props: { operation: Operation; params: Record<string, string | number>; kind: 'image' | 'video' }) {
+  return <ProtectedMediaSource key={JSON.stringify([props.operation, Object.entries(props.params).sort(), props.kind])} {...props} />
+}
+function ProtectedMediaSource({ operation, params, kind }: { operation: Operation; params: Record<string, string | number>; kind: 'image' | 'video' }) {
   const [url, setUrl] = useState<string | null>(null), [error, setError] = useState<unknown>(null), [busy, setBusy] = useState(false)
+  const request = useRef<AbortController | null>(null)
+  useEffect(() => () => { request.current?.abort() }, [])
   useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
-  async function load() { setBusy(true); setError(null); try { const file = await executeOperation(operation, { params }); setUrl(URL.createObjectURL(file as Blob)) } catch (e) { setError(normalizeApiError(e)) } finally { setBusy(false) } }
+  async function load() {
+    setBusy(true); setError(null)
+    const controller = new AbortController(); request.current = controller
+    try { const file = await executeOperation(operation, { params }, { signal: controller.signal }); if (!controller.signal.aborted) setUrl(URL.createObjectURL(file as Blob)) }
+    catch (e) { if (!controller.signal.aborted) setError(normalizeApiError(e)) }
+    finally { if (!controller.signal.aborted) setBusy(false) }
+  }
   return <div className="media-panel">{url ? kind === 'image' ? <a href={url} target="_blank" rel="noreferrer" aria-label="Mở ảnh kích thước đầy đủ"><img src={url} alt="Ảnh đính kèm" loading="lazy"/><span className="text-link block">Mở ảnh đầy đủ ↗</span></a> : <video src={url} controls preload="metadata"><track kind="captions" /></video> : <Button variant="outline" disabled={busy} onClick={() => void load()}>{busy ? 'Đang tải…' : kind === 'image' ? 'Xem ảnh minh chứng' : 'Tải & xem bản ghi'}</Button>}{error !== null && <ErrorState error={error} />}{kind === 'video' && <p className="field-help">Video được tải đầy đủ có xác thực trước khi phát; tệp lớn có thể cần thời gian và bộ nhớ.</p>}</div>
 }
 export function SalesAnalyticsPage() {
@@ -115,5 +126,5 @@ export function PushPage() {
     setError(null); setMessage('')
     try { await mutate({ operation: 'Notifications.Unsubscribe', query: { endpoint } }).unwrap(); const reg = await navigator.serviceWorker?.getRegistration(); const sub = await reg?.pushManager.getSubscription(); if (sub?.endpoint === endpoint) await sub.unsubscribe(); setMessage('Đã bỏ đăng ký trình duyệt.'); dispatch(backendApi.util.invalidateTags(['Workspace'])) } catch (e) { setError(normalizeApiError(e)) }
   }
-  return <><PageHeader title="Thông báo trình duyệt" description="Nhận thông báo học tập và thay đổi tiêu chuẩn qua Web Push." /><Notice>Chưa có hộp thư thông báo, số chưa đọc hoặc lịch sử trong backend.</Notice>{config.isFetching ? <LoadingState /> : config.error ? <ErrorState error={config.error} /> : <section className="panel"><p>{settings?.enabled ? 'Máy chủ đã bật Web Push.' : 'Máy chủ chưa cấu hình Web Push.'}</p><Button className="mt-4" disabled={busy || !settings?.enabled} onClick={() => void subscribe()}>{busy ? 'Đang đăng ký…' : 'Bật thông báo trên trình duyệt này'}</Button></section>}{mine.isFetching ? <LoadingState /> : mine.error ? <ErrorState error={mine.error} /> : <section className="panel mt-6"><h2>Trình duyệt đã đăng ký</h2>{rowsOf(mine.data).map(r => <div className="version-row" key={String(r.id)}><p className="break-all text-sm">{String(r.endpoint)}</p><Button variant="outline" disabled={mutation.isLoading} onClick={() => void unsubscribe(String(r.endpoint))}>Bỏ đăng ký</Button></div>)}</section>}{error !== null && <ErrorState error={error} />}{message && <p className="success-box" role="status">{message}</p>}</>
+  return <><PageHeader title="Thông báo trình duyệt" description="Nhận thông báo học tập và thay đổi tiêu chuẩn qua Web Push." /><Notice>Xem lịch sử và số chưa đọc tại Hộp thông báo. Trang này quản lý đăng ký Web Push trên trình duyệt.</Notice>{config.isFetching ? <LoadingState /> : config.error ? <ErrorState error={config.error} /> : <section className="panel"><p>{settings?.enabled ? 'Máy chủ đã bật Web Push.' : 'Máy chủ chưa cấu hình Web Push.'}</p><Button className="mt-4" disabled={busy || !settings?.enabled} onClick={() => void subscribe()}>{busy ? 'Đang đăng ký…' : 'Bật thông báo trên trình duyệt này'}</Button></section>}{mine.isFetching ? <LoadingState /> : mine.error ? <ErrorState error={mine.error} /> : <section className="panel mt-6"><h2>Trình duyệt đã đăng ký</h2>{rowsOf(mine.data).map(r => <div className="version-row" key={String(r.id)}><p className="break-all text-sm">{String(r.endpoint)}</p><Button variant="outline" disabled={mutation.isLoading} onClick={() => void unsubscribe(String(r.endpoint))}>Bỏ đăng ký</Button></div>)}</section>}{error !== null && <ErrorState error={error} />}{message && <p className="success-box" role="status">{message}</p>}</>
 }

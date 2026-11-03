@@ -1418,6 +1418,144 @@ export const schemas = {
       "name": "warning"
     }
   ],
+  "StockReceiptRequest": [
+    {
+      "type": "long?",
+      "name": "ingredientId"
+    },
+    {
+      "type": "decimal?",
+      "name": "quantity"
+    },
+    {
+      "type": "string?",
+      "name": "unit"
+    },
+    {
+      "type": "DateOnly?",
+      "name": "receivedOn"
+    }
+  ],
+  "StockCountRequest": [
+    {
+      "type": "long?",
+      "name": "ingredientId"
+    },
+    {
+      "type": "decimal?",
+      "name": "quantity"
+    },
+    {
+      "type": "string?",
+      "name": "unit"
+    },
+    {
+      "type": "DateOnly?",
+      "name": "countedOn"
+    }
+  ],
+  "StockMovementDto": [
+    {
+      "type": "long",
+      "name": "id"
+    },
+    {
+      "type": "long",
+      "name": "branchId"
+    },
+    {
+      "type": "long",
+      "name": "ingredientId"
+    },
+    {
+      "type": "string",
+      "name": "ingredientCode"
+    },
+    {
+      "type": "decimal",
+      "name": "quantity"
+    },
+    {
+      "type": "string",
+      "name": "unit"
+    },
+    {
+      "type": "DateOnly",
+      "name": "date"
+    }
+  ],
+  "StockLossLineDto": [
+    {
+      "type": "long",
+      "name": "ingredientId"
+    },
+    {
+      "type": "string",
+      "name": "ingredientCode"
+    },
+    {
+      "type": "string",
+      "name": "unit"
+    },
+    {
+      "type": "decimal",
+      "name": "openingStock"
+    },
+    {
+      "type": "decimal",
+      "name": "received"
+    },
+    {
+      "type": "decimal",
+      "name": "closingStock"
+    },
+    {
+      "type": "decimal",
+      "name": "actualUsed"
+    },
+    {
+      "type": "decimal",
+      "name": "theoreticalUsed"
+    },
+    {
+      "type": "decimal",
+      "name": "loss"
+    },
+    {
+      "type": "decimal?",
+      "name": "variancePct"
+    },
+    {
+      "type": "bool",
+      "name": "flagged"
+    }
+  ],
+  "StockLossReportDto": [
+    {
+      "type": "long",
+      "name": "branchId"
+    },
+    {
+      "type": "string?",
+      "name": "branchCode"
+    },
+    {
+      "type": "DateOnly",
+      "name": "from"
+    },
+    {
+      "type": "DateOnly",
+      "name": "to"
+    },
+    {
+      "type": "decimal",
+      "name": "varianceThresholdPct"
+    },
+    {
+      "type": "IReadOnlyList<StockLossLineDto>",
+      "name": "lines"
+    }
+  ],
   "BranchLaunchStatusDto": [
     {
       "type": "long",
@@ -4056,6 +4194,22 @@ export const schemas = {
     {
       "type": "long?",
       "name": "supersededBy"
+    },
+    {
+      "type": "string",
+      "name": "issuedBy"
+    },
+    {
+      "type": "long?",
+      "name": "enrollmentId"
+    },
+    {
+      "type": "long?",
+      "name": "assessedById"
+    },
+    {
+      "type": "string?",
+      "name": "assessedByName"
     }
   ],
   "AssignmentRequest": [
@@ -4084,6 +4238,16 @@ export const schemas = {
       "name": "reason"
     }
   ],
+  "SkippedAssignment": [
+    {
+      "type": "long",
+      "name": "userId"
+    },
+    {
+      "type": "string",
+      "name": "reason"
+    }
+  ],
   "AssignmentResultDto": [
     {
       "type": "long",
@@ -4096,6 +4260,10 @@ export const schemas = {
     {
       "type": "IReadOnlyList<long>",
       "name": "alreadyEnrolled"
+    },
+    {
+      "type": "IReadOnlyList<SkippedAssignment>",
+      "name": "skipped"
     }
   ],
   "AssignmentDto": [
@@ -6901,6 +7069,10 @@ export const endpoints = {
       {
         "name": "q",
         "type": "string?"
+      },
+      {
+        "name": "branchId",
+        "type": "long?"
       }
     ],
     "params": [
@@ -7051,7 +7223,7 @@ export const endpoints = {
     "method": "POST",
     "path": "/api/v1/courses/{id:long}/approve",
     "roles": [
-      "TRAINING_MANAGER"
+      "RD_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
     "body": null,
@@ -7073,7 +7245,7 @@ export const endpoints = {
     "method": "POST",
     "path": "/api/v1/courses/{id:long}/return",
     "roles": [
-      "TRAINING_MANAGER"
+      "RD_MANAGER"
     ],
     "source": "backend/src/BrewForge.Api/Controllers/CoursesController.cs",
     "body": "ReturnCourseRequest",
@@ -9403,6 +9575,72 @@ export const endpoints = {
     ],
     "params": [],
     "response": "SalesAggregateDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 200
+  },
+  "Stock.Receive": {
+    "method": "POST",
+    "path": "/api/v1/stock/receipts",
+    "roles": [
+      "BRANCH_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/StockController.cs",
+    "body": "StockReceiptRequest",
+    "optionalBody": false,
+    "query": [],
+    "params": [],
+    "response": "StockMovementDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 201
+  },
+  "Stock.Count": {
+    "method": "POST",
+    "path": "/api/v1/stock/counts",
+    "roles": [
+      "BRANCH_MANAGER"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/StockController.cs",
+    "body": "StockCountRequest",
+    "optionalBody": false,
+    "query": [],
+    "params": [],
+    "response": "StockMovementDto",
+    "binary": false,
+    "upload": false,
+    "idempotency": false,
+    "status": 201
+  },
+  "Stock.LossReport": {
+    "method": "GET",
+    "path": "/api/v1/stock/loss-report",
+    "roles": [
+      "BRANCH_MANAGER",
+      "RD_MANAGER",
+      "ADMIN"
+    ],
+    "source": "backend/src/BrewForge.Api/Controllers/StockController.cs",
+    "body": null,
+    "optionalBody": false,
+    "query": [
+      {
+        "name": "branchId",
+        "type": "long?"
+      },
+      {
+        "name": "from",
+        "type": "DateOnly?"
+      },
+      {
+        "name": "to",
+        "type": "DateOnly?"
+      }
+    ],
+    "params": [],
+    "response": "StockLossReportDto",
     "binary": false,
     "upload": false,
     "idempotency": false,

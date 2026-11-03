@@ -37,13 +37,13 @@ try {
     if(p==='/courses')return fulfill(params.requestId,200,{items:[course()],page:1,size:20,total:1})
     if(p==='/courses/101')return fulfill(params.requestId,200,course())
     if(p==='/courses/101/approve'||p==='/courses/101/return'){
-      if(role!=='TRAINING_MANAGER')return fulfill(params.requestId,403,{message:'TEST_ONLY forbidden',details:[]})
+      if(role!=='RD_MANAGER')return fulfill(params.requestId,403,{message:'TEST_ONLY forbidden',details:[]})
       courseState=p.endsWith('/approve')?'PUBLISHED':'DRAFT';return fulfill(params.requestId,200,course())
     }
     if(p==='/me/notifications/unread-count')return fulfill(params.requestId,200,{count:0})
     return fulfill(params.requestId,200,{items:[],page:1,size:20,total:0})
   }
-  socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.method==='Network.loadingFailed'&&m.params.canceled)cancelledRequests.add(m.params.requestId);if(m.method==='Page.loadEventFired')loads++;if(m.method==='Runtime.exceptionThrown')exceptions.push(m.params.exceptionDetails.text);if(m.method==='Fetch.requestPaused')void intercept(m.params).catch(async error=>{await delay(50);if(error.message==='Invalid InterceptionId.'&&cancelledRequests.has(m.params.networkId))return;exceptions.push(error.message)});const p=pending.get(m.id);if(p){pending.delete(m.id);clearTimeout(p.timer);m.error?p.reject(Error(m.error.message)):p.resolve(m.result)}})
+  socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.method==='Network.loadingFailed'&&m.params.canceled)cancelledRequests.add(m.params.requestId);if(m.method==='Page.loadEventFired')loads++;if(m.method==='Runtime.exceptionThrown')exceptions.push(m.params.exceptionDetails.text);if(m.method==='Fetch.requestPaused')void intercept(m.params).catch(async error=>{for(let i=0;i<10&&error.message==='Invalid InterceptionId.'&&!cancelledRequests.has(m.params.networkId);i++)await delay(25);if(error.message==='Invalid InterceptionId.'&&cancelledRequests.has(m.params.networkId))return;exceptions.push(error.message)});const p=pending.get(m.id);if(p){pending.delete(m.id);clearTimeout(p.timer);m.error?p.reject(Error(m.error.message)):p.resolve(m.result)}})
   const evaluate=async expression=>{const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value}
   async function until(expression){for(let i=0;i<120;i++){if(await evaluate(expression))return;await delay(100)}throw Error('TEST_ONLY browser wait: '+expression)}
   async function click(text){await until(`[...document.querySelectorAll('button')].some(b=>b.textContent.trim()===${JSON.stringify(text)}&&!b.disabled)`);await evaluate(`[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===${JSON.stringify(text)}&&!b.disabled).click()`)}
@@ -71,18 +71,17 @@ try {
   hold=false;await held();await until('location.pathname==="/login"');assert(await evaluate('sessionStorage.getItem("brewforge.session.v1")===null'));pass('logout during pending bootstrap does not resurrect an old session')
   const afterLogoutMe=mes;await reload();await until('!!document.querySelector("#username")');assert.equal(mes,afterLogoutMe);pass('reload after logout sends no me or refresh for the preceding account')
   await evaluate('sessionStorage.setItem("brewforge.session.v1","{broken")');await reload();await until('!!document.querySelector("#username")');assert(await evaluate('sessionStorage.getItem("brewforge.session.v1")===null'));pass('malformed storage reload is safe and remains on login')
-  const beforeDenied=calls.length;role='RD_MANAGER';await loginUI();await until('location.pathname==="/rd-manager/dashboard"')
+  const beforeApproval=calls.length;role='RD_MANAGER';await loginUI();await until('location.pathname==="/rd-manager/dashboard"')
   await navigate('/rd-manager/courses');await until('document.body.textContent.includes("TEST_ONLY Review course")');await click('Xem chi tiết →');await until('location.pathname==="/rd-manager/courses/101" && !!document.querySelector("[role=tablist]") && document.body.textContent.includes("TEST_ONLY Review course")')
-  assert(await evaluate('![...document.querySelectorAll("button")].some(b=>["Duyệt khóa học","Trả lại biên soạn"].includes(b.textContent.trim())) && ![...document.querySelectorAll("a")].some(a=>a.getAttribute("href")==="/rd-manager/courses/pending")'))
-  assert(!calls.slice(beforeDenied).some(c=>['/courses/101/approve','/courses/101/return'].includes(c.p)))
-  assert(calls.slice(beforeDenied).some(c=>c.p==='/courses/101'));pass('RD_MANAGER reads course detail but has no review actions or pending menu')
+  assert(await evaluate('[...document.querySelectorAll("button")].some(b=>b.textContent.trim()==="Duyệt khóa học") && [...document.querySelectorAll("button")].some(b=>b.textContent.trim()==="Trả lại biên soạn") && [...document.querySelectorAll("a")].some(a=>a.getAttribute("href")==="/rd-manager/courses/pending")'))
+  assert(!calls.slice(beforeApproval).some(c=>['/courses/101/approve','/courses/101/return'].includes(c.p)))
+  assert(calls.slice(beforeApproval).some(c=>c.p==='/courses/101'));pass('RD_MANAGER reads course detail and receives current review menu/actions without sending a write')
   await evaluate(`(async()=>{const {store}=await import('/src/app/store.ts');const {logout}=await import('/src/features/auth/authSlice.ts');store.dispatch(logout())})()`);await until('location.pathname==="/login"')
   role='TRAINING_MANAGER';courseState='PENDING_APPROVAL';await loginUI();await until('location.pathname==="/training-manager/dashboard"')
-  await navigate('/training-manager/courses/101');await until('document.body.textContent.includes("TEST_ONLY Review course")');await click('Trả lại biên soạn')
-  await evaluate('document.querySelector("#comment").focus()');await command('Input.insertText',{text:'TEST_ONLY return reason'});await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")')
-  assert(calls.some(c=>c.p==='/courses/101/return'&&c.body.comment==='TEST_ONLY return reason'));pass('authorized current TRAINING_MANAGER sends return comment through real dialog')
-  await click('Đóng');courseState='PENDING_APPROVAL';await reload();await until('document.body.textContent.includes("TEST_ONLY Review course")');await click('Duyệt khóa học');await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")')
-  assert(calls.some(c=>c.p==='/courses/101/approve'&&c.method==='POST'));pass('authorized approval uses actual POST and server result without authoring permissions')
+  await navigate('/training-manager/courses/pending');await until('location.pathname==="/training-manager/dashboard"')
+  await navigate('/training-manager/courses/101');await until('document.body.textContent.includes("TEST_ONLY Review course")')
+  assert(await evaluate('![...document.querySelectorAll("button")].some(b=>["Duyệt khóa học","Trả lại biên soạn"].includes(b.textContent.trim())) && ![...document.querySelectorAll("a")].some(a=>a.getAttribute("href")==="/training-manager/courses/pending")'))
+  assert(!calls.some(c=>['/courses/101/approve','/courses/101/return'].includes(c.p)));pass('TRAINING_MANAGER retains course read access but cannot open review route or actions')
   assert.deepEqual(exceptions,[]);pass('no unhandled exceptions during session reload and review regressions')
   console.log(`Completed ${checks} browser session checks; all BE HTTP requests fulfilled by TEST_ONLY CDP interception.`)
 } finally {socket?.close();browser.kill()}

@@ -67,9 +67,15 @@ function StringArray({ value, onChange, field }: { value: unknown; onChange: (v:
 }
 function FieldControl({ field, schema, value, onChange, context, root, path, issues }: { field: SchemaField; schema: string; value: unknown; onChange: (v: unknown) => void; context: FormContext; root: RecordData; path: string; issues: FieldIssue[] }) {
   const type = field.type.replace(/\?$/, ''), array = type.match(/^IReadOnlyList<(.+)>$/)
+  const fieldIssues = issues.filter(issue => issue.field === path)
+  const accessibility = {
+    'aria-invalid': fieldIssues.length > 0 || undefined,
+    'aria-describedby': fieldIssues.length ? fieldIssues.map((_, index) => `${path}-error-${index}`).join(' ') : undefined,
+    'aria-required': requiredField(schema, field.name, context.creating) || undefined,
+  }
   if (schema === 'QuizQuestionRequest' && field.name === 'correctOption') {
     const keys = [...new Set((Array.isArray(root.options) ? root.options : []).map(o => String(asRecord(o).key ?? '').trim()).filter(Boolean))]
-    return <select id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)}><option value="">Chọn đáp án đúng…</option>{keys.map(k => <option key={k} value={k}>{k}</option>)}</select>
+    return <select {...accessibility} id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)}><option value="">Chọn đáp án đúng…</option>{keys.map(k => <option key={k} value={k}>{k}</option>)}</select>
   }
   if (type === 'RoleName' && schema.includes('UserRequest')) return <RolePicker value={value} onChange={onChange} path={path} />
   if (field.name === 'evidenceUrl') return <EvidenceInput value={value} onChange={onChange} />
@@ -81,8 +87,8 @@ function FieldControl({ field, schema, value, onChange, context, root, path, iss
   }
   if (type in schemas) return <div className="nested-card"><ContractFields schema={type} value={asRecord(value)} onChange={onChange} context={context} root={root} prefix={path + '.'} issues={issues} /></div>
   const enums = enumValues[type as keyof typeof enumValues] as readonly string[] | undefined
-  if (enums) return <select id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)} disabled={context.readOnly?.includes(field.name)}><option value="">Chọn…</option>{enums.map(v => <option value={v} key={v}>{display(v)}</option>)}</select>
-  if (field.name === 'entityType') return <select id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)}><option value="">Chọn tài nguyên</option>{['Ingredient', 'StandardEquipment', 'RecipeVersion'].map(v => <option key={v} value={v}>{v === 'Ingredient' ? 'Nguyên liệu' : v === 'StandardEquipment' ? 'Thiết bị' : 'Phiên bản SOP'}</option>)}</select>
+  if (enums) return <select {...accessibility} id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)} disabled={context.readOnly?.includes(field.name)}><option value="">Chọn…</option>{enums.map(v => <option value={v} key={v}>{display(v)}</option>)}</select>
+  if (field.name === 'entityType') return <select {...accessibility} id={path} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)}><option value="">Chọn tài nguyên</option>{['Ingredient', 'StandardEquipment', 'RecipeVersion'].map(v => <option key={v} value={v}>{v === 'Ingredient' ? 'Nguyên liệu' : v === 'StandardEquipment' ? 'Thiết bị' : 'Phiên bản SOP'}</option>)}</select>
   if (field.name === 'equipmentClass' && schema === 'StepRequest') return <EquipmentPicker value={value} onChange={onChange} />
   if (type === 'long' && field.name.endsWith('Id') && !['stepId', 'recipeStepId', 'lessonId', 'questionId', 'practicalVideoId', 'enrollmentId', 'entityId'].includes(field.name) || context.choices?.[field.name]) return <IdPicker field={field.name} value={value} onChange={onChange} context={context} root={root} />
   if (field.name === 'entityId' && root.entityType) {
@@ -90,11 +96,11 @@ function FieldControl({ field, schema, value, onChange, context, root, path, iss
     if (target !== 'equipmentId') return <IdPicker field={target} value={value} onChange={onChange} context={context} root={root} />
     return <EquipmentIdPicker value={value} onChange={onChange} />
   }
-  if (type === 'bool') return <select id={path} value={value === null || value === undefined ? '' : value ? 'true' : 'false'} onChange={e => onChange(e.target.value === '' ? null : e.target.value === 'true')}><option value="">Mặc định</option><option value="true">Có / Đạt</option><option value="false">Không / Không đạt</option></select>
-  if (['content', 'description', 'actionText', 'questionText', 'editedText', 'comment', 'note', 'reason'].includes(field.name)) return <textarea id={path} rows={3} maxLength={fieldLimit(schema, field.name)} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)} />
+  if (type === 'bool') return <select {...accessibility} id={path} value={value === null || value === undefined ? '' : value ? 'true' : 'false'} onChange={e => onChange(e.target.value === '' ? null : e.target.value === 'true')}><option value="">Mặc định</option><option value="true">Có / Đạt</option><option value="false">Không / Không đạt</option></select>
+  if (['content', 'description', 'actionText', 'questionText', 'editedText', 'comment', 'note', 'reason'].includes(field.name)) return <textarea {...accessibility} id={path} rows={3} maxLength={fieldLimit(schema, field.name)} value={String(value ?? '')} onChange={e => onChange(e.target.value || null)} />
   const inputType = field.name === 'password' ? 'password' : field.name === 'email' ? 'email' : type === 'DateOnly' ? 'date' : type === 'TimeOnly' ? 'time' : type === 'DateTimeOffset' ? 'datetime-local' : ['int', 'long', 'decimal'].includes(type) ? 'number' : 'text'
   const localTime = inputType === 'datetime-local' && value ? new Date(Date.parse(String(value)) - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : undefined
-  return <Input id={path} type={inputType} step={type === 'decimal' ? '0.001' : type === 'TimeOnly' ? '60' : '1'} value={localTime ?? String(value ?? '')} maxLength={fieldLimit(schema, field.name)} disabled={context.readOnly?.includes(field.name)} onChange={e => onChange(e.target.value === '' ? null : inputType === 'number' ? Number(e.target.value) : inputType === 'datetime-local' ? new Date(e.target.value).toISOString() : e.target.value)} />
+  return <Input {...accessibility} id={path} type={inputType} step={type === 'decimal' ? '0.001' : type === 'TimeOnly' ? '60' : '1'} value={localTime ?? String(value ?? '')} maxLength={fieldLimit(schema, field.name)} disabled={context.readOnly?.includes(field.name)} onChange={e => onChange(e.target.value === '' ? null : inputType === 'number' ? Number(e.target.value) : inputType === 'datetime-local' ? new Date(e.target.value).toISOString() : e.target.value)} />
 }
 function EquipmentIdPicker({ value, onChange }: { value: unknown; onChange: (v: unknown) => void }) {
   return <IdPicker field="equipmentId" value={value} onChange={onChange} context={{}} root={{}} />
@@ -108,7 +114,7 @@ export function ContractFields({ schema, value, onChange, context = {}, root = v
   if (schema === 'StepDecisionRequest' && value.action !== 'EDIT') fields = fields.filter(f => f.name !== 'editedText')
   if (schema === 'PilotCriterionRequest') fields = fields.filter(f => f.name === 'type' || value.type === 'ABSOLUTE' && f.name === 'cupsPerDayPerBranch' || value.type === 'RELATIVE' && ['controlRecipeId', 'minPercentOfControl'].includes(f.name) || value.type === 'RETENTION' && f.name === 'maxDropSecondHalfPct')
   return <div className="form-grid">{fields.map(field => { const path = prefix + field.name, arrayOrRecord = field.type.startsWith('IReadOnlyList') || field.type.replace(/\?$/, '') in schemas
-    return <div key={path} data-field={path} role="group" aria-labelledby={path+'-label'} aria-invalid={issues.some(issue=>issue.field===path)||undefined} className={arrayOrRecord || ['content', 'description', 'actionText', 'comment'].includes(field.name) ? 'form-field span-full' : 'form-field'}><label id={path+'-label'} htmlFor={path}>{label(field.name)}{requiredField(schema, field.name, context.creating) && <span aria-label="bắt buộc"> *</span>}</label><FieldControl field={field} schema={schema} value={value[field.name]} onChange={v => { const next = changeQuestionField(schema, clearDependentPeople(value, field.name, v), field.name, v); if (schema === 'PilotCriterionRequest' && field.name === 'type') Object.assign(next, { cupsPerDayPerBranch: null, controlRecipeId: null, minPercentOfControl: null, maxDropSecondHalfPct: null }); if (schema.includes('UserRequest') && field.name === 'role' && !['TRAINEE', 'BRANCH_MANAGER', 'TRAINER'].includes(String(v))) next.branchId = null; onChange(next) }} context={context} root={root} path={path} issues={issues} />{issues.filter(i => i.field === path).map((i, n) => <p role="alert" className="field-error" key={n}>{i.issue}</p>)}</div>
+    return <div key={path} data-field={path} role="group" aria-labelledby={path+'-label'} aria-invalid={issues.some(issue=>issue.field===path)||undefined} className={arrayOrRecord || ['content', 'description', 'actionText', 'comment'].includes(field.name) ? 'form-field span-full' : 'form-field'}><label id={path+'-label'} htmlFor={path}>{label(field.name)}{requiredField(schema, field.name, context.creating) && <span aria-label="bắt buộc"> *</span>}</label><FieldControl field={field} schema={schema} value={value[field.name]} onChange={v => { const next = changeQuestionField(schema, clearDependentPeople(value, field.name, v), field.name, v); if (schema === 'PilotCriterionRequest' && field.name === 'type') Object.assign(next, { cupsPerDayPerBranch: null, controlRecipeId: null, minPercentOfControl: null, maxDropSecondHalfPct: null }); if (schema.includes('UserRequest') && field.name === 'role' && !['TRAINEE', 'BRANCH_MANAGER', 'TRAINER'].includes(String(v))) next.branchId = null; onChange(next) }} context={context} root={root} path={path} issues={issues} />{issues.filter(i => i.field === path).map((i, n) => <p id={path+'-error-'+n} role="alert" className="field-error" key={n}>{i.issue}</p>)}</div>
   })}</div>
 }
 

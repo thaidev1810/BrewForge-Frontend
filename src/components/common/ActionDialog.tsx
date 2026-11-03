@@ -53,6 +53,16 @@ export function ActionDialog({ action, record = {}, initial, context = {}, onClo
   const maxBytes = action.operation === 'Enrollments.UploadPracticalVideo' ? 200 * 1024 * 1024 : 5 * 1024 * 1024
   const accept = action.operation === 'Enrollments.UploadPracticalVideo' ? '.mp4,.mov,.webm' : action.operation === 'BranchAudits.UploadEvidence' ? '.jpg,.jpeg,.png,.webp' : '.csv,.xlsx'
   const blocked = action.operation === 'CorrectiveActions.AssignRetraining' && !context.retrainingCourseIds?.length || !!disabledReason
+  function focusIssue(field?: string) {
+    if (!field) return
+    requestAnimationFrame(() => {
+      const group = dialog.current?.querySelector<HTMLElement>('[data-field="' + CSS.escape(field) + '"]')
+      const target = document.getElementById(field) ?? group?.querySelector<HTMLElement>('input,select,textarea,button')
+      let ancestor = target?.parentElement
+      while (ancestor) { if (ancestor instanceof HTMLDetailsElement) ancestor.open = true; ancestor = ancestor.parentElement }
+      target?.focus(); target?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    })
+  }
   async function submit() {
     if (submitting.current || busy) return
     setError(null)
@@ -66,7 +76,7 @@ export function ActionDialog({ action, record = {}, initial, context = {}, onClo
     }
     if (needsCourse && !extra) checked = [{ field: 'courseId', issue: 'Chọn khóa học để sao chép câu hỏi.' }]
     setIssues(checked)
-    if (checked.length || blocked) { requestAnimationFrame(()=>{const field=document.getElementById(checked[0]?.field);const target=field??dialog.current?.querySelector<HTMLElement>('[data-field="'+CSS.escape(checked[0]?.field??'')+'"] input,[data-field="'+CSS.escape(checked[0]?.field??'')+'"] select');let ancestor=target?.parentElement;while(ancestor){if(ancestor instanceof HTMLDetailsElement)ancestor.open=true;ancestor=ancestor.parentElement}target?.focus();target?.scrollIntoView({block:'center',behavior:'smooth'})});return }
+    if (checked.length || blocked) { focusIssue(checked[0]?.field); return }
     submitting.current = true
     try {
       let data: unknown
@@ -78,7 +88,13 @@ export function ActionDialog({ action, record = {}, initial, context = {}, onClo
         dispatch(backendApi.util.invalidateTags(mutationTags(action.operation)))
       } else data = await mutate({ operation: action.operation, params: { ...params, ...(needsCourse ? { courseId: Number(extra) } : {}) }, body: endpoint.body ? body : undefined, idempotencyKey: endpoint.idempotency ? key.current : undefined }).unwrap()
       setResult(data ?? null); onSuccess?.(data)
-    } catch (e) { const normalized = normalizeApiError(e); setError(normalized); onFailure?.(normalized) } finally { submitting.current = false; setUploading(false) }
+    } catch (e) {
+      const normalized = normalizeApiError(e)
+      setError(normalized)
+      const fields = Object.entries(normalized.validationErrors ?? {}).flatMap(([field, messages]) => messages.map(issue => ({ field, issue })))
+      setIssues(fields); focusIssue(fields[0]?.field)
+      onFailure?.(normalized)
+    } finally { submitting.current = false; setUploading(false) }
   }
   return <div className="modal-backdrop"><section ref={dialog} className="dialog" role="dialog" aria-modal="true" aria-labelledby="action-title"><header><h2 id="action-title">{action.label}</h2><Button variant="ghost" aria-label="Đóng" disabled={busy} onClick={requestClose}><X size={20} /></Button></header><div className="dialog-body">{result !== undefined ? renderResult ? renderResult(result) : <><div className="success-box" role="status">Máy chủ đã xử lý yêu cầu.</div>{result !== null && <DataView value={result} />}</> : <form id="action-form" onSubmit={e => { e.preventDefault(); void submit() }}><fieldset disabled={busy} className="min-w-0">
     {action.operation === 'CorrectiveActions.Close' && record.retrainingRequired === true && <Notice>Máy chủ chỉ cho đóng khi mọi nhân viên được yêu cầu còn active tại chi nhánh đã PASSED một khóa học lại hợp lệ. Nếu báo RETRAINING_INCOMPLETE, giữ ghi chú và kiểm tra tiến độ học lại trước khi xác nhận lại.</Notice>}
@@ -88,7 +104,7 @@ export function ActionDialog({ action, record = {}, initial, context = {}, onClo
     {needsCourse && <ContractFields schema="RetrainingRequest" value={{ courseId: extra ? Number(extra) : null }} onChange={v => setExtra(String(v.courseId ?? ''))} issues={issues} />}
     {endpoint.upload && <div className="form-field"><label htmlFor="upload-file">Tệp ({accept}; tối đa {maxBytes / 1024 / 1024} MB)</label><input id="upload-file" type="file" accept={accept} onChange={e => { setUpload(e.target.files?.[0] ?? null); setError(null); key.current = crypto.randomUUID() }} />{uploading && <div role="status"><progress value={progress} max={100} /> Đang tải lên {progress}%</div>}</div>}
     {issues.length > 0 && <ul role="alert" className="field-error">{issues.map((i, n) => <li key={n}>{i.field}: {i.issue}</li>)}</ul>}
-    {error !== null && action.operation === 'Sales.Import' && <Notice>Chưa xác định tệp đã được ghi hay chưa nếu mất kết nối hoặc máy chủ lỗi. Xác nhận lại với cùng tệp để giữ nguyên Idempotency-Key và nhận kết quả replay. Chọn tệp khác tạo submission mới; backend hiện chưa kiểm tra cùng key khác nội dung.</Notice>}
+    {error !== null && action.operation === 'Sales.Import' && <Notice>Chưa xác định tệp đã được ghi hay chưa nếu mất kết nối hoặc máy chủ lỗi. Xác nhận lại với cùng tệp để giữ nguyên Idempotency-Key và nhận kết quả replay. Chọn tệp khác tạo submission mới; backend từ chối nội dung khác với cùng key bằng lỗi IDEMPOTENCY_KEY_MISMATCH (409); bản ghi cũ chưa có fingerprint có thể vẫn replay.</Notice>}
     {error !== null && <ErrorState error={asRecord(error).message ? error : normalizeApiError(error)} />}{errorAction}
     {!canCall(action.operation, user?.role) && <Notice>Bạn không có quyền thực hiện thao tác này.</Notice>}
     </fieldset></form>}</div><footer><Button variant="outline" disabled={busy} onClick={requestClose}>{result !== undefined ? 'Đóng' : 'Hủy'}</Button>{result === undefined && !blocked && <Button type="submit" form="action-form" disabled={busy || !canCall(action.operation, user?.role)}>{busy ? 'Đang xử lý…' : 'Xác nhận'}</Button>}</footer></section></div>

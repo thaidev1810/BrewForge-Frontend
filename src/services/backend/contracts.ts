@@ -71,6 +71,7 @@ export interface AssignmentResultDto {
   courseId: number
   enrollmentIds: Array<number>
   alreadyEnrolled: Array<number>
+  skipped: Array<SkippedAssignment>
 }
 
 export const AssignmentStageValues = ["ASSIGNED","IN_PROGRESS","THEORY_COMPLETED","QUIZ_PASSED","PRACTICAL_PENDING","COMPLETED","LOCKED","CLOSED"] as const
@@ -337,6 +338,10 @@ export interface CertificateDto {
   issuedAt: string
   status: CertificateStatus
   supersededBy: number | null
+  issuedBy: string
+  enrollmentId: number | null
+  assessedById: number | null
+  assessedByName: string | null
 }
 
 export const CertificateStatusValues = ["VALID","NEEDS_RECERT","SUPERSEDED"] as const
@@ -1755,6 +1760,12 @@ export interface SkillDto {
 export const SkillStatusValues = ["CERTIFIED","NEEDS_RECERT","TRAINING","NOT_CERTIFIED"] as const
 export type SkillStatus = typeof SkillStatusValues[number]
 
+/** backend/src/BrewForge.Application/Training/AssignmentService.cs */
+export interface SkippedAssignment {
+  userId: number
+  reason: string
+}
+
 /** backend/src/BrewForge.Application/Recipes/RecipeDtos.cs */
 export interface StepChangeDto {
   kind: StepChangeKind
@@ -1849,6 +1860,58 @@ export interface StepRequest {
   dependsOn: Array<StepDependencyRequest> | null
   temperatureC: number | null
   pressureBar: number | null
+}
+
+/** backend/src/BrewForge.Application/Inventory/StockService.cs */
+export interface StockCountRequest {
+  ingredientId: number | null
+  quantity: number | null
+  unit: string | null
+  countedOn: string | null
+}
+
+/** backend/src/BrewForge.Application/Inventory/StockService.cs */
+export interface StockLossLineDto {
+  ingredientId: number
+  ingredientCode: string
+  unit: string
+  openingStock: number
+  received: number
+  closingStock: number
+  actualUsed: number
+  theoreticalUsed: number
+  loss: number
+  variancePct: number | null
+  flagged: boolean
+}
+
+/** backend/src/BrewForge.Application/Inventory/StockService.cs */
+export interface StockLossReportDto {
+  branchId: number
+  branchCode: string | null
+  from: string
+  to: string
+  varianceThresholdPct: number
+  lines: Array<StockLossLineDto>
+}
+
+/** backend/src/BrewForge.Application/Inventory/StockService.cs */
+export interface StockMovementDto {
+  id: number
+  branchId: number
+  ingredientId: number
+  ingredientCode: string
+  quantity: number
+  unit: string
+  date: string
+}
+
+/** backend/src/BrewForge.Application/Inventory/StockService.cs */
+export interface StockReceiptRequest {
+  ingredientId: number | null
+  quantity: number | null
+  unit: string | null
+  receivedOn: string | null
 }
 
 /** backend/src/BrewForge.Application/Courses/CourseDtos.cs */
@@ -2220,7 +2283,7 @@ export interface EndpointContracts {
   'Courses.Create': { request: CreateCourseRequest; response: CourseDetailDto; params: Record<string, never>; query: Record<string, never> }
   'Courses.Get': { request: never; response: CourseDetailDto; params: {id: number;}; query: Record<string, never> }
   'Courses.Modules': { request: never; response: Array<CourseModuleDto>; params: {id: number;}; query: Record<string, never> }
-  'Courses.EligibleTrainers': { request: never; response: PagedResult<TrainerOptionDto>; params: {id: number;}; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;} }
+  'Courses.EligibleTrainers': { request: never; response: PagedResult<TrainerOptionDto>; params: {id: number;}; query: {page?: number | null;size?: number | null;sort?: string | null;q?: string | null;branchId?: number | null;} }
   'Courses.GetQuiz': { request: never; response: QuizDto; params: {id: number;}; query: Record<string, never> }
   'Courses.UpdateQuiz': { request: QuizRequest; response: QuizDto; params: {id: number;}; query: Record<string, never> }
   'Courses.ListQuestions': { request: never; response: Array<QuizQuestionDto>; params: {id: number;}; query: Record<string, never> }
@@ -2319,6 +2382,9 @@ export interface EndpointContracts {
   'Sales.Import': { request: FormData; response: PosImportResultDto; params: Record<string, never>; query: Record<string, never> }
   'Sales.ImportResult': { request: never; response: PosImportResultDto; params: {jobId: string;}; query: Record<string, never> }
   'Sales.Aggregate': { request: never; response: SalesAggregateDto; params: Record<string, never>; query: {recipeVersionId?: number | null;recipeId?: number | null;groupBy?: string | null;branchId?: number | null;from?: string | null;to?: string | null;controlRecipeId?: number | null;} }
+  'Stock.Receive': { request: StockReceiptRequest; response: StockMovementDto; params: Record<string, never>; query: Record<string, never> }
+  'Stock.Count': { request: StockCountRequest; response: StockMovementDto; params: Record<string, never>; query: Record<string, never> }
+  'Stock.LossReport': { request: never; response: StockLossReportDto; params: Record<string, never>; query: {branchId?: number | null;from?: string | null;to?: string | null;} }
   'TrainingRegulations.List': { request: never; response: Array<TrainingRegulationDto>; params: Record<string, never>; query: Record<string, never> }
   'TrainingRegulations.Create': { request: TrainingRegulationRequest; response: TrainingRegulationDto; params: Record<string, never>; query: Record<string, never> }
   'TrainingRegulations.Update': { request: TrainingRegulationRequest; response: TrainingRegulationDto; params: {id: number;}; query: Record<string, never> }

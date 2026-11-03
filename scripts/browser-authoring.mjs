@@ -33,7 +33,8 @@ try {
     const {store}=await import('/src/app/store.ts');const auth=await import('/src/features/auth/authSlice.ts');const {apiClient}=await import('/src/services/apiClient.ts');const {backendApi}=await import('/src/services/backend/operations.ts');const {mutationTags}=await import('/src/services/backend/cachePolicy.ts');const {router}=await import('/src/app/router.tsx');
     const types=['PRODUCT_OVERVIEW','INGREDIENTS','EQUIPMENT','SOP','TECHNIQUE','COMMON_MISTAKES','EXCEPTION_HANDLING'];
     const course={id:101,title:'TEST_ONLY Course',courseType:'PRODUCT',state:'DRAFT',recipeVersionId:201,recipeId:301,modules:types.map((moduleType,i)=>({id:1000+i,courseId:101,moduleType,moduleOrder:i+1,source:i<4?'GENERATED':i===4?'MIXED':'AUTHORED',durationMinutes:5,state:'COMPLETE',lessons:[{id:2000+i,title:'TEST_ONLY '+moduleType,content:'Saved instructor prose',lessonOrder:1,recipeStepId:i===4?501:null,generated:i<=4,reference:i<=4?{stepOrder:1,actionText:'SOP reference'}:null}]})),quiz:{id:401,courseId:101,title:'TEST_ONLY quiz',passScore:80,questionCount:1},practicalChecklist:[{lessonId:2004,recipeStepId:501,actionText:'TEST_ONLY gate'}]};
-    const state=window.__regression={calls:[],defer:false,waiting:[],course,run:null,reads:[],attempts:[],flow:false,lessonState:'ASSIGNED',notices:[{id:81,subject:'TEST_ONLY notice',message:'TEST_ONLY message without deep link',createdAt:'2026-10-19T00:00:00Z',readAt:null,read:false}],classState:'PLANNED'};
+    const launchNoticeSubjects=['Training needed for a drink','Branch ready to open a drink','Drink on sale','Drink withdrawn','Pilot ended','Sales missing'];
+    const state=window.__regression={calls:[],defer:false,waiting:[],course,run:null,reads:[],attempts:[],flow:false,lessonState:'ASSIGNED',notices:launchNoticeSubjects.map((subject,index)=>({id:81+index,subject,message:'TEST_ONLY launch notice body; rendered as text without guessed route or action',createdAt:'2026-10-19T00:00:00Z',readAt:null,read:false})),classState:'PLANNED'};
     const learning=()=>({id:70,userId:state.practicalDelta?2:1,courseId:101,courseTitle:'TEST_ONLY Learning',courseType:'PRODUCT',trainingClassId:null,recipeVersionId:201,enrolledAt:state.reset?'2026-10-19T01:00:00Z':'2026-10-19T00:00:00Z',dueDate:'2026-11-01',progressPercent:state.reads.length===2?100:0,state:state.lessonState,overdue:false});
     const path=()=>({userId:1,username:'TEST_ONLY',fullName:'TEST_ONLY Learner',role:'TRAINEE',branchId:2,stages:[{courseType:'INDUCTION',prerequisiteType:null,blocked:false,regulationId:1,dueDays:7,courses:[{courseId:101,title:'TEST_ONLY Learning',status:'ENROLLED',enrollmentId:70,enrollmentState:state.lessonState,dueDate:'2026-11-01',certificateId:null,recipeVersionId:201}]},{courseType:'PRODUCT',prerequisiteType:'INDUCTION',blocked:true,regulationId:2,dueDays:7,courses:[{courseId:102,title:'TEST_ONLY Blocked',status:'BLOCKED',enrollmentId:null,enrollmentState:null,dueDate:null,certificateId:null,recipeVersionId:201}]}]});
     const reply=(config,data)=>({config,data:structuredClone(data),status:200,statusText:'OK',headers:{}});const fail=(config,status,data)=>Promise.reject({isAxiosError:true,config,response:{config,status,data}});
@@ -212,29 +213,34 @@ try {
   assert(await evaluate('!window.__regression.calls.some(c=>c.url==="/learning-paths/1/assign")'))
   pass('learner path links only actual enrollment and does not auto-assign blocked courses')
   await evaluate('window.__asRole("TRAINING_MANAGER")');await evaluate('window.__navigate("/training-manager/learning-path")')
-  await until('[...document.querySelectorAll("select option")].some(o=>o.value==="1")')
-  await evaluate('var s=[...document.querySelectorAll("select")].find(s=>s.getAttribute("aria-label")==="Nhân viên");s.value="1";s.dispatchEvent(new Event("change",{bubbles:true}))')
+  await until('[...document.querySelectorAll(".lookup-control select")].some(s=>[...s.options].some(o=>o.textContent.includes("TEST_ONLY Selected name")))')
+  await evaluate('(()=>{const picker=[...document.querySelectorAll(".lookup-control select")].find(select=>[...select.options].some(option=>option.textContent.includes("TEST_ONLY Selected name")));if(!picker)throw new Error("Learning-path staff picker was not rendered");picker.value="1";picker.dispatchEvent(new Event("change",{bubbles:true}))})()')
   await until('document.body.textContent.includes("TEST_ONLY Blocked")');await click('Giao các khóa đang mở');await click('Xác nhận')
   await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")')
   assert(await evaluate('window.__regression.calls.some(c=>c.method==="post"&&c.url==="/learning-paths/1/assign")'))
   pass('manager path picker and assign action use actual endpoint and display dedup result')
   await click('Đóng')
   await evaluate('window.__navigate("/training-manager/courses/pending")')
+  await until('location.pathname==="/training-manager/dashboard"')
+  pass('training-manager cannot open the RD_MANAGER-only pending-review route')
+  await evaluate('window.__asRole("RD_MANAGER")');await evaluate('window.__navigate("/rd-manager/courses/pending")')
   await until('window.__regression.calls.some(c=>c.url==="/courses"&&c.params?.state==="PENDING_APPROVAL") && document.body.textContent.includes("Khóa chờ duyệt")')
-  pass('training-manager pending-review route sends actual state filter without a bogus detail ID')
+  pass('RD manager pending-review route sends actual state filter without a bogus detail ID')
   await evaluate('window.__regression.lessonState="LOCKED";window.__asRole("TRAINING_MANAGER")');await evaluate('window.__navigate("/training-manager/assignments")')
   await until('document.body.textContent.includes("TEST_ONLY Learning")');await click('Xem chi tiết →');await click('Mở lại đăng ký bị khóa');await click('Xác nhận')
   await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")');await click('Đóng')
   await evaluate('window.__asRole("TRAINEE",2)');await evaluate('window.__navigate("/barista/learning/70")')
   await until('document.body.textContent.includes("0% hoàn thành") && [...document.querySelectorAll("button")].filter(b=>b.textContent==="Đánh dấu hoàn thành bài"&&!b.disabled).length===1')
   pass('training-manager reset uses actual endpoint and next account sees fresh lesson progress')
-  await evaluate('window.__navigate("/barista/notifications")');await until('document.body.textContent.includes("TEST_ONLY notice")')
+  await evaluate('window.__navigate("/barista/notifications")');await until('document.body.textContent.includes("Training needed for a drink") && document.body.textContent.includes("Sales missing")')
+  assert(await evaluate('!document.querySelector(".panel a") && window.__regression.notices.every(n=>document.body.textContent.includes(n.subject))'))
+  pass('all six launch notice subjects render as generic inbox content without fabricated navigation')
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(150)
   assert(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'))
   pass('inbox and unread bell fit the mobile viewport independently of push permission')
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false})
   assert(await evaluate('!document.querySelector(".panel a")'))
-  await click('Đánh dấu đã đọc');await click('Xác nhận');await until(`document.querySelector('[aria-label="Số thông báo chưa đọc"]')?.textContent==="0"`)
+  await click('Đánh dấu đã đọc');await click('Xác nhận');await until(`document.querySelector('[aria-label="Số thông báo chưa đọc"]')?.textContent==="5"`)
   pass('notification mark-read refreshes unread badge without guessing a deep link')
   await click('Đóng');await click('Đánh dấu tất cả đã đọc');await click('Xác nhận');await until('window.__regression.calls.some(c=>c.url==="/me/notifications/read-all")');await click('Đóng')
   await evaluate('window.__regression.notices=[];window.__asRole("TRAINER",2)');await evaluate('window.__navigate("/trainer/notifications")');await until('document.body.textContent.includes("Không có thông báo phù hợp")')

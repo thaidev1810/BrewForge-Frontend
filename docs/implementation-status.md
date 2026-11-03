@@ -1,6 +1,28 @@
 # Kết quả triển khai frontend theo backend
 
-## 22/10/2026 — đồng bộ merge 52be9a7 (ưu tiên hiện hành)
+## 04/11/2026 — kiểm tra merge BE `33e2ed2`
+
+Không có thay đổi contract hay FE page. Inbox generic hiện tại tiêu thụ sáu subject mới qua `NotificationDto.subject/message`; DTO không có context để tạo link. Regression browser bổ sung dùng TEST_ONLY nội dung để xác nhận cả sáu subject render và không sinh link/action. Typecheck, lint, 93 Node regression checks, production build và 74 browser authoring checks đều pass. Browser authoring và Node transports chỉ dùng TEST_ONLY fixtures, không gửi business request tới BE. Build có cảnh báo chunk chính 558.28 kB vượt 500 kB.
+
+### Bổ sung kiểm tra 03/11/2026
+
+- Browser session: **11 checks pass** (auth reload/deep link, refresh, logout race và RD_MANAGER/TRAINING_MANAGER review permissions), toàn bộ backend requests được TEST_ONLY CDP interception.
+- Public browser smoke: **5 checks pass**, gồm route guard, form validation và desktop/mobile layout; không gọi business API.
+- Runtime OpenAPI GET trả 200, nhưng không có build identity hoặc operation role metadata. Đây chỉ là quan sát schema đang chạy, không phải xác minh business runtime theo source HEAD.
+- Tổng hiện tại: 93 Node checks + 73 authoring browser checks + 11 session browser checks + 5 public smoke checks. Chi tiết trạng thái source và giới hạn demo ở [current-work](../../docs/current-work.md) và [demo-readiness](../../docs/demo-readiness.md).
+
+## 03/11/2026 — đồng bộ source delta BE `08dd10a`
+
+Đã đối chiếu baseline BE `52be9a7093069e4ac9e1aa8c03ff9d09212a06b3` (ancestor) tới HEAD `08dd10a316d00021b0858fb11adcb7f1e574d674`, first parent merge mới nhất `370db362ed34c42c9d2995002c34256b27cab2ff`; source diff 50 file. FE working tree đã có thay đổi trước phiên, được giữ lại.
+
+- Tái sinh `contracts.ts`/`schema.ts` từ C# controller/DTO: 191 operations, 258 types/enums; role approvals và certificate metadata được sửa đúng source. Không gọi runtime API trong generator.
+- RD_MANAGER có pending course, detail/modules, approve/return. TRAINING_MANAGER không approve/return. Regression checks cập nhật role matrix; quiz authoring/answers vẫn trainer-only.
+- Trainer lookup truyền branch lớp, server paging/search, eligibility reason và selection clear khi scope đổi. Assignment partial outcomes được render rõ; certificate list show issuer/assessor. Stock API chỉ có contract, UI vẫn NOT_IMPLEMENTED.
+- POS retry giữ cùng key và cùng File trong modal; khác file conflict hiển thị rule; reload không giữ file/key. Auth giữ cơ chế hiện có; source `sv` kiểm access, refresh token single-use, logout chỉ thu hồi refresh token hiện tại.
+
+Static tests/build và kết quả runtime được ghi sau khi chạy trong `docs/current-work.md`; không chạy migration/seed hoặc business mutation. Source mismatch cần theo dõi: refresh token không ràng buộc security version nên có thể refresh sau đổi profile khi user còn active.
+
+## 22/10/2026 — đồng bộ merge 52be9a7 (lịch sử)
 
 BE HEAD **52be9a7093069e4ac9e1aa8c03ff9d09212a06b3**, merge parents e4e95b4 / b9c4df5. Baseline hiện hành trước đó e4e95b435b9fa71aebdb3008221da1b9774fbf7a chính là first parent; diff 23 file. BE Git sạch, không sửa BE/.env/DB, không chạy startup/migration/seed hoặc authenticated mutation. Không thấy AGENTS.md áp dụng. Giữ mọi thay đổi FE chưa commit trước lượt này.
 
