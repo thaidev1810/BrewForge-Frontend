@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { HomeRedirect, NotFound, RouteError, LoginPage } from '@/components/common/RoutePages'
+import { NotFound, RouteError, LoginPage, LandingPage } from '@/components/common/RoutePages'
 import { ROLES } from '@/features/auth/authTypes'
 import { PublicRoute } from '@/features/auth/PublicRoute'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
@@ -11,7 +11,7 @@ import { canCall } from '@/services/backend/operations'
 import { resources, reportPages } from '@/features/workspace/resources'
 import { ResourcePage, VersionPage, ReportPage, ImpactPage, TracePage, CompliancePage, SalesAnalyticsPage, AccountPage, PushPage, LearningPage, AssessmentPage, RecordPage, VideoPage, ImportResultPage, LearningPathPage, InboxPage, EnrollmentReviewPage } from '@/components/common/WorkspacePages'
 export const router = createBrowserRouter([{ errorElement: <RouteError />, children: [
-  { path: '/', element: <HomeRedirect /> },
+  { path: '/', element: <LandingPage /> },
   { element: <PublicRoute />, children: [{ path: '/login', element: <LoginPage /> }] },
   { element: <ProtectedRoute />, children: ROLES.map(role => ({ path: roleConfig[role].prefix, element: <RoleBasedRoute allowedRoles={[role]} />, children: [{ element: <DashboardLayout />, children: [
     { index: true, element: <Navigate to="dashboard" replace /> }, { path: 'dashboard', element: <RoleDashboard role={role} /> },

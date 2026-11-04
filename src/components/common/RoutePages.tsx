@@ -2,6 +2,7 @@ import { Navigate, Link } from 'react-router-dom'
 import { lazy } from 'react'
 import { useAppSelector } from '@/app/hooks'
 import { dashboardPath } from '@/constants/roles'
+export const LandingPage = lazy(() => import('@/features/landing/LandingPage'))
 export const LoginPage = lazy(() => import('@/features/auth/LoginPage').then((module) => ({ default: module.LoginPage })))
 export function HomeRedirect() {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth)
