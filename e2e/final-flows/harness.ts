@@ -5,12 +5,11 @@ import { loginAsRole } from '../helpers/auth.js'
 import type { TestRole } from '../helpers/environment.js'
 import catalog from '../fixtures/business-readiness.json' with { type: 'json' }
 
-function observe(page: Page, role: string) {
+function observe(page: Page, role: string, file: string) {
   page.on('response', response => {
     const url = new URL(response.url()); if (!url.pathname.startsWith('/api/')) return
     const match = Object.entries(catalog.endpoints).find(([, endpoint]) => endpoint.method === response.request().method() && new RegExp('^' + endpoint.path.replace(/\{[^}]+\}/g, '[^/]+') + '$').test(url.pathname))
     if (!match) return
-    const file = 'e2e-private/final-flow-operations.json'
     const rows: Record<string, { roles: string[]; statuses: number[]; observations: number }> = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {}
     const row = rows[match[0]] ?? { roles: [], statuses: [], observations: 0 }
     if (!row.roles.includes(role)) row.roles.push(role)
@@ -39,11 +38,12 @@ export class Actors {
   contexts: BrowserContext[] = []
   private browser: Browser
   private baseURL: string
-  constructor(browser: Browser, baseURL: string) { this.browser = browser; this.baseURL = baseURL }
+  private operationsFile: string
+  constructor(browser: Browser, baseURL: string, operationsFile = 'e2e-private/final-flow-operations.json') { this.browser = browser; this.baseURL = baseURL; this.operationsFile = operationsFile }
   async login(role: TestRole) {
     const context = await this.browser.newContext({ baseURL: this.baseURL, viewport: { width: 1440, height: 1000 } }); this.contexts.push(context)
     const page = await context.newPage()
-    observe(page, role)
+    observe(page, role, this.operationsFile)
     await page.route('**/*', route => {
       const url = new URL(route.request().url())
       if (url.pathname.startsWith('/api/') && !['http://localhost:5113', 'http://127.0.0.1:5113'].includes(url.origin)) return route.abort()
@@ -59,7 +59,7 @@ export class Actors {
   async loginGenerated(username: string, password: string) {
     const context = await this.browser.newContext({ baseURL: this.baseURL, viewport: { width: 1440, height: 1000 } }); this.contexts.push(context)
     const page = await context.newPage()
-    observe(page, 'AUTHORIZED_TEST_TRAINEE')
+    observe(page, 'AUTHORIZED_TEST_TRAINEE', this.operationsFile)
     await page.route('**/*', route => {
       const url = new URL(route.request().url())
       if (url.pathname.startsWith('/api/') && !['http://localhost:5113', 'http://127.0.0.1:5113'].includes(url.origin)) return route.abort()

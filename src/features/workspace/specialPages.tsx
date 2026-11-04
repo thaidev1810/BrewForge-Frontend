@@ -24,9 +24,10 @@ import { FilterBar } from './ResourcePage'
 
 export function VersionPage() {
   const navigate = useNavigate()
-  const { id } = useParams(), user = useAppSelector(s => s.auth.user), [action, setAction] = useState<ActionSpec | null>(null), [validation,setValidation] = useState<unknown>(null)
+  const { id } = useParams(), user = useAppSelector(s => s.auth.user), [action, setAction] = useState<ActionSpec | null>(null), [validation,setValidation] = useState<{ report: unknown; content: string } | null>(null)
   const query = useReadQuery({ operation: 'RecipeVersions.Get', params: { id: Number(id) } }), version = asRecord(query.currentData)
-  const currentValidation=asRecord(validation).versionId===Number(id)?validation:null
+  const content = JSON.stringify(requestFields('RecipeContentRequest', version))
+  const currentValidation = validation?.content === content && asRecord(validation.report).versionId === Number(id) ? validation.report : null
   const mutable = !version.isImmutable && ['DRAFT', 'REJECTED'].includes(String(version.state))
   const candidates: ActionSpec[] = [
     { operation: 'RecipeVersions.Update', label: 'Sửa các bước', gate: () => mutable },
@@ -45,7 +46,7 @@ export function VersionPage() {
 {key:'steps',title:'Các bước thực hiện',content:<section className="panel">{steps.map(step=><Fold key={String(step.id)} id={'step-'+step.id} title={String(step.stepOrder)+'. '+String(step.actionText??'Bước SOP')}><DataView value={step}/></Fold>)}</section>},
 {key:'validation',title:'Kết quả kiểm tra',content:<section className="panel">{currentValidation?<><DataView value={currentValidation}/>{rowsOf({items:asRecord(currentValidation).checks}).flatMap(check=>rowsOf({items:check.violations})).filter(v=>v.stepId).map((v,index)=><a className="text-link block" key={index} href={'?section=steps#step-'+v.stepId} onClick={event=>{event.preventDefault(); const next=new URL(window.location.href);next.searchParams.set('section','steps');next.hash='step-'+v.stepId;navigate(next.pathname+next.search+next.hash,{replace:true,preventScrollReset:true});setTimeout(()=>{const element=document.getElementById('step-'+v.stepId) as HTMLDetailsElement|null;if(element){element.open=true;element.scrollIntoView({block:'center'});element.querySelector('summary')?.focus()}},100)}}>Bước {display(v.stepOrder)}: {String(v.message)}</a>)}</>:<Notice>Chạy kiểm tra để xem kết quả mới. GET phiên bản không trả lịch sử kiểm tra.</Notice>}</section>},
 {key:'information',title:'Thông tin phiên bản',content:<section className="panel"><DataView value={Object.fromEntries(Object.entries(version).filter(([key])=>!['steps','validation'].includes(key)))}/></section>}
-]}/></>}{action && <ActionDialog action={action} record={version} initial={initial} onSuccess={data=>{const value=asRecord(data);if(value.checks)setValidation(value);else if(value.validation)setValidation(value.validation)}} context={{ choices: { stepId: steps.map(s => ({ value: Number(s.id), label: `${s.stepOrder}. ${s.actionText}` })) } }} onClose={() => setAction(null)} />}</>
+]}/></>}{action && <ActionDialog action={action} record={version} initial={initial} onSuccess={data=>{const value=asRecord(data);if(value.checks)setValidation({report:value,content});else if(value.validation)setValidation({report:value.validation,content});else setValidation(null)}} context={{ choices: { stepId: steps.map(s => ({ value: Number(s.id), label: `${s.stepOrder}. ${s.actionText}` })) } }} onClose={() => setAction(null)} />}</>
 }
 export function ReportPage({ page }: { page: string }) {
   const spec = reportPages.find(p => p.key === page)!, user = useAppSelector(s => s.auth.user), [filters, setFilters] = useState<RecordData>({}), [row, setRow] = useState<RecordData | null>(null)

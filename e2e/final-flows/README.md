@@ -1,5 +1,24 @@
 # Continue BrewForge checkpoint
 
+## Current post-landing review (04/11/2026)
+
+FE HEAD `dc5c06a`, branch `feat/train`. Current ledger: ignored `e2e-private/product-review.json`, run `E2E_REVIEW_MW1K2W7N`; old final-flows manifest remains the verified source of reused own IDs. Files12–17 extend this same Playwright config, Actors/auth/API helpers and fixture folder. This is not a second test framework. New Actors can select a separate operation metadata file without changing the old suite's default.
+
+```powershell
+$env:E2E_ALLOW_BUSINESS_WRITES='true'
+npx.cmd playwright test --config=playwright.final-flows.config.ts 04-sales.spec.ts 08-retest.spec.ts 12-landing-review.spec.ts 13-live-review.spec.ts 14-course-review.spec.ts 15-validation-review.spec.ts 16-sop-utilities-review.spec.ts 17-retraining-obligation.spec.ts isolated-media.spec.ts
+node scripts/report-product-review.mjs
+node scripts/verify-final-flow-privacy.mjs
+```
+
+Final combined run:14 passed,1 failed (BE G-19) across15 wrapper tests. Do not mark17 as expected success: new action4 actually CLOSED using a pre-action PASSED enrollment; resume keeps this failure from the existing checkpoint and does not close again. Fix/acceptance belongs to BE/product, not a client gate. No new TRAINER account was authorized/created. Existing user19/coverage2 retained.
+
+12/15/isolated-media are public or isolated;08 verifies existing core/media with authenticated reads.13 catalog,14 fresh/resume course,16 own mutable SOP copy16/export audit,04 POS writes require opt-in.14 keeps enrollment37/certificate12 intact on resume;16 verifies source ownership and editable state instead of forcing rollback17 (now VALIDATED) back to DRAFT. Source edits/failures are sanitized; public screenshots only, no real-session DOM captures.
+
+The current report generator is `report-product-review.mjs`; `report-final-flows.mjs` below regenerates the **historical**61-case continuation and would overwrite current coverage. Use it only deliberately when inspecting that historical run. Current [report](../../docs/final-flow-report.md), [coverage](../../docs/final-flow-coverage.md), [product findings/backlog](../../docs/product-backlog.md).
+
+## Historical continuation
+
 The starting checkpoint is loaded from ignored `e2e-private/experience-quality.json`; later runs reuse `e2e-private/final-flows-manifest.json`. Relationships and run-owned recipe code are checked before continuing. Never replace the IDs with unrelated user data. Entities and named flow cases are checkpointed after each transition. No auth state, password, token, server message, cookie or HTTP header is stored.
 
 Approved test destination: local FE `http://localhost:5173`, API `http://localhost:5113/api/v1`. Each role has its own Chromium context. Requests to other API origins are blocked. Real session contexts close before failure reporting; tracing, screenshots, video, HAR and storageState are disabled. `isolated-media.spec.ts` aborts real API traffic and uses TEST_ONLY transport data, separately from live tests.

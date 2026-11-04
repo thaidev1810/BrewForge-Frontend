@@ -1,5 +1,7 @@
 # Happy/unhappy web test — 04/11/2026
 
+> Post-landing review mới trên FE dc5c06a: xem [current report](final-flow-report.md), [51-case registry/source inventory](final-flow-coverage.md) và [product findings/backlog](product-backlog.md). Lượt mới đã xác nhận BE G-19 bằng audit/action riêng; không coi các ca baseline hoặc61 ca tiếp tục ở link lịch sử là kết quả vừa chạy lại.
+
 > Checkpoint tiếp tục đã hoàn thành practical/certificate, NEW go-live, sales/POS và retraining close: xem [final-flow report](final-flow-report.md), [61-case registry và source inventory](final-flow-coverage.md). Báo cáo này giữ baseline17 ca và các trạng thái của thời điểm trước; các blocker practical/coverage cũ đã được giải quyết qua workflow hợp lệ.
 
 ## Môi trường và giới hạn

@@ -13,5 +13,5 @@ function walk(path) {
   const text = fs.readFileSync(path, 'utf8')
   if (secrets.some(value => text.includes(value)) || /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/.test(text) || /T![A-Za-z0-9_-]{24}[0-9]a/.test(text)) throw new Error('Credential/token pattern detected; no values printed')
 }
-for (const file of ['final-flow-test-results','e2e-private/final-flows-manifest.json','e2e-private/final-flow-operations.json','e2e-private/final-flow-inventory.json','e2e-private/final-fixtures','docs/final-flow-report.md','docs/final-flow-coverage.md']) walk(file)
+for (const file of ['final-flow-test-results','e2e-private/final-flows-manifest.json','e2e-private/final-flow-operations.json','e2e-private/final-flow-inventory.json','e2e-private/product-review.json','e2e-private/product-review-operations.json','e2e-private/product-review-inventory.json','e2e-private/final-fixtures','docs/final-flow-report.md','docs/final-flow-coverage.md','docs/product-backlog.md','../docs/current-work.md','../docs/integration-gaps.md','../docs/e2e-test-report.md']) walk(file)
 console.log(`Final-flow privacy PASS: ${checked} text artifacts; no configured passwords, non-public usernames, JWTs or generated-password patterns. Capture artifacts disabled; WebM is the synthetic input fixture.`)

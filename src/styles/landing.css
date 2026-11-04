@@ -510,16 +510,26 @@ h1, h2, h3, p {
 /* Hero Section */
 .hero {
   position: relative;
-  padding-top: max(63vh, 430px);
+  padding-top: 0;
   background: var(--paper);
 }
 
 .hero-copy {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   right: 0;
   padding-top: calc(env(safe-area-inset-top, 0px) + 26px);
+  min-height: max(63vh, 430px);
+}
+
+/* Keep the introductory copy and sign-in choices outside the traveling artwork. */
+.hero .h1 {
+  max-width: calc(57.5% - var(--pw) / 2 - var(--g));
+  font-size: clamp(38px, 4.1vw, 64px);
+}
+.hero .roles-bar {
+  max-width: calc(57.5% - var(--pw) - var(--g));
 }
 
 .hero-lead {
@@ -1705,18 +1715,25 @@ h1, h2, h3, p {
     display: none;
   }
   .hero-copy {
+    position: relative;
+    min-height: 0;
     padding-top: calc(env(safe-area-inset-top, 0px) + 74px);
   }
+  .hero .h1, .hero .roles-bar { max-width: 100%; }
+  .hero .tags { display: none; }
+  .nav-logo { opacity: 1; transform: none; font-size: 20px; }
   .slot-hero {
-    top: max(34vh, 290px) !important;
+    position: relative;
+    top: auto !important;
     left: auto;
-    right: 6%;
+    right: auto;
+    margin: 30px auto;
   }
   .hero {
-    padding-top: max(60vh, 400px);
+    padding-top: 0;
   }
   .hero-lead {
-    max-width: 14em;
+    max-width: 100%;
   }
   .tag {
     font-size: 9px;
@@ -1766,7 +1783,6 @@ h1, h2, h3, p {
 @media (prefers-reduced-motion: reduce) {
   &.js [data-split] .w i,
   &.js [data-r],
-  &.js .stat,
   &.js .tag,
   &.js .phone-body,
   &.js .wm-hero .wm-g,
