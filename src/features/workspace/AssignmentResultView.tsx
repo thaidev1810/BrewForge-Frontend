@@ -18,12 +18,12 @@ export function AssignmentResultView({ result }: { result: AssignmentResultDto }
   const names = new Map(rowsOf(people.currentData).map(person => [Number(person.id), String(person.fullName ?? `Nhân viên #${person.id}`)]))
 
   if (!Array.isArray(result?.skipped) || !Array.isArray(result?.alreadyEnrolled) || !Array.isArray(result?.enrollmentIds)) {
-    return <Notice>Phản hồi giao khóa không khớp contract hiện tại. Chưa thể xác nhận kết quả từng người.</Notice>
+    return <Notice>Chưa đọc được kết quả giao khóa. Kiểm tra danh sách lần học trước khi gửi lại.</Notice>
   }
 
   const rows = [
     ...alreadyEnrolled.map(userId => ({ userId, fullName: names.get(userId) ?? `Nhân viên #${userId}`, outcome: 'Đã có đăng ký', reason: '—' })),
-    ...skipped.map(item => ({ userId: item.userId, fullName: names.get(item.userId) ?? `Nhân viên #${item.userId}`, outcome: 'Bỏ qua', reason: `${skipReasons[item.reason] ?? item.reason} (${item.reason})` })),
+    ...skipped.map(item => ({ userId: item.userId, fullName: names.get(item.userId) ?? `Nhân viên #${item.userId}`, outcome: 'Chưa được giao', reason: skipReasons[item.reason] ?? 'Cần kiểm tra điều kiện giao khóa với quản lý đào tạo' })),
   ]
   const partial = skipped.length > 0
 
@@ -31,10 +31,10 @@ export function AssignmentResultView({ result }: { result: AssignmentResultDto }
     <p className={partial || enrollmentIds.length === 0 ? 'notice-box' : 'success-box'} role="status">
       Giao mới: {enrollmentIds.length} · Đã có đăng ký: {alreadyEnrolled.length} · Bỏ qua: {skipped.length}
     </p>
-    {partial && <Notice>Một số nhân viên chưa được giao. Kiểm tra lý do bên dưới; mã enrollment mới không được backend ánh xạ ngược về từng nhân viên trong response.</Notice>}
-    {enrollmentIds.length > 0 && <p>Enrollment mới: {enrollmentIds.join(', ')}</p>}
+    {partial && <Notice>Một số nhân viên chưa được giao. Kiểm tra lý do bên dưới và hoàn thành điều kiện còn thiếu.</Notice>}
+    {enrollmentIds.length > 0 && <p>Đã tạo {enrollmentIds.length} lần học. Mở danh sách giao khóa để kiểm tra từng người; kết quả này chưa có thông tin người nhận cho các lần học mới.</p>}
     {rows.length > 0 && <DataTable data={rows} columns={['fullName', 'userId', 'outcome', 'reason']} pageSize={20} />}
-    {!rows.length && enrollmentIds.length === 0 && <p>Không có enrollment mới trong kết quả này.</p>}
+    {!rows.length && enrollmentIds.length === 0 && <p>Không tạo thêm lần học trong lần xử lý này.</p>}
     {people.error && <ErrorState error={people.error} retry={() => void people.refetch()} />}
   </section>
 }

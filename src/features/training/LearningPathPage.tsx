@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { canCall, useReadQuery } from '@/services/backend/operations'
 import type { LearningPathDto } from '@/services/backend/contracts'
 import { pathEnrollmentLink } from '@/services/backend/learningFlow'
+import { PathAssignmentResult } from './PathAssignmentResult'
+import type { PathAssignmentDto } from '@/services/backend/contracts'
 
 export function LearningPathPage() {
   const user = useAppSelector(s => s.auth.user), [person, setPerson] = useState<number | null>(null), [open, setOpen] = useState(false)
@@ -22,7 +24,7 @@ export function LearningPathPage() {
   const path = query.currentData as LearningPathDto | undefined
   if (!user) return null
   const prefix = roleConfig[user.role].prefix
-  return <><PageHeader title="Lộ trình học" description="Giai đoạn, tiên quyết và các khóa bắt buộc lấy từ máy chủ." />
+  return <><PageHeader title="Lộ trình học" description="Xem khóa cần học, hoàn thành nhóm tiên quyết và tiếp tục từng bước." />
     {canManage && <section className="panel mb-6">{canCall('LearningPath.Mine', user.role) && <label><input type="checkbox" checked={mine} onChange={e => { setMine(e.target.checked); setOpen(false) }} /> Lộ trình của tôi</label>}{!ownMode && <ResourcePicker field="userId" value={person} onChange={v => { setPerson(Number(v) || null); setOpen(false) }} />}</section>}
     {!userId ? <Notice>Chọn nhân viên trong phạm vi được phép để xem lộ trình.</Notice> : query.isLoading || query.isFetching && !path ? <LoadingState /> : <>
       {query.error && <ErrorState error={query.error} retry={() => void query.refetch()} />}
@@ -30,6 +32,6 @@ export function LearningPathPage() {
         {path.stages.map(stage => <Fold key={stage.regulationId} open={!stage.blocked&&!stage.courses.every(c=>c.status==='CERTIFIED')} title={<span>{display(stage.courseType)} <span className="badge">{stage.blocked?'Bị chặn bởi tiên quyết':stage.courses.length&&stage.courses.every(c=>c.status==='CERTIFIED')?'Đã hoàn thành':'Giai đoạn đang mở'}</span></span>}><p>Tiên quyết: {stage.prerequisiteType ? display(stage.prerequisiteType) : 'Không có'} · Hạn học {stage.dueDays} ngày</p>{stage.blocked && <Notice>Cần đạt khóa thuộc nhóm {display(stage.prerequisiteType)} theo quy định máy chủ.</Notice>}{!stage.courses.length && <p>Chưa có khóa công bố phù hợp với quy định và menu chi nhánh.</p>}{stage.courses.map(course => { const link = pathEnrollmentLink(prefix, course, path.userId === Number(user.id), user.role === 'TRAINER',user.role==='TRAINING_MANAGER'&&canCall('Enrollments.Get',user.role)); return <article className="lesson-card" key={course.courseId}><h3>{course.title}</h3><p>{display(course.status)} · {display(course.enrollmentState)}{course.dueDate ? ` · Hạn ${course.dueDate}` : ''}</p>{link ? <Link className="text-link" to={link}>Mở đăng ký học →</Link> : <p className="muted">{course.enrollmentId ? 'Bạn chưa có quyền xem chi tiết đăng ký này.' : 'Khóa học chưa được giao.'}</p>}{course.certificateId && canCall('Certificates.Get', user.role) && <Link className="text-link ml-3" to={`${prefix}/certificates/${course.certificateId}`}>Xem chứng chỉ</Link>}</article> })}</Fold>)}
       </>}
     </>}
-    {open && userId && <ActionDialog action={{ operation: 'LearningPath.Assign', label: 'Giao các khóa đang mở', params: () => ({ userId }), note: 'BE chỉ giao các khóa AVAILABLE, không tự mở khóa tiên quyết. Kết quả gồm path và enrollmentIds thực tế.' }} onClose={() => setOpen(false)} />}
+    {open && userId && path && <ActionDialog action={{ operation: 'LearningPath.Assign', label: 'Giao các khóa đang mở', params: () => ({ userId }), note: <><p>Giao khóa học cho <strong data-private-person>{path.fullName}</strong>.</p><p>Chỉ giao các khóa đã mở và chưa có lần học hoặc chứng chỉ. Khóa còn thiếu tiên quyết chưa được giao; hoàn thành nhóm học trước để mở khóa.</p></> }} renderResult={result => <PathAssignmentResult result={result as PathAssignmentDto} />} onClose={() => setOpen(false)} />}
   </>
 }

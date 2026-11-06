@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { PageHeader } from '@/components/common/PageHeader'
 import { LoadingState, ErrorState, Notice } from '@/components/common/AsyncState'
 import { DataTable, DataView } from '@/components/common/DataView'
-import { display } from '@/components/common/presentation'
+import { display, label } from '@/components/common/presentation'
 import { ActionDialog } from '@/components/common/ActionDialog'
 import { type FormContext } from '@/components/common/ContractForm'
 import { requestFields } from '@/services/backend/formValues'
@@ -20,6 +20,7 @@ import { resourceByKey, type ActionSpec, type Filter } from './resources'
 import { confinedBranch } from '@/services/backend/learningFlow'
 import { RetrainingPanel } from './RetrainingPanel'
 import { AssignmentResultView } from './AssignmentResultView'
+import { PosImportReceipt } from './PosImportReceipt'
 import { RecipeSections, CourseSections, ClassSections, PilotSections, AuditEvidence, AssignmentActions } from './sections'
 export function FilterBar({ filters, initial = {}, onApply }: { filters: Filter[]; initial?: RecordData; onApply: (query: RecordData) => void }) {
   const scope = confinedBranch(useAppSelector(s => s.auth.user))
@@ -81,12 +82,12 @@ export function ResourcePage({ resource, initialFilters = {} }: { resource: stri
       {resource === 'assignments' && <AssignmentActions record={record} />}
       {resource === 'agenda' && <Button variant="outline" onClick={() => navigate(`${prefix}/assessment/${record.enrollmentId}`)}>Xem học viên & đánh giá thực hành</Button>}
     </> : <>
-      {paging && <div className="list-toolbar"><span className="muted">{Number(asRecord(result.currentData).total ?? 0).toLocaleString('vi-VN')} mục</span><div className="flex items-center gap-3"><label htmlFor="sort">Sắp xếp</label><select id="sort" value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}><option value="">Mặc định</option>{spec.sort?.flatMap(f => [<option key={f + 'asc'} value={f + ',asc'}>{display(f)} ↑</option>, <option key={f + 'desc'} value={f + ',desc'}>{display(f)} ↓</option>])}</select></div></div>}
+      {paging && <div className="list-toolbar"><span className="muted">{Number(asRecord(result.currentData).total ?? 0).toLocaleString('vi-VN')} mục</span><div className="flex items-center gap-3"><label htmlFor="sort">Sắp xếp</label><select id="sort" value={sort} onChange={e => { setSort(e.target.value); setPage(1) }}><option value="">Mặc định</option>{spec.sort?.flatMap(f => [<option key={f + 'asc'} value={f + ',asc'}>{label(f)} ↑</option>, <option key={f + 'desc'} value={f + ',desc'}>{label(f)} ↓</option>])}</select></div></div>}
       <DataTable data={result.currentData} columns={spec.columns} onRow={open} />{spec.create&&canCall(spec.create,user.role)&&!Number(asRecord(result.currentData).total)&&Array.isArray(result.currentData)&&!result.currentData.length&&<Button className="mt-3" onClick={()=>setAction({operation:spec.create!,label:'Tạo '+spec.title.toLowerCase()})}>Tạo mục đầu tiên</Button>}
       {paging && <div className="pagination"><select aria-label="Số dòng mỗi trang" value={size} onChange={e => { setSize(Number(e.target.value)); setPage(1) }}>{[20, 50, 100].map(n => <option key={n} value={n}>{n} dòng</option>)}</select><span>Trang {page} / {Math.max(1, Math.ceil(Number(asRecord(result.currentData).total ?? 0) / size))}</span><Button variant="outline" aria-label="Trang trước" disabled={page === 1} onClick={() => setPage(p => p - 1)}><ChevronLeft size={16} /></Button><Button variant="outline" aria-label="Trang sau" disabled={page * size >= Number(asRecord(result.currentData).total ?? 0)} onClick={() => setPage(p => p + 1)}><ChevronRight size={16} /></Button></div>}
       {resource === 'recipes' && canCall('Recipes.ImportExisting', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Recipes.ImportExisting', label: 'Nhập công thức hiện có', note: 'Nhập các bước từ tài liệu hiện có. Công thức bắt đầu ở trạng thái nháp và cần kiểm tra, phát hành.' })}>Nhập công thức hiện có</Button>}
-      {resource === 'sales' && canCall('Sales.Import', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Sales.Import', label: 'Nhập doanh số POS', note: 'CSV/XLSX theo thứ tự branch_code, drink_code, trading_date, quantity. drink_code là mã công thức. Dòng hợp lệ có thể thay số liệu đã tồn tại; dòng lỗi được báo riêng.' })}>Nhập CSV / XLSX</Button>}
+      {resource === 'sales' && canCall('Sales.Import', user.role) && <Button className="mt-6" variant="outline" onClick={() => setAction({ operation: 'Sales.Import', label: 'Nhập doanh số POS', note: 'Dùng tệp CSV hoặc XLSX với bốn cột theo thứ tự: mã chi nhánh, mã công thức đồ uống, ngày bán, số ly. Hàng tiêu đề cần giữ đúng mẫu tệp. Dòng hợp lệ có thể thay dữ liệu đã có; dòng bị từ chối được báo riêng.' })}>Nhập CSV / XLSX</Button>}
     </>}
-    {action && <ActionDialog key={action.operation + String(id ?? itemId ?? '') + location.pathname} action={action} record={record} initial={initial} context={{ ...context, creating: !isDetail }} renderResult={action.operation === 'Assignments.Assign' ? data => <AssignmentResultView result={data as import('@/services/backend/contracts').AssignmentResultDto} /> : undefined} onClose={() => setAction(null)} onSuccess={data => { if (!id && selected && data && typeof data === 'object' && !Array.isArray(data) && (asRecord(data).id !== undefined || asRecord(data).key !== undefined)) setSelected(asRecord(data)); void result.refetch() }} />}
+    {action && <ActionDialog key={action.operation + String(id ?? itemId ?? '') + location.pathname} action={action} record={record} initial={initial} context={{ ...context, creating: !isDetail }} renderResult={action.operation === 'Assignments.Assign' ? data => <AssignmentResultView result={data as import('@/services/backend/contracts').AssignmentResultDto} /> : action.operation === 'Sales.Import' ? data => <PosImportReceipt result={data as import('@/services/backend/contracts').PosImportResultDto}/> : undefined} onClose={() => setAction(null)} onSuccess={data => { if (!id && selected && data && typeof data === 'object' && !Array.isArray(data) && (asRecord(data).id !== undefined || asRecord(data).key !== undefined)) setSelected(asRecord(data)); void result.refetch() }} />}
   </>
 }

@@ -51,7 +51,9 @@ try {
   async function reload(){const previous=loads;await command('Page.reload');for(let i=0;i<100;i++){if(loads>previous)return;await delay(25)}throw Error('TEST_ONLY page did not reload')}
   async function navigate(p){const previous=loads;await command('Page.navigate',{url:origin+p});for(let i=0;i<100;i++){if(loads>previous)return;await delay(25)}throw Error('TEST_ONLY page did not load')}
   await command('Network.enable');await command('Network.setCacheDisabled',{cacheDisabled:true});await command('Page.enable');await command('Runtime.enable')
-  await command('Fetch.enable',{patterns:[{urlPattern:'http*'}]})
+  // Intercept only the isolated API transport. Intercepting Vite modules/fonts as
+  // well makes reload cancellation race unrelated Fetch.continueRequest calls.
+  await command('Fetch.enable',{patterns:[{urlPattern:'http://localhost:5113/*'},{urlPattern:'http://127.0.0.1:5113/*'}]})
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false})
   const deep='/trainer/courses/101?tab=modules#lesson'
   await navigate(deep);await loginUI();await until('location.pathname==="/trainer/courses/101" && document.body.textContent.includes("TEST_ONLY Review course")')

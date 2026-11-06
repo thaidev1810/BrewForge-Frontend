@@ -103,7 +103,7 @@ export function SalesAnalyticsPage() {
 }
 export function AccountPage() {
   const query = useReadQuery({ operation: 'Auth.Me' })
-  return <><PageHeader title="Tài khoản của tôi" description="Thông tin và quyền được backend cấp cho phiên hiện tại." />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} /> : <section className="panel"><DataView value={query.data} /></section>}<Notice>Đổi thông tin tài khoản hoặc mật khẩu thông qua quản trị viên. Phiên được giữ qua tải lại trang trong cùng tab và xác thực lại trước khi mở dữ liệu.</Notice></>
+  return <><PageHeader title="Tài khoản của tôi" description="Xem thông tin tài khoản và phạm vi công việc của bạn." />{query.isFetching ? <LoadingState /> : query.error ? <ErrorState error={query.error} /> : <section className="panel"><DataView value={query.data} /></section>}<Notice>Đổi thông tin tài khoản hoặc mật khẩu thông qua quản trị viên. Phiên được giữ qua tải lại trang trong cùng tab và xác thực lại trước khi mở dữ liệu.</Notice></>
 }
 export function PushPage() {
   const config = useReadQuery({ operation: 'Notifications.PushConfig' }), mine = useReadQuery({ operation: 'Notifications.Mine' }), [mutate, mutation] = useExecuteMutation(), dispatch = useAppDispatch()

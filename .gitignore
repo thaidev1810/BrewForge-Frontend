@@ -33,3 +33,6 @@ e2e-private/
 business-test-results/
 experience-test-results/
 final-flow-test-results/
+ui-test-results/
+ops-live-results/
+ops-isolated-results/

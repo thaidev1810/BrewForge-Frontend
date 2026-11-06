@@ -8,6 +8,7 @@ import { ErrorState } from './AsyncState'
 import { display, label } from './presentation'
 import { mergePeopleSelection } from '@/services/backend/lookupRules'
 import { confinedBranch } from '@/services/backend/learningFlow'
+import { trainerReason } from '@/services/operationPresentation'
 
 export function PeoplePicker({ field, value, onChange, context, multiple = false }: { field: string; value: unknown; onChange: (v: unknown) => void; context: FormContext; multiple?: boolean }) {
   const user = useAppSelector(s => s.auth.user)
@@ -22,7 +23,7 @@ export function PeoplePicker({ field, value, onChange, context, multiple = false
   const labels=Object.fromEntries(rowsOf(resolved.currentData).map(person=>[String(person.id),[person.fullName,person.username,person.branchName,person.active===false?'Ngưng hoạt động':''].filter(Boolean).map(display).join(' · ')]))
   const data = useReadQuery(trainer ? { operation, params: { id: context.courseId! }, query:{q,branchId:confinedBranch(user)??context.branchId,page,size:20,sort:'fullName,asc'} } : { operation, query: { q, role: role || undefined, branchId: confinedBranch(user) ?? context.branchId, page, size: 20, includeInactive: false, sort: 'fullName,asc' } }, { skip: !allowed })
   const rows = rowsOf(data.currentData)
-  const choices = rows.map(r => ({ value: Number(r.id), label: [r.fullName, r.role, r.branchName ?? (r.branchId ? `Chi nhánh #${r.branchId}` : ''), trainer && r.eligible === false ? `Không đủ điều kiện: ${r.reason}` : ''].filter(Boolean).map(display).join(' · '), disabled: trainer ? r.eligible !== true : r.active===false || !!context.peopleRoles && !context.peopleRoles.includes(String(r.role)) }))
+  const choices = rows.map(r => ({ value: Number(r.id), label: [r.fullName, r.role, r.branchName ?? (r.branchId ? `Chi nhánh #${r.branchId}` : ''), trainer && r.eligible === false ? `Không đủ điều kiện: ${trainerReason(r.reason)}` : ''].filter(Boolean).map(display).join(' · '), disabled: trainer ? r.eligible !== true : r.active===false || !!context.peopleRoles && !context.peopleRoles.includes(String(r.role)) }))
   const missing = selected.filter(id => !choices.some(c => String(c.value) === id))
   if (!allowed) return <p className="field-error">Không có quyền tra cứu hoặc chưa xác định khóa học cho giảng viên.</p>
   return <div className="lookup-control">
@@ -33,7 +34,7 @@ export function PeoplePicker({ field, value, onChange, context, multiple = false
     {multiple && selected.map(id => <Button key={id} className="max-w-full whitespace-normal text-left h-auto py-2" type="button" variant="outline" disabled={context.readOnly?.includes(field)} onClick={() => onChange(selected.filter(s => s !== id).map(Number))}>{labels[id] ?? savedLabels[id] ?? choices.find(c => String(c.value) === id)?.label ?? `#${id}`} ×</Button>)}
     {data.isFetching && <p role="status">Đang tải danh sách…</p>}{!data.isFetching && !data.error && !rows.length && <p className="muted">Không có người phù hợp trong phạm vi được phép.</p>}
     {<div className="flex gap-2"><Button type="button" variant="outline" aria-label="Trang nhân viên trước" disabled={page === 1 || data.isFetching} onClick={() => setPage(p => p - 1)}>‹</Button><span>Trang {page} · {Number(asRecord(data.currentData).total ?? 0)} người</span><Button type="button" variant="outline" aria-label="Trang nhân viên sau" disabled={data.isFetching || page * 20 >= Number(asRecord(data.currentData).total ?? 0)} onClick={() => setPage(p => p + 1)}>›</Button></div>}
-    {trainer && <p className="field-help">BR-34: eligibility và lý do lấy từ máy chủ theo đúng SOP; máy chủ kiểm tra lại khi lưu. Danh sách có tìm kiếm và phân trang từ máy chủ.</p>}
+    {trainer && <p className="field-help">Chọn giảng viên đủ điều kiện trên đúng phiên bản quy trình và chi nhánh của lớp. Tìm theo tên hoặc chuyển trang để xem thêm lựa chọn.</p>}
     {multiple && <p className="field-help">Chọn nhiều mục bằng Ctrl/⌘; lựa chọn được giữ khi chuyển trang.</p>}
     {resolved.error && <ErrorState error={resolved.error} retry={()=>void resolved.refetch()}/>}
     {data.error && <ErrorState error={data.error} retry={() => void data.refetch()} />}

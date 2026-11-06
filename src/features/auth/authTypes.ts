@@ -8,6 +8,6 @@ export interface LoginCredentials { username: string; password: string }
 export interface AuthState { user: User | null; accessToken: string | null; refreshToken: string | null; isAuthenticated: boolean; loading: boolean; error: string | null; requestId: string | null; generation: number; status: 'initializing' | 'authenticated' | 'unauthenticated'; bootstrapError: string | null }
 export interface AuthService { login(credentials: LoginCredentials): Promise<AuthSession> }
 export function identityFromWire(me: MeResponse): User {
-  if (!ROLES.includes(me.role) || !Number.isSafeInteger(me.id) || me.status !== 'ACTIVE') throw new Error('Tài khoản hoặc role trả về không hợp lệ.')
+  if (!ROLES.includes(me.role) || !Number.isSafeInteger(me.id) || me.status !== 'ACTIVE') throw new Error('Thông tin đăng nhập trả về không đầy đủ. Liên hệ quản trị viên để kiểm tra tài khoản.')
   return { id: String(me.id), username: me.username, name: me.fullName, email: me.email, role: me.role, branchId: me.branchId === null ? null : String(me.branchId), permissions: me.permissions }
 }

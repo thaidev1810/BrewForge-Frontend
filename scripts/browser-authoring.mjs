@@ -23,14 +23,14 @@ try {
   async function evaluate(expression){const r=await command('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw new Error(r.exceptionDetails.exception?.description??r.exceptionDetails.text);return r.result.value}
   async function until(expression){for(let i=0;i<100;i++){if(await evaluate(expression))return;await delay(100)}console.log('TEST_ONLY diagnostic',await evaluate('({path:location.pathname,text:document.body.innerText.slice(-1000),calls:window.__regression?.calls.map(c=>c.url).slice(-5)})'));throw new Error('Not ready: '+expression)}
   const pass=name=>{checks++;console.log('PASS '+name)}
-  const click=async text=>{await until(`[...document.querySelectorAll('button')].some(b=>b.textContent.trim()===${JSON.stringify(text)}&&!b.disabled)`);await evaluate(`(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===${JSON.stringify(text)}&&!b.disabled);b.click()})()`)}
+  const click=async text=>{if(text==='Xác nhận'){await until('!!document.querySelector("[role=dialog] button[type=submit]:not(:disabled)")');await evaluate('document.querySelector("[role=dialog] button[type=submit]").click()');return;}await until(`[...document.querySelectorAll('button')].some(b=>b.textContent.trim()===${JSON.stringify(text)}&&!b.disabled)`);await evaluate(`(()=>{const b=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===${JSON.stringify(text)}&&!b.disabled);b.click()})()`)}
   await command('Page.enable');await command('Runtime.enable');await command('Network.enable')
   // Block accidental browser network traffic to backend, even if a fixture misses a route.
   await command('Network.setBlockedURLs',{urls:['http://localhost:5113/*','http://127.0.0.1:5113/*']})
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false})
   await command('Page.navigate',{url:origin+'/login'});await until('!!document.querySelector("#username")')
   await evaluate(`(async()=>{
-    const {store}=await import('/src/app/store.ts');const auth=await import('/src/features/auth/authSlice.ts');const {apiClient}=await import('/src/services/apiClient.ts');const {backendApi}=await import('/src/services/backend/operations.ts');const {mutationTags}=await import('/src/services/backend/cachePolicy.ts');const {router}=await import('/src/app/router.tsx');
+    const {store}=await import('/src/app/store.ts');const auth=await import('/src/features/auth/authSlice.ts');const {apiClient}=await import('/src/services/apiClient.ts');const {backendApi}=await import('/src/services/backend/operations.ts');const {mutationTags}=await import('/src/services/backend/cachePolicy.ts');
     const types=['PRODUCT_OVERVIEW','INGREDIENTS','EQUIPMENT','SOP','TECHNIQUE','COMMON_MISTAKES','EXCEPTION_HANDLING'];
     const course={id:101,title:'TEST_ONLY Course',courseType:'PRODUCT',state:'DRAFT',recipeVersionId:201,recipeId:301,modules:types.map((moduleType,i)=>({id:1000+i,courseId:101,moduleType,moduleOrder:i+1,source:i<4?'GENERATED':i===4?'MIXED':'AUTHORED',durationMinutes:5,state:'COMPLETE',lessons:[{id:2000+i,title:'TEST_ONLY '+moduleType,content:'Saved instructor prose',lessonOrder:1,recipeStepId:i===4?501:null,generated:i<=4,reference:i<=4?{stepOrder:1,actionText:'SOP reference'}:null}]})),quiz:{id:401,courseId:101,title:'TEST_ONLY quiz',passScore:80,questionCount:1},practicalChecklist:[{lessonId:2004,recipeStepId:501,actionText:'TEST_ONLY gate'}]};
     const launchNoticeSubjects=['Training needed for a drink','Branch ready to open a drink','Drink on sale','Drink withdrawn','Pilot ended','Sales missing'];
@@ -88,7 +88,7 @@ try {
       return reply(config,{items:[],total:0,page:1,size:20});
     };
     window.__asRole=async(role,branchId=null)=>{store.dispatch(auth.logout());const arg={username:'TEST_ONLY',password:'TEST_ONLY'};store.dispatch(auth.login.pending('TEST_ONLY',arg));store.dispatch(auth.login.fulfilled({accessToken:'TEST_ONLY_NOT_A_REAL_TOKEN',refreshToken:'TEST_ONLY',user:{id:'1',name:'TEST_ONLY',email:'test@example.invalid',role,branchId}},'TEST_ONLY',arg))};
-    window.__navigate=p=>router.navigate(p);window.__invalidate=()=>store.dispatch(backendApi.util.invalidateTags(mutationTags('Lessons.Update')));
+    window.__navigate=p=>{history.pushState({...history.state,idx:Number(history.state?.idx??0)+1},"",p);dispatchEvent(new PopStateEvent("popstate",{state:history.state}))};window.__invalidate=()=>store.dispatch(backendApi.util.invalidateTags(mutationTags('Lessons.Update')));
     await window.__asRole('TRAINER');
   })()`)
   await until('location.pathname==="/trainer/dashboard"')
@@ -96,7 +96,7 @@ try {
   await until('document.body.textContent.includes("Biên soạn học phần")')
   await click('Gửi duyệt');await click('Xác nhận')
   await until('document.querySelector("[role=dialog]")?.textContent.includes("TEST_ONLY_TRACE")')
-  assert(await evaluate('document.querySelector("[role=dialog]").textContent.includes("TECHNIQUE") && document.querySelector("[role=dialog]").textContent.includes("thời lượng")'))
+  assert(await evaluate('document.querySelector("[role=dialog]").textContent.includes("Kỹ thuật") && document.querySelector("[role=dialog]").textContent.includes("thời lượng")'))
   pass('real RTK unwrap reaches Vietnamese dialog with module fields, rule and trace')
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true})
   await delay(150)
@@ -114,7 +114,7 @@ try {
   await evaluate('document.querySelectorAll("[role=dialog] fieldset.nested-card")[1].querySelector("button").click()')
   await until('document.querySelector("#correctOption").value==="" && ![...document.querySelector("#correctOption").options].some(o=>o.value==="B")')
   pass('quiz UI starts with two choices and clears correct answer after key rename/delete')
-  await click('Hủy');await click('Nội dung học');await evaluate('document.querySelectorAll(".module-card").forEach(node=>node.open=true)');await evaluate('[...document.querySelectorAll(".module-card button")].find(b=>b.textContent==="Chỉnh sửa"&&b.closest(".module-card").textContent.includes("TECHNIQUE")).click()')
+  await click('Hủy');await click('Nội dung học');await evaluate('document.querySelectorAll(".module-card").forEach(node=>node.open=true)');await evaluate('[...document.querySelectorAll(".module-card button")].find(b=>b.textContent==="Chỉnh sửa"&&b.closest(".module-card").textContent.includes("Kỹ thuật")).click()')
   await evaluate('document.querySelector("textarea").focus();document.querySelector("textarea").select()')
   await command('Input.insertText',{text:'TEST_ONLY unsaved instructor content'})
   await evaluate('window.__regression.defer=true;window.__invalidate()')
@@ -123,7 +123,7 @@ try {
   pass('delayed background GET preserves mounted dialog and unsaved prose')
   await evaluate('window.__regression.defer=false;window.__regression.waiting.splice(0).forEach(r=>r())')
   await delay(200);assert(await evaluate('document.querySelector("textarea").value==="TEST_ONLY unsaved instructor content"'))
-  await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")')
+  await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Đã lưu kết quả")')
   await until('[...document.querySelectorAll(".module-card")].some(m=>m.textContent.includes("TEST_ONLY unsaved instructor content"))')
   assert(await evaluate('window.__regression.calls.some(c=>c.method==="put"&&c.url==="/lessons/2004"&&c.body.content==="TEST_ONLY unsaved instructor content")'))
   pass('lesson save payload, response and follow-up GET retain instructor prose and success dialog')
@@ -169,7 +169,7 @@ try {
   await click('Hủy');await evaluate('window.__navigate("/trainer/classes/401")');await until('document.body.textContent.includes("TEST_ONLY class")')
   await click('Thêm buổi học')
   await until('[...document.querySelectorAll("[role=dialog] select option")].some(o=>o.value==="7")')
-  assert(await evaluate('[...document.querySelectorAll("[role=dialog] select option")].some(o=>o.value==="8" && o.disabled && o.textContent.includes("not certified"))'))
+  assert(await evaluate('[...document.querySelectorAll("[role=dialog] select option")].some(o=>o.value==="8" && o.disabled && o.textContent.includes("chưa có chứng chỉ"))'))
   await evaluate('var s=[...document.querySelectorAll("[role=dialog] select")].find(s=>[...s.options].some(o=>o.value==="7"));s.value="7";s.dispatchEvent(new Event("change",{bubbles:true}))')
   assert(await evaluate('[...document.querySelectorAll("[role=dialog] select")].some(s=>s.value==="7")'))
   pass('session picker allows another eligible trainer and disables server-ineligible trainers')
@@ -179,7 +179,7 @@ try {
   await evaluate('var s=document.querySelector("#entityType");s.value="Ingredient";s.dispatchEvent(new Event("change",{bubbles:true}))')
   await until('[...document.querySelectorAll("select")].some(s=>[...s.options].some(o=>o.value==="901"))')
   await evaluate('var s=[...document.querySelectorAll("select")].find(s=>[...s.options].some(o=>o.value==="901"));s.value="901";s.dispatchEvent(new Event("change",{bubbles:true}))')
-  await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")');await click('Đóng')
+  await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Đã lưu kết quả")');await click('Đóng')
   assert(await evaluate('[...document.querySelectorAll("button")].some(b=>b.textContent==="Áp dụng ảnh hưởng")'))
   await evaluate('[...document.querySelectorAll("a")].find(a=>a.textContent.includes("Mở chi tiết lần phân tích")).click()')
   await until('location.pathname.includes("11111111111111111111111111111111") && document.body.textContent.includes("Không có tài nguyên downstream")')
@@ -216,7 +216,7 @@ try {
   await until('[...document.querySelectorAll(".lookup-control select")].some(s=>[...s.options].some(o=>o.textContent.includes("TEST_ONLY Selected name")))')
   await evaluate('(()=>{const picker=[...document.querySelectorAll(".lookup-control select")].find(select=>[...select.options].some(option=>option.textContent.includes("TEST_ONLY Selected name")));if(!picker)throw new Error("Learning-path staff picker was not rendered");picker.value="1";picker.dispatchEvent(new Event("change",{bubbles:true}))})()')
   await until('document.body.textContent.includes("TEST_ONLY Blocked")');await click('Giao các khóa đang mở');await click('Xác nhận')
-  await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")')
+  await until('document.querySelector("[role=dialog]")?.textContent.includes("Giao mới:")')
   assert(await evaluate('window.__regression.calls.some(c=>c.method==="post"&&c.url==="/learning-paths/1/assign")'))
   pass('manager path picker and assign action use actual endpoint and display dedup result')
   await click('Đóng')
@@ -228,12 +228,12 @@ try {
   pass('RD manager pending-review route sends actual state filter without a bogus detail ID')
   await evaluate('window.__regression.lessonState="LOCKED";window.__asRole("TRAINING_MANAGER")');await evaluate('window.__navigate("/training-manager/assignments")')
   await until('document.body.textContent.includes("TEST_ONLY Learning")');await click('Xem chi tiết →');await click('Mở lại đăng ký bị khóa');await click('Xác nhận')
-  await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")');await click('Đóng')
+  await until('document.querySelector("[role=dialog]")?.textContent.includes("Đã lưu kết quả")');await click('Đóng')
   await evaluate('window.__asRole("TRAINEE",2)');await evaluate('window.__navigate("/barista/learning/70")')
   await until('document.body.textContent.includes("0% hoàn thành") && [...document.querySelectorAll("button")].filter(b=>b.textContent==="Đánh dấu hoàn thành bài"&&!b.disabled).length===1')
   pass('training-manager reset uses actual endpoint and next account sees fresh lesson progress')
-  await evaluate('window.__navigate("/barista/notifications")');await until('document.body.textContent.includes("Training needed for a drink") && document.body.textContent.includes("Sales missing")')
-  assert(await evaluate('!document.querySelector(".panel a") && window.__regression.notices.every(n=>document.body.textContent.includes(n.subject))'))
+  await evaluate('window.__navigate("/barista/notifications")');await until('document.body.textContent.includes("Cần đào tạo cho đồ uống") && document.body.textContent.includes("Còn thiếu doanh số")')
+  assert(await evaluate('!document.querySelector(".panel a") && window.__regression.notices.length===6 && ["Cần đào tạo cho đồ uống","Chi nhánh đủ điều kiện mở bán","Đồ uống đã mở bán","Đồ uống đã ngừng bán","Thử nghiệm đã kết thúc","Còn thiếu doanh số"].every(title=>document.body.textContent.includes(title))'))
   pass('all six launch notice subjects render as generic inbox content without fabricated navigation')
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(150)
   assert(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'))
@@ -255,7 +255,7 @@ try {
   pass('trainer training dashboard hides branch selector and sends confined branch query')
   await evaluate('window.__navigate("/trainer/classes/401")');await until('document.body.textContent.includes("TEST_ONLY class")');await click('Hủy lớp')
   await evaluate('document.querySelector("#reason").focus()');await command('Input.insertText',{text:'TEST_ONLY cancel reason'});await click('Xác nhận')
-  await until('document.querySelector("[role=dialog]")?.textContent.includes("Máy chủ đã xử lý")')
+  await until('document.querySelector("[role=dialog]")?.textContent.includes("Đã lưu kết quả")')
   assert(await evaluate('window.__regression.calls.some(c=>c.url==="/training-classes/401/cancel"&&c.body.reason==="TEST_ONLY cancel reason") && document.body.textContent.includes("Đã hủy")'))
   pass('cancel class keeps reason, renders server state and refreshes dependent training data')
   await click('Đóng');await evaluate('window.__asRole("TRAINEE",2)');await evaluate('window.__navigate("/barista/learning/70")')
@@ -277,7 +277,7 @@ try {
   await evaluate('document.querySelector(".desktop-collapse").click()');assert(await evaluate('document.querySelector(".workspace-sidebar").classList.contains("is-collapsed")&&[...document.querySelectorAll(".sidebar-nav a")].every(a=>a.title)'));pass('desktop collapse has named icon links and persists per role');
   await evaluate('document.querySelector(".desktop-collapse").click()');
   await click('Quiz');await until('location.search.includes("section=quiz")');assert(await evaluate('location.search.includes("demo=keep")&&location.search.includes("section=quiz")&&location.hash==="#lesson"'));pass('detail tabs preserve other query parameters and hash');
-  await evaluate('document.querySelector("[role=tab][aria-selected=true]").focus()');await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft'});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowLeft',code:'ArrowLeft'});await delay(60);assert(await evaluate('document.activeElement.getAttribute("role")==="tab"&&document.activeElement.getAttribute("aria-selected")==="true"'));pass('tabs support keyboard selection and focus');
+  await evaluate('document.querySelector("[role=tab][aria-selected=true]").focus()');await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft'});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowLeft',code:'ArrowLeft'});await until('document.activeElement.getAttribute("role")==="tab"&&document.activeElement.getAttribute("aria-selected")==="true"');assert(await evaluate('document.activeElement.getAttribute("role")==="tab"&&document.activeElement.getAttribute("aria-selected")==="true"'));pass('tabs support keyboard selection and focus');
   await click('Nội dung học');await evaluate('document.querySelectorAll(".module-card").forEach(node=>node.open=true)');await evaluate('[...document.querySelectorAll(".module-card button")].find(b=>b.textContent==="Chỉnh sửa").click()');await until('!!document.querySelector("[role=dialog] textarea")');await evaluate('document.querySelector("[role=dialog] textarea").focus()');await command('Input.insertText',{text:'TEST_ONLY dirty draft'});
   await click('Quiz');assert(await evaluate('document.querySelector("[role=dialog] textarea").value.includes("TEST_ONLY dirty draft")'));pass('section changes preserve a mounted dialog draft');acceptDialog=false;await click('Hủy');await delay(80);assert(await evaluate('!!document.querySelector("[role=dialog] textarea")'));pass('canceling discard confirmation keeps dirty draft');acceptDialog=true;await click('Hủy');
   for(const width of [1440,768,390]) {
@@ -303,7 +303,7 @@ try {
 
   await evaluate('window.__regression.retrainDelta=true;window.__asRole("QUALITY_AUDITOR")');await evaluate('window.__navigate("/quality-auditor/corrective-actions/801?section=retraining")');await until('[...document.querySelectorAll("#retraining-course option")].some(option=>option.value==="1101")');await evaluate('var select=document.querySelector("#retraining-course");select.value="1101";select.dispatchEvent(new Event("change",{bubbles:true}))');await click('Giao học lại');await until('!!document.getElementById("deadline")');await delay(60);
   await evaluate('var input=document.getElementById("deadline");Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,"value").set.call(input,"2099-01-31");input.dispatchEvent(new Event("input",{bubbles:true}))');await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("RETRAINING_COURSE_NOT_ALLOWED")');assert.equal(await evaluate('document.getElementById("deadline").value'),'2099-01-31');assert(await evaluate('document.querySelector("[role=dialog]").textContent.includes("TEST_ONLY_SCOPE")'));pass('stale SOP retraining conflict preserves deadline draft, rule, details and trace');
-  await click('Tải lại lựa chọn học lại');await until('[...document.querySelectorAll("[role=dialog] select option")].some(option=>option.value==="1103")');assert.equal(await evaluate('document.getElementById("deadline").value'),'2099-01-31');await evaluate('var select=document.querySelector("[role=dialog] select");select.value="1103";select.dispatchEvent(new Event("change",{bubbles:true}))');await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Giao mới: 1 · Đã có đăng ký: 1 · Bỏ qua: 3")');assert(await evaluate('!document.querySelector("[role=dialog] .success-box")&&["INACTIVE","WRONG_BRANCH","NOT_FOUND"].every(code=>document.querySelector("[role=dialog]").textContent.includes(code))'));assert(await evaluate('window.__regression.calls.some(call=>call.url==="/corrective-actions/801/assign-retraining"&&call.body.courseId===1103&&call.body.deadline==="2099-01-31")'));pass('retraining reloads valid options and reports all per-employee outcomes without skipped success');await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(60);assert(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'));pass('mixed retraining results fit mobile with internal table scrolling');await click('Đóng');await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await click('Tải lại lựa chọn học lại');await until('[...document.querySelectorAll("[role=dialog] select option")].some(option=>option.value==="1103")');assert.equal(await evaluate('document.getElementById("deadline").value'),'2099-01-31');await evaluate('var select=document.querySelector("[role=dialog] select");select.value="1103";select.dispatchEvent(new Event("change",{bubbles:true}))');await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Giao mới: 1 · Đã có đăng ký: 1 · Bỏ qua: 3")');assert(await evaluate('!document.querySelector("[role=dialog] .success-box")&&["Nhân viên ngưng hoạt động","Nhân viên không còn thuộc chi nhánh kiểm định","Không tìm thấy nhân viên"].every(reason=>document.querySelector("[role=dialog]").textContent.includes(reason))'));assert(await evaluate('window.__regression.calls.some(call=>call.url==="/corrective-actions/801/assign-retraining"&&call.body.courseId===1103&&call.body.deadline==="2099-01-31")'));pass('retraining reloads valid options and reports all per-employee outcomes without skipped success');await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(60);assert(await evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth'));pass('mixed retraining results fit mobile with internal table scrolling');await click('Đóng');await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await evaluate('window.__regression.pickerDelta=true;window.__asRole("TRAINER",2)');await evaluate('window.__navigate("/trainer/classes/401")');await until('document.querySelectorAll("tbody tr").length===10');await click('Xem chi tiết →');await click('Chỉnh buổi học');await until('[...[...document.querySelectorAll("[role=dialog] select")].find(select=>select.getAttribute("aria-label")==="Giảng viên").options].some(option=>option.value==="17"&&option.textContent.includes("TEST_ONLY Historical 17")&&option.disabled)');pass('stored trainer ID resolves an inactive historical name outside the first page');
   await evaluate('[...document.querySelectorAll("button")].find(button=>button.getAttribute("aria-label")==="Trang nhân viên sau").click()');await until('[...[...document.querySelectorAll("[role=dialog] select")].find(select=>select.getAttribute("aria-label")==="Giảng viên").options].some(option=>option.value==="18")');assert(await evaluate('window.__regression.calls.some(call=>call.url==="/courses/101/eligible-trainers"&&call.params.page===2&&call.params.size===20)'));pass('eligible trainer picker uses server pagination and preserves stored reference');await evaluate('document.querySelector("[role=dialog] input[placeholder]").focus()');await command('Input.insertText',{text:'Next'});await until('window.__regression.calls.some(call=>call.url==="/courses/101/eligible-trainers"&&call.params.q==="Next"&&call.params.page===1)');pass('eligible trainer search debounces and resets server page');await click('Hủy');
   for(const [role,prefix] of [['TRAINING_MANAGER','/training-manager'],['BRANCH_MANAGER','/store-manager']]){
@@ -316,7 +316,7 @@ try {
 
   await evaluate('window.__asRole("ADMIN")');await evaluate('window.__navigate("/admin/users")');await click('Thêm mới');await until('document.querySelector("select#role")?.options.length===9');assert(await evaluate('[...document.querySelector("select#role").options].some(option=>option.value==="RD_MANAGER")'));pass('user form loads all role choices from authenticated catalogue');await click('Hủy');
   await evaluate('window.__asRole("BRANCH_MANAGER",2)');await evaluate('window.__navigate("/store-manager/sales")');await click('Nhập CSV / XLSX');
-  await evaluate('var transfer=new DataTransfer();transfer.items.add(new File(["TEST_ONLY_csv"],"demo.csv",{type:"text/csv"}));var input=document.querySelector("#upload-file");input.files=transfer.files;input.dispatchEvent(new Event("change",{bubbles:true}))');await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Chưa xác định")');assert(await evaluate('window.__regression.posRequests.length===1'));await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("TEST_ONLY rejected row")');assert(await evaluate('window.__regression.posRequests.length===2&&window.__regression.posRequests[0].key===window.__regression.posRequests[1].key&&window.__regression.posRequests[0].file===window.__regression.posRequests[1].file'));pass('POS lost response preserves actual file/key for manual retry and displays replay with rejected rows');await click('Đóng');
+  await evaluate('var transfer=new DataTransfer();transfer.items.add(new File(["TEST_ONLY_csv"],"demo.csv",{type:"text/csv"}));var input=document.querySelector("#upload-file");input.files=transfer.files;input.dispatchEvent(new Event("change",{bubbles:true}))');await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Chưa xác nhận")');assert(await evaluate('window.__regression.posRequests.length===1'));await click('Xác nhận');await until('document.querySelector("[role=dialog]")?.textContent.includes("Dòng 4") && document.querySelectorAll(".import-receipt dd")[1]?.textContent==="1"');assert(await evaluate('window.__regression.posRequests.length===2&&window.__regression.posRequests[0].key===window.__regression.posRequests[1].key&&window.__regression.posRequests[0].file===window.__regression.posRequests[1].file'));pass('POS lost response preserves actual file/key for manual retry and displays replay with rejected rows');await click('Đóng');
   assert.deepEqual(exceptions,[]);pass('no unhandled browser exceptions in isolated authoring regressions')
   console.log(`Completed ${checks} browser checks using TEST_ONLY transport fixtures. No backend business requests were sent.`)
 } finally {socket?.close();browser.kill()}

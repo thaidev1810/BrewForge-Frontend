@@ -76,7 +76,10 @@ export class Actors {
   }
 }
 export async function identity(page: Page) {
-  return page.evaluate(async () => { const { store } = await import(/* @vite-ignore */ String('/src/app/store.ts')); const user = store.getState().auth.user; return { id: Number(user.id), branchId: user.branchId ? Number(user.branchId) : null } })
+  // Read identity from the authenticated server, not an optionally stale HMR store import.
+  const result = await api(page, 'Auth.Me')
+  if (!result.ok || !Number.isSafeInteger(Number(result.data.id))) throw new Error('Cannot verify authenticated identity')
+  return { id: Number(result.data.id), branchId: result.data.branchId ? Number(result.data.branchId) : null }
 }
 export async function api(page: Page, operation: Operation, params: Record<string, number | string> = {}, body?: unknown, query?: Record<string, unknown>) {
   return page.evaluate(async input => {

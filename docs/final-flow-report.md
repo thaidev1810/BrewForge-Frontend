@@ -1,3 +1,8 @@
+# Current UI review — 06/11/2026
+
+See [UI/UX Pro Max report](ui-ux-test-report.md) for the current shared UI fixes, real before/after screenshots, actual skill searches, regression outcomes and limits. Historical business-flow counts below are preserved and are not the denominator for this UI review. Known BE G-19 remains FAIL.
+
+
 # BrewForge — post-landing review, 04/11/2026
 
 ## Kết quả hiện hành — run E2E_REVIEW_MW1K2W7N
