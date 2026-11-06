@@ -1,29 +1,16 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Coffee } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Coffee, ArrowRight, ShieldCheck } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import { isDemoMode } from '@/constants/config'
-import { roleConfig } from '@/constants/roles'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { login } from './authSlice'
-import { DEMO_PASSWORD, demoUsers } from './mockAuthService'
-
-const schema = z.object({ email: z.email('Enter a valid email address.'), password: z.string().min(1, 'Enter your password.') })
-type LoginForm = z.infer<typeof schema>
+import { loginErrorMessage } from '@/services/operationPresentation'
+const schema = z.object({ username: z.string().trim().min(1, 'Nhập tên đăng nhập.'), password: z.string().min(1, 'Nhập mật khẩu.') })
 export function LoginPage() {
-  const dispatch = useAppDispatch()
-  const { loading, error } = useAppSelector((state) => state.auth)
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginForm>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } })
-  return <main className="grid min-h-screen place-items-center p-6"><section className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-sm">
-    <div className="mb-8 flex items-center gap-3"><Coffee className="size-9 text-caramel" aria-hidden="true" /><span className="text-2xl font-bold">BrewForge</span></div>
-    <h1 className="text-2xl font-semibold">Welcome back</h1><p className="mt-2 text-muted-foreground">Your workspace for consistent craft and confident teams.</p>
-    {isDemoMode && <div className="mt-6 rounded-lg bg-accent p-4 text-sm"><label htmlFor="demo-user" className="font-medium">Try a demo role</label><select id="demo-user" className="mt-2 h-10 w-full rounded-md border bg-background px-2" defaultValue="" onChange={(event) => { setValue('email', event.target.value, { shouldValidate: true }); setValue('password', DEMO_PASSWORD) }}><option value="" disabled>Select a demo user</option>{demoUsers.map((user) => <option key={user.id} value={user.email}>{roleConfig[user.role].label}</option>)}</select><p className="mt-2 text-muted-foreground">Demo password: {DEMO_PASSWORD}</p></div>}
-    <form className="mt-6 space-y-4" onSubmit={handleSubmit((values) => { void dispatch(login(values)) })}>
-      <div><label htmlFor="email" className="mb-2 block text-sm font-medium">Email</label><Input id="email" type="email" autoComplete="username" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'email-error' : undefined} {...register('email')} />{errors.email && <p id="email-error" className="mt-1 text-sm text-destructive">{errors.email.message}</p>}</div>
-      <div><label htmlFor="password" className="mb-2 block text-sm font-medium">Password</label><Input id="password" type="password" autoComplete="current-password" aria-invalid={!!errors.password} aria-describedby={errors.password ? 'password-error' : undefined} {...register('password')} />{errors.password && <p id="password-error" className="mt-1 text-sm text-destructive">{errors.password.message}</p>}</div>
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}<Button className="w-full" disabled={loading} type="submit">{loading ? 'Signing in…' : 'Sign in'}</Button>
-    </form>
-  </section></main>
+  const dispatch = useAppDispatch(), { loading, error } = useAppSelector(state => state.auth)
+  const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema) })
+  return <main className="login-shell"><section className="login-story"><div className="brand"><Coffee size={32} /> BrewForge</div><p className="eyebrow">CRAFT · CONSISTENCY · CONFIDENCE</p><h1>Mỗi ly nước.<br />Một tiêu chuẩn.</h1><p>Không gian làm việc chung cho công thức chuẩn, đào tạo đội ngũ và chất lượng tại từng chi nhánh.</p><div className="story-foot"><ShieldCheck /><span>Quy trình rõ ràng. Đội ngũ tự tin.</span></div></section><section className="login-form-panel"><div className="login-form"><Link to="/" className="text-link">← Về trang giới thiệu</Link><p className="eyebrow mt-6">CHÀO MỪNG TRỞ LẠI</p><h2>Đăng nhập BrewForge</h2><p className="muted">Sử dụng tài khoản được quản trị viên cung cấp.</p><form onSubmit={handleSubmit(values => { void dispatch(login(values)) })} className="space-y-5 mt-8"><div><label htmlFor="username">Tên đăng nhập</label><Input id="username" autoComplete="username" aria-invalid={!!errors.username} aria-describedby={errors.username ? 'username-error' : undefined} {...register('username')} />{errors.username && <p id="username-error" className="field-error">{errors.username.message}</p>}</div><div><label htmlFor="password">Mật khẩu</label><Input id="password" type="password" autoComplete="current-password" aria-invalid={!!errors.password} aria-describedby={errors.password ? 'password-error' : undefined} {...register('password')} />{errors.password && <p id="password-error" className="field-error">{errors.password.message}</p>}</div>{error && <p role="alert" className="error-box">{loginErrorMessage(error)}</p>}<Button type="submit" className="w-full" disabled={loading}>{loading ? 'Đang đăng nhập…' : 'Đăng nhập'}<ArrowRight size={16} /></Button></form><p className="mt-6 text-xs muted">Nếu chưa có tài khoản hoặc cần đổi mật khẩu, liên hệ quản trị viên.</p></div></section></main>
 }

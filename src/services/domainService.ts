@@ -1,8 +1,8 @@
 import { ApiError } from './apiError'
 import type { DomainService, Entity, MutationCommand } from '@/types/domain'
 
-export const useMockServices = import.meta.env.VITE_ENABLE_MOCK_SERVICES === 'true' ||
-  (import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_SERVICES !== 'false')
+// Historical demo adapters are not enabled in the integrated application.
+export const useMockServices = false
 
 // Register approved .NET adapters here via each domain's configure*Service export.
 // There are deliberately no assumed HTTP routes or automatic mock fallbacks in API mode.

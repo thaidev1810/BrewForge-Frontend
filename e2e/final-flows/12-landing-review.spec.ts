@@ -1,0 +1,76 @@
+import { test, expect } from '@playwright/test'
+import { reviewed } from './review-registry.js'
+
+test('REVIEW landing anchors point to real sections and support direct hash navigation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/'); await expect(page.locator('.landing-page')).toHaveClass(/ready/)
+  const missing = await page.locator('.landing-page a[href^="#"]').evaluateAll(links => links.map(link => link.getAttribute('href')!).filter(href => href.length > 1 && !document.getElementById(href.slice(1))))
+  expect(missing).toEqual([])
+  await page.getByRole('navigation', { name: 'Primary', exact: true }).getByRole('link', { name: 'FAQ', exact: true }).click()
+  await expect(page).toHaveURL(/#faq$/)
+  await expect.poll(() => page.locator('#faq').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 130)).toBe(true)
+  await page.reload(); await expect(page.locator('.landing-page')).toHaveClass(/ready/)
+  await expect.poll(() => page.locator('#faq').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 130)).toBe(true)
+  await page.getByRole('navigation', { name: 'Footer', exact: true }).getByRole('link', { name: 'Platform', exact: true }).click()
+  await expect(page).toHaveURL(/#services$/)
+  await page.goBack(); await expect(page).toHaveURL(/#faq$/)
+  await expect.poll(() => page.locator('#faq').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 130)).toBe(true)
+  await page.goForward(); await expect(page).toHaveURL(/#services$/)
+  await expect.poll(() => page.locator('#services').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 130)).toBe(true)
+  reviewed('LAND-ANCHOR', { module: 'Landing', role: 'anonymous', flow: 'Anchors/deep link/F5', kind: 'happy/unhappy', prerequisites: 'Mounted landing; reduced motion', via: 'PUBLIC_UI', assertion: 'All local targets exist; FAQ click updates hash and F5 retains target', status: 'PASS_LIVE_UI', evidence: 'Real browser location and section geometry; no API traffic' })
+})
+
+test('REVIEW landing describes actual roles, illustrative metrics and online-only capabilities', async ({ page }) => {
+  await page.goto('/'); await expect(page.locator('.landing-page')).toHaveClass(/ready/)
+  await expect(page.locator('.roles-bar button')).toHaveCount(8)
+  await expect(page.locator('#faqList')).not.toContainText('7 demo')
+  await expect(page.locator('#faqList')).toContainText('Training Manager')
+  await expect(page.locator('#faqList')).toContainText('connection')
+  await expect(page.locator('#work')).toContainText('Illustrative')
+  await expect(page.locator('.readers')).not.toContainText('1,200+')
+  await expect(page.locator('#pricing')).toContainText('not subscription plans')
+  reviewed('LAND-TRUTH', { module: 'Landing', role: 'anonymous', flow: 'Capability/metric claims', kind: 'unhappy', prerequisites: 'Current registry8 roles; no offline/subscription API', via: 'PUBLIC_UI', assertion: '8 roles, assigned-account login, illustrative examples, no fabricated adoption or offline capability claims', status: 'PASS_LIVE_UI', evidence: 'Visible copy checked against source capabilities; design/sections retained' })
+})
+
+test('REVIEW landing FAQ keyboard and animation control survive StrictMode and repeated navigation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  for (let visit = 0; visit < 2; visit++) {
+    await page.goto('/'); await expect(page.locator('.landing-page')).toHaveClass(/ready/)
+    const answer = page.locator('#qa1'), question = page.locator('.qa').nth(1).getByRole('button')
+    await question.focus(); await page.keyboard.press('Enter'); await expect(question).toHaveAttribute('aria-expanded', 'true')
+    await expect(answer).toHaveAttribute('aria-hidden', 'false')
+    await page.keyboard.press('Space'); await expect(question).toHaveAttribute('aria-expanded', 'false'); await expect(answer).toHaveAttribute('aria-hidden', 'true')
+    const reel = page.locator('#reelCard'); await reel.focus(); await page.keyboard.press('Enter'); await expect(reel).toHaveAttribute('aria-pressed', 'true')
+    await page.keyboard.press('Space'); await expect(reel).toHaveAttribute('aria-pressed', 'false')
+    await page.getByRole('button', { name: 'Launch App', exact: true }).click(); await expect(page).toHaveURL(/\/login$/)
+    await expect(page.getByLabel('Tên đăng nhập')).toBeVisible()
+    expect(await page.evaluate(() => document.body.classList.contains('landing-active'))).toBe(false)
+    await page.mouse.wheel(0, 200)
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--ink').trim())).toBe('')
+  }
+  reviewed('LAND-LIFECYCLE', { module: 'Landing', role: 'anonymous', flow: 'Keyboard FAQ/animation and cleanup', kind: 'happy/unhappy', prerequisites: 'React StrictMode; repeated mount/unmount', via: 'PUBLIC_UI', assertion: 'One activation toggles once; answer visibility matches aria; no landing body/style remains after login navigation', status: 'PASS_LIVE_UI', evidence: 'Keyboard Enter/Space; two visits; reduced motion' })
+})
+
+test('REVIEW landing sections, newsletter no-send and login remain usable at mobile and 200 percent layout', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const posts: string[] = []; page.on('request', req => { if (req.method() === 'POST') posts.push(new URL(req.url()).pathname) })
+  await page.goto('/'); await expect(page.locator('.landing-page')).toHaveClass(/ready/)
+  for (const width of [1440, 768, 390, 360, 720]) {
+    await page.setViewportSize({ width, height: width === 720 ? 450 : 900 })
+    await expect.poll(() => page.locator('.landing-page').evaluate(el => parseFloat(getComputedStyle(el).getPropertyValue('--pw')) <= (innerWidth < 700 ? innerWidth * .5 : 300))).toBe(true)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
+    await expect(page.getByRole('button', { name: 'Launch App', exact: true })).toBeVisible()
+    expect(await page.locator('#caseStatsLayer').evaluate(el => [...el.querySelectorAll('.stat')].every(stat => getComputedStyle(stat).opacity === '0'))).toBe(true)
+    if (width < 700) expect(await page.evaluate(() => document.querySelector('#slotHero')!.getBoundingClientRect().top >= document.querySelector('.roles-bar')!.getBoundingClientRect().bottom)).toBe(true)
+    if ([1440, 390].includes(width)) await page.screenshot({ path: 'e2e-private/product-landing-' + width + '.png' })
+  }
+  await page.locator('#nEmail').fill('invalid'); await page.getByRole('button', { name: 'Subscribe', exact: true }).click(); await expect(page.locator('#newsMsg')).toContainText('valid email')
+  await page.locator('#nEmail').fill('technical@example.invalid'); await page.getByRole('button', { name: 'Subscribe', exact: true }).click(); await expect(page.locator('#newsMsg')).toContainText('not available')
+  expect(posts).toEqual([])
+  await page.getByRole('link', { name: 'Launch Workspace ↗', exact: true }).click()
+  await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click()
+  await expect(page.locator('#username')).toHaveAttribute('aria-describedby', 'username-error')
+  await expect(page.locator('#password')).toHaveAttribute('aria-describedby', 'password-error')
+  await expect(page.getByRole('link', { name: 'Về trang giới thiệu' })).toBeVisible()
+  reviewed('LAND-RESPONSIVE', { module: 'Landing/auth', role: 'anonymous', flow: 'Responsive/no-send/error accessibility', kind: 'happy/unhappy', prerequisites: '1440/768/390/360;720x450 reflow equivalent to desktop200%', via: 'PUBLIC_UI', assertion: 'No horizontal overflow, CTA available, newsletter never POSTs, login field errors described and home link present', status: 'PASS_LIVE_UI', evidence: 'Browser widths; 200% layout equivalent only, not physical browser-zoom proof' })
+})

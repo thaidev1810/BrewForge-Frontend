@@ -1,0 +1,1 @@
+export function saveBlob(file: Blob, name: string) { const url = URL.createObjectURL(file), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 10000) }

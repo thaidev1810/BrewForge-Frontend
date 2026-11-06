@@ -1,0 +1,9 @@
+import { useLocation, useNavigate } from 'react-router-dom'
+import { courseReadiness } from '@/services/backend/authoringRules'
+import { asRecord, type RecordData } from '@/services/backend/operations'
+import { fieldFeedback } from '@/services/errorPresentation'
+export function CourseReadiness({ record }: { record: RecordData }) {
+  const issues=courseReadiness(record),location=useLocation(),navigate=useNavigate()
+  function reveal(field:string){const section=field==='quiz'?'quiz':field==='practicalChecklist'?'practical':'content';const next=new URLSearchParams(location.search);next.set('section',section);void navigate({pathname:location.pathname,search:'?'+next.toString(),hash:location.hash},{replace:true,preventScrollReset:true,state:location.state});const type=field.match(/^modules\[([^\]]+)\]/)?.[1];const module=Array.isArray(record.modules)?record.modules.map(asRecord).find(m=>String(m.moduleType)===type):null;setTimeout(()=>{const node=module?document.getElementById('module-'+module.id) as HTMLDetailsElement|null:null;if(node){node.open=true;node.scrollIntoView({block:'center',behavior:'auto'});node.querySelector('summary')?.focus()}},60)}
+  return <section className="panel mt-4"><h2>Kiểm tra trước khi gửi duyệt</h2>{issues.length?<ul className="field-error">{issues.map((issue,index)=><li key={index}><button className="text-left underline underline-offset-2" onClick={()=>reveal(issue.field)}>{fieldFeedback(issue.field, issue.issue)} →</button></li>)}</ul>:<p className="success-box">Nội dung đã lưu có đủ điều kiện kiểm tra phía giao diện. Máy chủ vẫn kiểm tra lần cuối khi gửi.</p>}<p className="field-help">Đối chiếu nội dung đã lưu. Chọn lỗi để mở đúng phần cần hoàn thiện. Nội dung SOP tham chiếu không thay thế nội dung giảng viên; thời lượng tính bằng phút.</p></section>
+}

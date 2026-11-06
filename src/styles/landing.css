@@ -1,6 +1,10 @@
+/* Fixed decorative layers must not create horizontal scrolling while landing is mounted. */
+body.landing-active { overflow-x: clip; }
+/* Keep the landing design isolated from authenticated workspace styles. */
+.landing-page {
 /* BrewForge Editorial Design System & Kinetic Experience
    Tailored for Specialty Coffee Franchise, Recipe R&D, SOP Standardization, and Barista Academy. */
-:root {
+& {
   --ink: #18110e;
   --accent: #c84b31;
   --gold: #e09238;
@@ -26,13 +30,13 @@
   box-sizing: border-box;
 }
 
-html {
+& {
   scroll-behavior: auto;
   background: var(--coal);
   -webkit-text-size-adjust: 100%;
 }
 
-body {
+& {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
@@ -145,22 +149,22 @@ h1, h2, h3, p {
   will-change: transform;
 }
 
-.js [data-split] .w i {
+&.js [data-split] .w i {
   transform: translateY(108%);
 }
 
-.js [data-split].in .w i,
-.js.ready .intro-split .w i {
+&.js [data-split].in .w i,
+&.js.ready .intro-split .w i {
   transform: none;
   transition: transform 1.1s var(--ease) calc(var(--i) * 55ms + 120ms);
 }
 
-.js [data-r] {
+&.js [data-r] {
   opacity: 0;
   transform: translateY(28px);
 }
 
-.js [data-r].in {
+&.js [data-r].in {
   opacity: 1;
   transform: none;
   transition: opacity 0.9s ease calc(var(--d, 0) * 1ms), transform 1.1s var(--ease) calc(var(--d, 0) * 1ms);
@@ -268,7 +272,7 @@ h1, h2, h3, p {
   transform: translateY(-140%);
 }
 
-.nav a {
+.nav a, .nav button {
   pointer-events: auto;
 }
 
@@ -327,11 +331,11 @@ h1, h2, h3, p {
   --bf: #000000;
 }
 
-.js .nav {
+&.js .nav {
   opacity: 0;
 }
 
-.js.ready .nav {
+&.js.ready .nav {
   opacity: 1;
   transition: opacity 0.8s ease 0.55s;
 }
@@ -490,13 +494,13 @@ h1, h2, h3, p {
   transform: translateY(8px);
 }
 
-.js .phone-body {
+&.js .phone-body {
   opacity: 0;
   transform: scale(0.88) translateY(30px);
   filter: blur(16px);
 }
 
-.js.ready .phone-body {
+&.js.ready .phone-body {
   opacity: 1;
   transform: none;
   filter: blur(0);
@@ -506,16 +510,26 @@ h1, h2, h3, p {
 /* Hero Section */
 .hero {
   position: relative;
-  padding-top: max(63vh, 430px);
+  padding-top: 0;
   background: var(--paper);
 }
 
 .hero-copy {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   right: 0;
   padding-top: calc(env(safe-area-inset-top, 0px) + 26px);
+  min-height: max(63vh, 430px);
+}
+
+/* Keep the introductory copy and sign-in choices outside the traveling artwork. */
+.hero .h1 {
+  max-width: calc(57.5% - var(--pw) / 2 - var(--g));
+  font-size: clamp(38px, 4.1vw, 64px);
+}
+.hero .roles-bar {
+  max-width: calc(57.5% - var(--pw) - var(--g));
 }
 
 .hero-lead {
@@ -526,12 +540,12 @@ h1, h2, h3, p {
   margin-top: 22px;
 }
 
-.js .intro-fade {
+&.js .intro-fade {
   opacity: 0;
   transform: translateY(14px);
 }
 
-.js.ready .intro-fade {
+&.js.ready .intro-fade {
   opacity: 1;
   transform: none;
   transition: opacity 1s ease 0.55s, transform 1.2s var(--ease) 0.55s;
@@ -571,12 +585,12 @@ h1, h2, h3, p {
   box-shadow: 0 8px 22px -8px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
-.js .tag {
+&.js .tag {
   opacity: 0;
   transform: scale(0.6) translateY(10px);
 }
 
-.js.ready .tag {
+&.js.ready .tag {
   opacity: 1;
   transform: none;
   transition: opacity 0.5s ease calc(1.05s + var(--k) * 110ms), transform 0.8s cubic-bezier(0.3, 1.6, 0.5, 1) calc(1.05s + var(--k) * 110ms);
@@ -620,13 +634,13 @@ h1, h2, h3, p {
   z-index: 6;
 }
 
-.js .wm-hero .wm-g {
+&.js .wm-hero .wm-g {
   transform: translateY(55%);
   opacity: 0;
   color: #9b9b97;
 }
 
-.js.ready .wm-hero .wm-g {
+&.js.ready .wm-hero .wm-g {
   transform: none;
   opacity: 1;
   color: var(--accent);
@@ -827,7 +841,7 @@ h1, h2, h3, p {
   margin-top: 3px;
 }
 
-.js .stat {
+&.js .stat {
   opacity: 0;
   transform: translateY(30px) scale(0.85);
 }
@@ -1374,7 +1388,7 @@ h1, h2, h3, p {
   color: var(--accent);
 }
 
-.js .cmp tbody tr {
+&.js .cmp tbody tr {
   opacity: 0;
   transform: translateY(14px);
 }
@@ -1701,18 +1715,25 @@ h1, h2, h3, p {
     display: none;
   }
   .hero-copy {
+    position: relative;
+    min-height: 0;
     padding-top: calc(env(safe-area-inset-top, 0px) + 74px);
   }
+  .hero .h1, .hero .roles-bar { max-width: 100%; }
+  .hero .tags { display: none; }
+  .nav-logo { opacity: 1; transform: none; font-size: 20px; }
   .slot-hero {
-    top: max(34vh, 290px) !important;
+    position: relative;
+    top: auto !important;
     left: auto;
-    right: 6%;
+    right: auto;
+    margin: 30px auto;
   }
   .hero {
-    padding-top: max(60vh, 400px);
+    padding-top: 0;
   }
   .hero-lead {
-    max-width: 14em;
+    max-width: 100%;
   }
   .tag {
     font-size: 9px;
@@ -1760,20 +1781,21 @@ h1, h2, h3, p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .js [data-split] .w i,
-  .js [data-r],
-  .js .stat,
-  .js .tag,
-  .js .phone-body,
-  .js .wm-hero .wm-g,
-  .js .intro-fade,
-  .js .cmp tbody tr {
+  &.js [data-split] .w i,
+  &.js [data-r],
+  &.js .tag,
+  &.js .phone-body,
+  &.js .wm-hero .wm-g,
+  &.js .intro-fade,
+  &.js .cmp tbody tr {
     transform: none !important;
     opacity: 1 !important;
     filter: none !important;
     color: inherit;
   }
-  .js .nav {
+  &.js .nav {
     opacity: 1;
   }
+}
+
 }

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSelector, createSlice, type Draft } from '@reduxjs/toolkit'
-import { login, logout } from '@/features/auth/authSlice'
+import { login, logout, sessionVerified } from '@/features/auth/authSlice'
 import { normalizeApiError } from '@/services/apiError'
 import type { DomainError, DomainService, DomainState, Entity, MutationCommand, RequestState } from '@/types/domain'
 
@@ -40,7 +40,9 @@ export function createDomainSlice<T extends Entity, C extends MutationCommand>(n
     name, initialState: initial(), reducers: {},
     extraReducers: (builder) => {
       builder.addCase(logout, initial)
+        .addCase(login.pending, initial)
         .addCase(login.fulfilled, initial)
+        .addCase(sessionVerified, initial)
         .addCase(fetchList.pending, (state, action) => {
           state.sequence += 1
           state.list = { status: 'loading', error: null, requestId: action.meta.requestId, revision: state.revision, sequence: state.sequence }

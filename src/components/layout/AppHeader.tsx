@@ -1,16 +1,14 @@
-import { LogOut } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { LogOut, UserRound } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import { isDemoMode } from '@/constants/config'
-import { dashboardPath, roleConfig } from '@/constants/roles'
-import { login, logout } from '@/features/auth/authSlice'
-import { DEMO_PASSWORD, demoUsers } from '@/features/auth/mockAuthService'
+import { roleConfig } from '@/constants/roles'
+import { signOut } from '@/features/auth/authSlice'
 import { Button } from '@/components/ui/button'
-import { StatusBadge } from '@/components/common/StatusBadge'
+import { NotificationBell } from '@/features/notifications/NotificationBell'
 export function AppHeader() {
-  const { user, loading, error } = useAppSelector((state) => state.auth)
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const user = useAppSelector(s => s.auth.user), dispatch = useAppDispatch(), navigate = useNavigate(), [busy, setBusy] = useState(false)
   if (!user) return null
-  return <header className="border-b bg-card px-6 py-4"><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="font-medium capitalize">{user.name}</p><p className="text-xs text-muted-foreground">{roleConfig[user.role].label}</p></div><div className="flex flex-wrap items-center gap-3">{isDemoMode && <><StatusBadge variant="warning">Demo mode</StatusBadge><label className="sr-only" htmlFor="role-switch">Switch demo role</label><select id="role-switch" className="h-10 max-w-full rounded-md border bg-background px-2 text-sm" value={user.email} disabled={loading} onChange={async (event) => { const result = await dispatch(login({ email: event.target.value, password: DEMO_PASSWORD })); if (login.fulfilled.match(result)) navigate(dashboardPath(result.payload.user.role), { replace: true }) }}>{demoUsers.map((demo) => <option key={demo.id} value={demo.email}>{roleConfig[demo.role].label}</option>)}</select></>}<Button variant="outline" onClick={() => { dispatch(logout()); navigate('/login', { replace: true }) }}><LogOut aria-hidden="true" />Sign out</Button></div></div>{error && <p role="alert" className="mt-2 text-sm text-destructive">{error}</p>}</header>
+  async function exit() { setBusy(true); const task = dispatch(signOut()); navigate('/login', { replace: true }); await task }
+  return <header className="workspace-header"><div><p className="eyebrow">BREWFORGE WORKSPACE</p><p className="text-sm muted">{new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long' }).format(new Date())}</p></div><div className="flex items-center gap-3"><NotificationBell /><Link className="user-chip" to={roleConfig[user.role].prefix + '/account'}><span className="avatar"><UserRound size={19} /></span><span><strong>{user.name}</strong><small>{roleConfig[user.role].label}</small></span></Link><Button variant="outline" disabled={busy} onClick={() => void exit()}><LogOut size={16} /><span className="hidden sm:inline">{busy ? 'Đang thoát…' : 'Đăng xuất'}</span></Button></div></header>
 }

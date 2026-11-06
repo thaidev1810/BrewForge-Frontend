@@ -1,22 +1,50 @@
-import axios from 'axios'
+import axios, { type InternalAxiosRequestConfig } from 'axios'
+import { apiBaseUrl } from '@/constants/config'
 import { normalizeApiError, ApiError } from './apiError'
-
-// Inject callbacks at app startup to avoid a circular dependency on the Redux store.
 let getAccessToken: () => string | null = () => null
 let onUnauthorized: () => void = () => undefined
-export function configureApiAuth(getToken: () => string | null, unauthorized: () => void) {
-  getAccessToken = getToken
-  onUnauthorized = unauthorized
+let refreshSession: (() => Promise<string>) | null = null
+let getGeneration: () => number = () => 0
+let refreshing: { generation: number; promise: Promise<string> } | null = null
+export function configureApiAuth(getToken: () => string | null, unauthorized: () => void, refresh?: () => Promise<string>, generation?: () => number) {
+  getAccessToken = getToken; onUnauthorized = unauthorized; refreshSession = refresh ?? null; getGeneration = generation ?? (() => 0)
 }
-export const apiClient = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL || undefined, timeout: 15000, headers: { Accept: 'application/json' } })
-apiClient.interceptors.request.use((config) => {
-  if (!config.baseURL) throw new ApiError('Set VITE_API_BASE_URL before using the backend API.')
-  const token = getAccessToken()
-  if (token) config.headers.set('Authorization', `Bearer ${token}`)
+export const authTransport = axios.create({ baseURL: apiBaseUrl, timeout: 20000, headers: { Accept: 'application/json' } })
+export const apiClient = axios.create({ baseURL: apiBaseUrl, timeout: 30000, headers: { Accept: 'application/json' } })
+type SessionRequest = InternalAxiosRequestConfig & { sessionGeneration?: number; retried?: boolean; usedToken?: string | null; retryAfterRefresh?: boolean }
+apiClient.interceptors.request.use(async (config: SessionRequest) => {
+  if (!config.baseURL) throw new ApiError('Chưa cấu hình VITE_API_BASE_URL.')
+  config.sessionGeneration ??= getGeneration()
+  if (refreshing?.generation === config.sessionGeneration) await refreshing.promise
+  if (config.sessionGeneration !== undefined && config.sessionGeneration !== getGeneration()) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
+  const token = getAccessToken(); config.usedToken = token
+  if (token) config.headers.set('Authorization', `Bearer ${token}`); else config.headers.delete('Authorization')
   return config
 })
-apiClient.interceptors.response.use((response) => response, (error: unknown) => {
+apiClient.interceptors.response.use(response => {
+  if ((response.config as SessionRequest).sessionGeneration !== getGeneration()) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
+  return response
+}, async (error: unknown) => {
+  if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+    try { error.response.data = JSON.parse(await error.response.data.text()) } catch { /* Proxy may return HTML. */ }
+  }
   const normalized = normalizeApiError(error)
-  if (normalized.status === 401) onUnauthorized()
-  return Promise.reject(normalized)
+  const config = axios.isAxiosError(error) ? error.config as SessionRequest | undefined : undefined
+  if (normalized.status !== 401 || !config || /\/auth\/(login|refresh|logout)/.test(config.url ?? '')) throw normalized
+  if (config.sessionGeneration !== getGeneration()) throw normalized
+  if (config.retried || !refreshSession || !getAccessToken()) { onUnauthorized(); throw normalized }
+  config.retried = true
+  try {
+    const generation = getGeneration()
+    if (refreshing?.generation === generation) await refreshing.promise
+    else if (config.usedToken === getAccessToken()) {
+      if (!refreshing || refreshing.generation !== generation) refreshing = { generation, promise: refreshSession().finally(() => { if (refreshing?.generation === generation) refreshing = null }) }
+      await refreshing.promise
+    }
+    if (config.sessionGeneration !== getGeneration()) throw new ApiError('Phiên đăng nhập đã thay đổi.', 401)
+  } catch (refreshError) { const refusal = normalizeApiError(refreshError); if (config.sessionGeneration === getGeneration() && refusal.status === 401) onUnauthorized(); throw refusal }
+  if (!['get', 'head', 'options'].includes((config.method ?? 'get').toLowerCase()) && !config.retryAfterRefresh) {
+    throw new ApiError('Phiên đăng nhập đã được làm mới. Yêu cầu thay đổi chưa được gửi lại; hãy kiểm tra và xác nhận lại thao tác.', 401)
+  }
+  return apiClient.request(config)
 })

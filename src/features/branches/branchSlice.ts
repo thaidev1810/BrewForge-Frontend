@@ -1,5 +1,5 @@
 import { createAsyncThunk, createReducer, type UnknownAction } from '@reduxjs/toolkit'
-import { login, logout } from '@/features/auth/authSlice'
+import { login, logout, sessionVerified } from '@/features/auth/authSlice'
 import { normalizeApiError } from '@/services/apiError'
 import { createDomainSlice } from '@/utils/createDomainSlice'
 import type { DomainError, DomainState } from '@/types/domain'
@@ -21,7 +21,9 @@ export const fetchSharedStandards = createAsyncThunk<SharedStandards, void, { re
 const initialStandards = (): SharedStandardsState => ({ data: null, request: { status: 'idle', error: null } })
 const standardsReducer = createReducer(initialStandards(), (builder) => {
   builder.addCase(logout, initialStandards)
+    .addCase(login.pending, initialStandards)
     .addCase(login.fulfilled, initialStandards)
+    .addCase(sessionVerified, initialStandards)
     .addCase(fetchSharedStandards.pending, (state, action) => { state.request = { status: 'loading', error: null, requestId: action.meta.requestId } })
     .addCase(fetchSharedStandards.fulfilled, (state, action) => {
       if (state.request.requestId !== action.meta.requestId) return

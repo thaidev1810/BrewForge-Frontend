@@ -1,0 +1,4201 @@
+[
+  {
+    "role": "ADMIN",
+    "prefix": "/admin",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "users",
+        "title": "Quản lý tài khoản",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "audit-log",
+        "title": "Nhật ký hệ thống",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "settings",
+        "title": "Cấu hình công ty",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "ingredients",
+        "title": "Nguyên liệu",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "equipment",
+        "title": "Nhóm thiết bị",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "recipes",
+        "title": "Công thức & SOP",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "regulations",
+        "title": "Quy định đào tạo",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "employees",
+        "title": "Kỹ năng đội ngũ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "branch-audits",
+        "title": "Kiểm định chi nhánh",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "corrective-actions",
+        "title": "Khắc phục sai lệch",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "quality-summary",
+        "title": "Tổng quan tuân thủ",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "AuditLog.List",
+        "method": "GET",
+        "path": "/api/v1/audit-log"
+      },
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Branches.Create",
+        "method": "POST",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Update",
+        "method": "PUT",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Branches.Deactivate",
+        "method": "POST",
+        "path": "/api/v1/branches/{id:long}/deactivate"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Skills.Employees",
+        "method": "GET",
+        "path": "/api/v1/dashboards/employees"
+      },
+      {
+        "operation": "Settings.List",
+        "method": "GET",
+        "path": "/api/v1/settings"
+      },
+      {
+        "operation": "Settings.Update",
+        "method": "PUT",
+        "path": "/api/v1/settings/{key}"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Categories.Create",
+        "method": "POST",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Update",
+        "method": "PUT",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Categories.Deactivate",
+        "method": "POST",
+        "path": "/api/v1/categories/{id:long}/deactivate"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.List",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.Create",
+        "method": "POST",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Update",
+        "method": "PUT",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.Deactivate",
+        "method": "POST",
+        "path": "/api/v1/equipment-classes/{id:long}/deactivate"
+      },
+      {
+        "operation": "Ingredients.List",
+        "method": "GET",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Get",
+        "method": "GET",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "Ingredients.Create",
+        "method": "POST",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Update",
+        "method": "PUT",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "Ingredients.Deactivate",
+        "method": "POST",
+        "path": "/api/v1/ingredients/{id:long}/deactivate"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "BranchAudits.List",
+        "method": "GET",
+        "path": "/api/v1/branch-audits"
+      },
+      {
+        "operation": "BranchAudits.Summary",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/summary"
+      },
+      {
+        "operation": "BranchAudits.Evidence",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/evidence/{**key}"
+      },
+      {
+        "operation": "BranchAudits.Get",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/{id:long}"
+      },
+      {
+        "operation": "CorrectiveActions.List",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions"
+      },
+      {
+        "operation": "CorrectiveActions.Get",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions/{id:long}"
+      },
+      {
+        "operation": "RecipeFeedback.Summary",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/feedback-summary"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "Recipes.List",
+        "method": "GET",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.Get",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}"
+      },
+      {
+        "operation": "Recipes.ListVersions",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "RecipeVersions.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.Diff",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/diff"
+      },
+      {
+        "operation": "RecipeVersions.Served",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/variants/{code}"
+      },
+      {
+        "operation": "RecipeVersions.Extraction",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/extraction"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "Stock.LossReport",
+        "method": "GET",
+        "path": "/api/v1/stock/loss-report"
+      },
+      {
+        "operation": "TrainingRegulations.List",
+        "method": "GET",
+        "path": "/api/v1/training-regulations"
+      },
+      {
+        "operation": "Users.List",
+        "method": "GET",
+        "path": "/api/v1/users"
+      },
+      {
+        "operation": "Users.Get",
+        "method": "GET",
+        "path": "/api/v1/users/{id:long}"
+      },
+      {
+        "operation": "Users.Create",
+        "method": "POST",
+        "path": "/api/v1/users"
+      },
+      {
+        "operation": "Users.Update",
+        "method": "PUT",
+        "path": "/api/v1/users/{id:long}"
+      },
+      {
+        "operation": "Users.Deactivate",
+        "method": "POST",
+        "path": "/api/v1/users/{id:long}/deactivate"
+      },
+      {
+        "operation": "UserLookup.Lookup",
+        "method": "GET",
+        "path": "/api/v1/users/lookup"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "AuditLog.Trace",
+      "Reports.Compliance",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "Assignments.List",
+      "Assignments.Assign",
+      "PracticalSchedules.List",
+      "PracticalSchedules.ForEnrollment",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Mine",
+      "Certificates.Mine",
+      "Certificates.Get",
+      "Dashboards.TrainingProgress",
+      "Dashboards.BranchPerformance",
+      "Dashboards.CourseEffectiveness",
+      "Courses.List",
+      "Courses.Create",
+      "Courses.Get",
+      "Courses.Modules",
+      "Courses.EligibleTrainers",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Approve",
+      "Courses.Return",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "LearningPath.Mine",
+      "LearningPath.Get",
+      "LearningPath.Assign",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Get",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.List",
+      "BranchLaunchStatus.Withdraw",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Create",
+      "CorrectiveActions.Start",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Submit",
+      "RecipeFeedback.Accept",
+      "RecipeFeedback.Reject",
+      "RecipeFeedback.Address",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Validate",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.List",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Sales.Aggregate",
+      "Stock.Receive",
+      "Stock.Count",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "TrainingNeeds.List",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.Mine",
+      "Enrollments.Get",
+      "Enrollments.Modules",
+      "Enrollments.CompleteModule",
+      "Enrollments.CompleteLesson",
+      "Enrollments.Eligibility",
+      "Enrollments.Quiz",
+      "Enrollments.AttemptQuiz",
+      "Enrollments.QuizAttempts",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.PracticalVideos",
+      "Enrollments.PracticalVideoContent",
+      "Enrollments.EvaluatePractical",
+      "Enrollments.Close",
+      "Enrollments.Reset"
+    ]
+  },
+  {
+    "role": "RD_SPECIALIST",
+    "prefix": "/rd-specialist",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "ingredients",
+        "title": "Nguyên liệu",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "equipment",
+        "title": "Nhóm thiết bị",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "recipes",
+        "title": "Công thức & SOP",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Products.Create",
+        "method": "POST",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Update",
+        "method": "PUT",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Products.Deactivate",
+        "method": "POST",
+        "path": "/api/v1/products/{id:long}/deactivate"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.List",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "Ingredients.List",
+        "method": "GET",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Get",
+        "method": "GET",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "RecipeFeedback.Summary",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/feedback-summary"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "RecipeFeedback.Accept",
+        "method": "POST",
+        "path": "/api/v1/recipe-feedback/{id:long}/accept"
+      },
+      {
+        "operation": "RecipeFeedback.Reject",
+        "method": "POST",
+        "path": "/api/v1/recipe-feedback/{id:long}/reject"
+      },
+      {
+        "operation": "RecipeFeedback.Address",
+        "method": "POST",
+        "path": "/api/v1/recipe-feedback/{id:long}/address"
+      },
+      {
+        "operation": "Recipes.List",
+        "method": "GET",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.Create",
+        "method": "POST",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.ImportExisting",
+        "method": "POST",
+        "path": "/api/v1/recipes/import-existing"
+      },
+      {
+        "operation": "Recipes.Get",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}"
+      },
+      {
+        "operation": "Recipes.ListVersions",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "Recipes.CreateVersion",
+        "method": "POST",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "RecipeVersions.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.Diff",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/diff"
+      },
+      {
+        "operation": "RecipeVersions.Update",
+        "method": "PUT",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.GenerateDraft",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/generate-draft"
+      },
+      {
+        "operation": "RecipeVersions.ReplaceVariants",
+        "method": "PUT",
+        "path": "/api/v1/recipe-versions/{id:long}/variants"
+      },
+      {
+        "operation": "RecipeVersions.Served",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/variants/{code}"
+      },
+      {
+        "operation": "RecipeVersions.ExtractDocument",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/extract-document"
+      },
+      {
+        "operation": "RecipeVersions.Extraction",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/extraction"
+      },
+      {
+        "operation": "RecipeVersions.Validate",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/validate"
+      },
+      {
+        "operation": "RecipeVersions.Repair",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/repair"
+      },
+      {
+        "operation": "RecipeVersions.Submit",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/submit"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "AuditLog.List",
+      "AuditLog.Trace",
+      "Reports.Compliance",
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "Assignments.List",
+      "Assignments.Assign",
+      "PracticalSchedules.List",
+      "PracticalSchedules.ForEnrollment",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Mine",
+      "Skills.Employees",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Certificates.Mine",
+      "Certificates.Get",
+      "Dashboards.TrainingProgress",
+      "Dashboards.BranchPerformance",
+      "Dashboards.CourseEffectiveness",
+      "Courses.List",
+      "Courses.Create",
+      "Courses.Get",
+      "Courses.Modules",
+      "Courses.EligibleTrainers",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Approve",
+      "Courses.Return",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "LearningPath.Mine",
+      "LearningPath.Get",
+      "LearningPath.Assign",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Get",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.List",
+      "BranchLaunchStatus.Withdraw",
+      "BranchAudits.List",
+      "BranchAudits.Summary",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Evidence",
+      "BranchAudits.Get",
+      "BranchAudits.Create",
+      "CorrectiveActions.List",
+      "CorrectiveActions.Get",
+      "CorrectiveActions.Start",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.List",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Sales.Aggregate",
+      "Stock.Receive",
+      "Stock.Count",
+      "Stock.LossReport",
+      "TrainingRegulations.List",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "TrainingNeeds.List",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.Mine",
+      "Enrollments.Get",
+      "Enrollments.Modules",
+      "Enrollments.CompleteModule",
+      "Enrollments.CompleteLesson",
+      "Enrollments.Eligibility",
+      "Enrollments.Quiz",
+      "Enrollments.AttemptQuiz",
+      "Enrollments.QuizAttempts",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.PracticalVideos",
+      "Enrollments.PracticalVideoContent",
+      "Enrollments.EvaluatePractical",
+      "Enrollments.Close",
+      "Enrollments.Reset",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate",
+      "UserLookup.Lookup"
+    ]
+  },
+  {
+    "role": "RD_MANAGER",
+    "prefix": "/rd-manager",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "ingredients",
+        "title": "Nguyên liệu",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "equipment",
+        "title": "Nhóm thiết bị",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "recipes",
+        "title": "Công thức & SOP",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "impact",
+        "title": "Phân tích ảnh hưởng",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "courses",
+        "title": "Quản lý khóa học",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "courses/pending",
+        "title": "Khóa chờ duyệt",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "launch",
+        "title": "Sẵn sàng & mở bán",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "sales",
+        "title": "Doanh số",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "pilots",
+        "title": "Thử nghiệm thị trường",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "branch-audits",
+        "title": "Kiểm định chi nhánh",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "corrective-actions",
+        "title": "Khắc phục sai lệch",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "trace",
+        "title": "Truy vết tiêu chuẩn",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "training-progress",
+        "title": "Tiến độ đào tạo",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "branch-performance",
+        "title": "Hiệu quả chi nhánh",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "course-effectiveness",
+        "title": "Hiệu quả khóa học",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "quality-summary",
+        "title": "Tổng quan tuân thủ",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "sales-analytics",
+        "title": "Phân tích doanh số",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "compliance",
+        "title": "Xuất báo cáo chứng nhận",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "audit-log",
+        "title": "Nhật ký hệ thống",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "ImpactAnalysis.Analyze",
+        "method": "POST",
+        "path": "/api/v1/impact-analysis"
+      },
+      {
+        "operation": "ImpactAnalysis.Get",
+        "method": "GET",
+        "path": "/api/v1/impact-analysis/{runId}"
+      },
+      {
+        "operation": "ImpactAnalysis.Commit",
+        "method": "POST",
+        "path": "/api/v1/impact-analysis/{runId}/commit"
+      },
+      {
+        "operation": "AuditLog.List",
+        "method": "GET",
+        "path": "/api/v1/audit-log"
+      },
+      {
+        "operation": "AuditLog.Trace",
+        "method": "GET",
+        "path": "/api/v1/audit-log/trace/{entityType}/{entityId:long}"
+      },
+      {
+        "operation": "Reports.Compliance",
+        "method": "GET",
+        "path": "/api/v1/reports/compliance"
+      },
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Dashboards.TrainingProgress",
+        "method": "GET",
+        "path": "/api/v1/dashboards/training-progress"
+      },
+      {
+        "operation": "Dashboards.BranchPerformance",
+        "method": "GET",
+        "path": "/api/v1/dashboards/branch-performance"
+      },
+      {
+        "operation": "Dashboards.CourseEffectiveness",
+        "method": "GET",
+        "path": "/api/v1/dashboards/course-effectiveness"
+      },
+      {
+        "operation": "Courses.List",
+        "method": "GET",
+        "path": "/api/v1/courses"
+      },
+      {
+        "operation": "Courses.Get",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}"
+      },
+      {
+        "operation": "Courses.Modules",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/modules"
+      },
+      {
+        "operation": "Courses.Approve",
+        "method": "POST",
+        "path": "/api/v1/courses/{id:long}/approve"
+      },
+      {
+        "operation": "Courses.Return",
+        "method": "POST",
+        "path": "/api/v1/courses/{id:long}/return"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.List",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "Ingredients.List",
+        "method": "GET",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Get",
+        "method": "GET",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Pilots.List",
+        "method": "GET",
+        "path": "/api/v1/pilots"
+      },
+      {
+        "operation": "Pilots.Create",
+        "method": "POST",
+        "path": "/api/v1/pilots"
+      },
+      {
+        "operation": "Pilots.Get",
+        "method": "GET",
+        "path": "/api/v1/pilots/{id:long}"
+      },
+      {
+        "operation": "Pilots.Update",
+        "method": "PUT",
+        "path": "/api/v1/pilots/{id:long}"
+      },
+      {
+        "operation": "Pilots.Readiness",
+        "method": "GET",
+        "path": "/api/v1/pilots/{id:long}/readiness"
+      },
+      {
+        "operation": "Pilots.Start",
+        "method": "POST",
+        "path": "/api/v1/pilots/{id:long}/start"
+      },
+      {
+        "operation": "Pilots.Cancel",
+        "method": "POST",
+        "path": "/api/v1/pilots/{id:long}/cancel"
+      },
+      {
+        "operation": "Pilots.GoLive",
+        "method": "POST",
+        "path": "/api/v1/pilots/{id:long}/branches/{branchId:long}/go-live"
+      },
+      {
+        "operation": "Pilots.Evaluation",
+        "method": "GET",
+        "path": "/api/v1/pilots/{id:long}/evaluation"
+      },
+      {
+        "operation": "Pilots.Decide",
+        "method": "POST",
+        "path": "/api/v1/pilots/{id:long}/decision"
+      },
+      {
+        "operation": "BranchLaunchStatus.List",
+        "method": "GET",
+        "path": "/api/v1/branch-launch-status"
+      },
+      {
+        "operation": "BranchLaunchStatus.Withdraw",
+        "method": "POST",
+        "path": "/api/v1/branch-launch-status/{id:long}/withdraw"
+      },
+      {
+        "operation": "BranchAudits.List",
+        "method": "GET",
+        "path": "/api/v1/branch-audits"
+      },
+      {
+        "operation": "BranchAudits.Summary",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/summary"
+      },
+      {
+        "operation": "BranchAudits.Evidence",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/evidence/{**key}"
+      },
+      {
+        "operation": "BranchAudits.Get",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/{id:long}"
+      },
+      {
+        "operation": "CorrectiveActions.List",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions"
+      },
+      {
+        "operation": "CorrectiveActions.Get",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions/{id:long}"
+      },
+      {
+        "operation": "RecipeFeedback.Summary",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/feedback-summary"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "RecipeFeedback.Accept",
+        "method": "POST",
+        "path": "/api/v1/recipe-feedback/{id:long}/accept"
+      },
+      {
+        "operation": "RecipeFeedback.Reject",
+        "method": "POST",
+        "path": "/api/v1/recipe-feedback/{id:long}/reject"
+      },
+      {
+        "operation": "RecipeFeedback.Address",
+        "method": "POST",
+        "path": "/api/v1/recipe-feedback/{id:long}/address"
+      },
+      {
+        "operation": "Recipes.List",
+        "method": "GET",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.Get",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}"
+      },
+      {
+        "operation": "Recipes.ListVersions",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "RecipeVersions.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.Diff",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/diff"
+      },
+      {
+        "operation": "RecipeVersions.Served",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/variants/{code}"
+      },
+      {
+        "operation": "RecipeVersions.Extraction",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/extraction"
+      },
+      {
+        "operation": "RecipeVersions.Validate",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/validate"
+      },
+      {
+        "operation": "RecipeVersions.Review",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/review"
+      },
+      {
+        "operation": "RecipeVersions.Release",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/release"
+      },
+      {
+        "operation": "RecipeVersions.Rollback",
+        "method": "POST",
+        "path": "/api/v1/recipe-versions/{id:long}/rollback"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "Sales.List",
+        "method": "GET",
+        "path": "/api/v1/sales"
+      },
+      {
+        "operation": "Sales.Aggregate",
+        "method": "GET",
+        "path": "/api/v1/sales/aggregate"
+      },
+      {
+        "operation": "Stock.LossReport",
+        "method": "GET",
+        "path": "/api/v1/stock/loss-report"
+      }
+    ],
+    "denied": [
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "Assignments.List",
+      "Assignments.Assign",
+      "PracticalSchedules.List",
+      "PracticalSchedules.ForEnrollment",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Mine",
+      "Skills.Employees",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Certificates.Mine",
+      "Certificates.Get",
+      "Courses.Create",
+      "Courses.EligibleTrainers",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "LearningPath.Mine",
+      "LearningPath.Get",
+      "LearningPath.Assign",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Create",
+      "CorrectiveActions.Start",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Submit",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Stock.Receive",
+      "Stock.Count",
+      "TrainingRegulations.List",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "TrainingNeeds.List",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.Mine",
+      "Enrollments.Get",
+      "Enrollments.Modules",
+      "Enrollments.CompleteModule",
+      "Enrollments.CompleteLesson",
+      "Enrollments.Eligibility",
+      "Enrollments.Quiz",
+      "Enrollments.AttemptQuiz",
+      "Enrollments.QuizAttempts",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.PracticalVideos",
+      "Enrollments.PracticalVideoContent",
+      "Enrollments.EvaluatePractical",
+      "Enrollments.Close",
+      "Enrollments.Reset",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate",
+      "UserLookup.Lookup"
+    ]
+  },
+  {
+    "role": "TRAINER",
+    "prefix": "/trainer",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "courses",
+        "title": "Quản lý khóa học",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "classes",
+        "title": "Lớp đào tạo",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "assignments",
+        "title": "Giao khóa & tiến độ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "agenda",
+        "title": "Lịch thực hành",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "learning-path",
+        "title": "Lộ trình học",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "learning",
+        "title": "Khóa học của tôi",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "needs",
+        "title": "Nhu cầu đào tạo",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "question-bank",
+        "title": "Ngân hàng câu hỏi",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "certificates",
+        "title": "Chứng chỉ của tôi",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "skills",
+        "title": "Hộ chiếu kỹ năng",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "employees",
+        "title": "Kỹ năng đội ngũ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "ingredients",
+        "title": "Nguyên liệu",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "equipment",
+        "title": "Nhóm thiết bị",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "recipes",
+        "title": "Công thức & SOP",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "training-progress",
+        "title": "Tiến độ đào tạo",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "QuestionBank.List",
+        "method": "GET",
+        "path": "/api/v1/question-bank"
+      },
+      {
+        "operation": "QuestionBank.Get",
+        "method": "GET",
+        "path": "/api/v1/question-bank/{id:long}"
+      },
+      {
+        "operation": "QuestionBank.Create",
+        "method": "POST",
+        "path": "/api/v1/question-bank"
+      },
+      {
+        "operation": "QuestionBank.Update",
+        "method": "PUT",
+        "path": "/api/v1/question-bank/{id:long}"
+      },
+      {
+        "operation": "QuestionBank.Delete",
+        "method": "DELETE",
+        "path": "/api/v1/question-bank/{id:long}"
+      },
+      {
+        "operation": "QuestionBank.AddToCourse",
+        "method": "POST",
+        "path": "/api/v1/question-bank/{id:long}/add-to-course/{courseId:long}"
+      },
+      {
+        "operation": "Assignments.List",
+        "method": "GET",
+        "path": "/api/v1/assignments"
+      },
+      {
+        "operation": "Assignments.Assign",
+        "method": "POST",
+        "path": "/api/v1/assignments"
+      },
+      {
+        "operation": "PracticalSchedules.List",
+        "method": "GET",
+        "path": "/api/v1/practical-schedules"
+      },
+      {
+        "operation": "PracticalSchedules.ForEnrollment",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/practical-schedules"
+      },
+      {
+        "operation": "PracticalSchedules.Create",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/practical-schedules"
+      },
+      {
+        "operation": "PracticalSchedules.Reschedule",
+        "method": "PUT",
+        "path": "/api/v1/practical-schedules/{id:long}"
+      },
+      {
+        "operation": "PracticalSchedules.Cancel",
+        "method": "POST",
+        "path": "/api/v1/practical-schedules/{id:long}/cancel"
+      },
+      {
+        "operation": "PracticalSchedules.Complete",
+        "method": "POST",
+        "path": "/api/v1/practical-schedules/{id:long}/complete"
+      },
+      {
+        "operation": "Skills.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/skills"
+      },
+      {
+        "operation": "Skills.Employees",
+        "method": "GET",
+        "path": "/api/v1/dashboards/employees"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Certificates.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/certificates"
+      },
+      {
+        "operation": "Certificates.Get",
+        "method": "GET",
+        "path": "/api/v1/certificates/{id:long}"
+      },
+      {
+        "operation": "Dashboards.TrainingProgress",
+        "method": "GET",
+        "path": "/api/v1/dashboards/training-progress"
+      },
+      {
+        "operation": "Courses.List",
+        "method": "GET",
+        "path": "/api/v1/courses"
+      },
+      {
+        "operation": "Courses.Create",
+        "method": "POST",
+        "path": "/api/v1/courses"
+      },
+      {
+        "operation": "Courses.Get",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}"
+      },
+      {
+        "operation": "Courses.Modules",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/modules"
+      },
+      {
+        "operation": "Courses.EligibleTrainers",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/eligible-trainers"
+      },
+      {
+        "operation": "Courses.GetQuiz",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/quiz"
+      },
+      {
+        "operation": "Courses.UpdateQuiz",
+        "method": "PUT",
+        "path": "/api/v1/courses/{id:long}/quiz"
+      },
+      {
+        "operation": "Courses.ListQuestions",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/quiz/questions"
+      },
+      {
+        "operation": "Courses.AddQuestion",
+        "method": "POST",
+        "path": "/api/v1/courses/{id:long}/quiz/questions"
+      },
+      {
+        "operation": "Courses.SetPracticalChecklist",
+        "method": "PUT",
+        "path": "/api/v1/courses/{id:long}/practical-checklist"
+      },
+      {
+        "operation": "Courses.Submit",
+        "method": "POST",
+        "path": "/api/v1/courses/{id:long}/submit"
+      },
+      {
+        "operation": "Courses.Rebuild",
+        "method": "POST",
+        "path": "/api/v1/courses/{id:long}/rebuild"
+      },
+      {
+        "operation": "CourseModules.Update",
+        "method": "PUT",
+        "path": "/api/v1/course-modules/{id:long}"
+      },
+      {
+        "operation": "CourseModules.Regenerate",
+        "method": "POST",
+        "path": "/api/v1/course-modules/{id:long}/regenerate"
+      },
+      {
+        "operation": "CourseModules.ListLessons",
+        "method": "GET",
+        "path": "/api/v1/course-modules/{id:long}/lessons"
+      },
+      {
+        "operation": "CourseModules.AddLesson",
+        "method": "POST",
+        "path": "/api/v1/course-modules/{id:long}/lessons"
+      },
+      {
+        "operation": "Lessons.Update",
+        "method": "PUT",
+        "path": "/api/v1/lessons/{id:long}"
+      },
+      {
+        "operation": "Lessons.Delete",
+        "method": "DELETE",
+        "path": "/api/v1/lessons/{id:long}"
+      },
+      {
+        "operation": "Lessons.AddMedia",
+        "method": "POST",
+        "path": "/api/v1/lessons/{id:long}/media"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "LessonMedia.Delete",
+        "method": "DELETE",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.List",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "Ingredients.List",
+        "method": "GET",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Get",
+        "method": "GET",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "LearningPath.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/learning-path"
+      },
+      {
+        "operation": "LearningPath.Get",
+        "method": "GET",
+        "path": "/api/v1/learning-paths/{userId:long}"
+      },
+      {
+        "operation": "LearningPath.Assign",
+        "method": "POST",
+        "path": "/api/v1/learning-paths/{userId:long}/assign"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "RecipeFeedback.Submit",
+        "method": "POST",
+        "path": "/api/v1/recipes/{id:long}/feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Summary",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/feedback-summary"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "Recipes.List",
+        "method": "GET",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.Get",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}"
+      },
+      {
+        "operation": "Recipes.ListVersions",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "RecipeVersions.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.Diff",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/diff"
+      },
+      {
+        "operation": "RecipeVersions.Served",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/variants/{code}"
+      },
+      {
+        "operation": "RecipeVersions.Extraction",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/extraction"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "TrainingNeeds.List",
+        "method": "GET",
+        "path": "/api/v1/training-needs"
+      },
+      {
+        "operation": "TrainingClasses.List",
+        "method": "GET",
+        "path": "/api/v1/training-classes"
+      },
+      {
+        "operation": "TrainingClasses.Create",
+        "method": "POST",
+        "path": "/api/v1/training-classes"
+      },
+      {
+        "operation": "TrainingClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/training-classes/{id:long}"
+      },
+      {
+        "operation": "TrainingClasses.Update",
+        "method": "PUT",
+        "path": "/api/v1/training-classes/{id:long}"
+      },
+      {
+        "operation": "TrainingClasses.AddSession",
+        "method": "POST",
+        "path": "/api/v1/training-classes/{id:long}/sessions"
+      },
+      {
+        "operation": "TrainingClasses.Open",
+        "method": "POST",
+        "path": "/api/v1/training-classes/{id:long}/open"
+      },
+      {
+        "operation": "TrainingClasses.Close",
+        "method": "POST",
+        "path": "/api/v1/training-classes/{id:long}/close"
+      },
+      {
+        "operation": "TrainingClasses.Cancel",
+        "method": "POST",
+        "path": "/api/v1/training-classes/{id:long}/cancel"
+      },
+      {
+        "operation": "TrainingSessions.Update",
+        "method": "PUT",
+        "path": "/api/v1/training-sessions/{id:long}"
+      },
+      {
+        "operation": "TrainingSessions.Delete",
+        "method": "DELETE",
+        "path": "/api/v1/training-sessions/{id:long}"
+      },
+      {
+        "operation": "TrainingSessions.GetAttendance",
+        "method": "GET",
+        "path": "/api/v1/training-sessions/{id:long}/attendance"
+      },
+      {
+        "operation": "TrainingSessions.RecordAttendance",
+        "method": "PUT",
+        "path": "/api/v1/training-sessions/{id:long}/attendance"
+      },
+      {
+        "operation": "Enrollments.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/enrollments"
+      },
+      {
+        "operation": "Enrollments.Get",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}"
+      },
+      {
+        "operation": "Enrollments.Modules",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/modules"
+      },
+      {
+        "operation": "Enrollments.CompleteModule",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/modules/{moduleId:long}/complete"
+      },
+      {
+        "operation": "Enrollments.CompleteLesson",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/lessons/{lessonId:long}/complete"
+      },
+      {
+        "operation": "Enrollments.Eligibility",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/eligibility"
+      },
+      {
+        "operation": "Enrollments.Quiz",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/quiz"
+      },
+      {
+        "operation": "Enrollments.AttemptQuiz",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/quiz-attempts"
+      },
+      {
+        "operation": "Enrollments.QuizAttempts",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/quiz-attempts"
+      },
+      {
+        "operation": "Enrollments.UploadPracticalVideo",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/practical-videos"
+      },
+      {
+        "operation": "Enrollments.PracticalVideos",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/practical-videos"
+      },
+      {
+        "operation": "Enrollments.PracticalVideoContent",
+        "method": "GET",
+        "path": "/api/v1/practical-videos/{id:long}"
+      },
+      {
+        "operation": "Enrollments.EvaluatePractical",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/practical-evaluation"
+      },
+      {
+        "operation": "UserLookup.Lookup",
+        "method": "GET",
+        "path": "/api/v1/users/lookup"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "AuditLog.List",
+      "AuditLog.Trace",
+      "Reports.Compliance",
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Dashboards.BranchPerformance",
+      "Dashboards.CourseEffectiveness",
+      "Courses.Approve",
+      "Courses.Return",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Get",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.List",
+      "BranchLaunchStatus.Withdraw",
+      "BranchAudits.List",
+      "BranchAudits.Summary",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Evidence",
+      "BranchAudits.Get",
+      "BranchAudits.Create",
+      "CorrectiveActions.List",
+      "CorrectiveActions.Get",
+      "CorrectiveActions.Start",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Accept",
+      "RecipeFeedback.Reject",
+      "RecipeFeedback.Address",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Validate",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.List",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Sales.Aggregate",
+      "Stock.Receive",
+      "Stock.Count",
+      "Stock.LossReport",
+      "TrainingRegulations.List",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "Enrollments.Close",
+      "Enrollments.Reset",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate"
+    ]
+  },
+  {
+    "role": "TRAINEE",
+    "prefix": "/barista",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "learning-path",
+        "title": "Lộ trình học",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "learning",
+        "title": "Khóa học của tôi",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "certificates",
+        "title": "Chứng chỉ của tôi",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "skills",
+        "title": "Hộ chiếu kỹ năng",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "PracticalSchedules.ForEnrollment",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/practical-schedules"
+      },
+      {
+        "operation": "Skills.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/skills"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Certificates.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/certificates"
+      },
+      {
+        "operation": "Certificates.Get",
+        "method": "GET",
+        "path": "/api/v1/certificates/{id:long}"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "LearningPath.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/learning-path"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "RecipeFeedback.Submit",
+        "method": "POST",
+        "path": "/api/v1/recipes/{id:long}/feedback"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "Enrollments.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/enrollments"
+      },
+      {
+        "operation": "Enrollments.Get",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}"
+      },
+      {
+        "operation": "Enrollments.Modules",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/modules"
+      },
+      {
+        "operation": "Enrollments.CompleteModule",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/modules/{moduleId:long}/complete"
+      },
+      {
+        "operation": "Enrollments.CompleteLesson",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/lessons/{lessonId:long}/complete"
+      },
+      {
+        "operation": "Enrollments.Eligibility",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/eligibility"
+      },
+      {
+        "operation": "Enrollments.Quiz",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/quiz"
+      },
+      {
+        "operation": "Enrollments.AttemptQuiz",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/quiz-attempts"
+      },
+      {
+        "operation": "Enrollments.QuizAttempts",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/quiz-attempts"
+      },
+      {
+        "operation": "Enrollments.PracticalVideos",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/practical-videos"
+      },
+      {
+        "operation": "Enrollments.PracticalVideoContent",
+        "method": "GET",
+        "path": "/api/v1/practical-videos/{id:long}"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "AuditLog.List",
+      "AuditLog.Trace",
+      "Reports.Compliance",
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "Assignments.List",
+      "Assignments.Assign",
+      "PracticalSchedules.List",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Employees",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Dashboards.TrainingProgress",
+      "Dashboards.BranchPerformance",
+      "Dashboards.CourseEffectiveness",
+      "Courses.List",
+      "Courses.Create",
+      "Courses.Get",
+      "Courses.Modules",
+      "Courses.EligibleTrainers",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Approve",
+      "Courses.Return",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "EquipmentClasses.List",
+      "EquipmentClasses.Get",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.List",
+      "Ingredients.Get",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "LearningPath.Get",
+      "LearningPath.Assign",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Get",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.List",
+      "BranchLaunchStatus.Withdraw",
+      "BranchAudits.List",
+      "BranchAudits.Summary",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Evidence",
+      "BranchAudits.Get",
+      "BranchAudits.Create",
+      "CorrectiveActions.List",
+      "CorrectiveActions.Get",
+      "CorrectiveActions.Start",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Summary",
+      "RecipeFeedback.Accept",
+      "RecipeFeedback.Reject",
+      "RecipeFeedback.Address",
+      "Recipes.List",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.Get",
+      "Recipes.ListVersions",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Get",
+      "RecipeVersions.Diff",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.Served",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Extraction",
+      "RecipeVersions.Validate",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.List",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Sales.Aggregate",
+      "Stock.Receive",
+      "Stock.Count",
+      "Stock.LossReport",
+      "TrainingRegulations.List",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "TrainingNeeds.List",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.EvaluatePractical",
+      "Enrollments.Close",
+      "Enrollments.Reset",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate",
+      "UserLookup.Lookup"
+    ]
+  },
+  {
+    "role": "BRANCH_MANAGER",
+    "prefix": "/store-manager",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "launch",
+        "title": "Sẵn sàng & mở bán",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "sales",
+        "title": "Doanh số",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "assignments",
+        "title": "Giao khóa & tiến độ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "employees",
+        "title": "Kỹ năng đội ngũ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "branch-audits",
+        "title": "Kiểm định chi nhánh",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "corrective-actions",
+        "title": "Khắc phục sai lệch",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "training-progress",
+        "title": "Tiến độ đào tạo",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "branch-performance",
+        "title": "Hiệu quả chi nhánh",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Assignments.List",
+        "method": "GET",
+        "path": "/api/v1/assignments"
+      },
+      {
+        "operation": "Skills.Employees",
+        "method": "GET",
+        "path": "/api/v1/dashboards/employees"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Dashboards.TrainingProgress",
+        "method": "GET",
+        "path": "/api/v1/dashboards/training-progress"
+      },
+      {
+        "operation": "Dashboards.BranchPerformance",
+        "method": "GET",
+        "path": "/api/v1/dashboards/branch-performance"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Pilots.Get",
+        "method": "GET",
+        "path": "/api/v1/pilots/{id:long}"
+      },
+      {
+        "operation": "BranchLaunchStatus.List",
+        "method": "GET",
+        "path": "/api/v1/branch-launch-status"
+      },
+      {
+        "operation": "BranchAudits.List",
+        "method": "GET",
+        "path": "/api/v1/branch-audits"
+      },
+      {
+        "operation": "BranchAudits.Evidence",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/evidence/{**key}"
+      },
+      {
+        "operation": "BranchAudits.Get",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/{id:long}"
+      },
+      {
+        "operation": "CorrectiveActions.List",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions"
+      },
+      {
+        "operation": "CorrectiveActions.Get",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions/{id:long}"
+      },
+      {
+        "operation": "CorrectiveActions.Start",
+        "method": "POST",
+        "path": "/api/v1/corrective-actions/{id:long}/start"
+      },
+      {
+        "operation": "RecipeFeedback.Submit",
+        "method": "POST",
+        "path": "/api/v1/recipes/{id:long}/feedback"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "Sales.List",
+        "method": "GET",
+        "path": "/api/v1/sales"
+      },
+      {
+        "operation": "Sales.Drinks",
+        "method": "GET",
+        "path": "/api/v1/sales/drinks"
+      },
+      {
+        "operation": "Sales.Create",
+        "method": "POST",
+        "path": "/api/v1/sales"
+      },
+      {
+        "operation": "Sales.Correct",
+        "method": "PUT",
+        "path": "/api/v1/sales/{id:long}"
+      },
+      {
+        "operation": "Sales.Import",
+        "method": "POST",
+        "path": "/api/v1/sales/import"
+      },
+      {
+        "operation": "Sales.ImportResult",
+        "method": "GET",
+        "path": "/api/v1/sales/import/{jobId}"
+      },
+      {
+        "operation": "Stock.Receive",
+        "method": "POST",
+        "path": "/api/v1/stock/receipts"
+      },
+      {
+        "operation": "Stock.Count",
+        "method": "POST",
+        "path": "/api/v1/stock/counts"
+      },
+      {
+        "operation": "Stock.LossReport",
+        "method": "GET",
+        "path": "/api/v1/stock/loss-report"
+      },
+      {
+        "operation": "Enrollments.Get",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}"
+      },
+      {
+        "operation": "Enrollments.Modules",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/modules"
+      },
+      {
+        "operation": "Enrollments.Eligibility",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/eligibility"
+      },
+      {
+        "operation": "Enrollments.QuizAttempts",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/quiz-attempts"
+      },
+      {
+        "operation": "UserLookup.Lookup",
+        "method": "GET",
+        "path": "/api/v1/users/lookup"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "AuditLog.List",
+      "AuditLog.Trace",
+      "Reports.Compliance",
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "Assignments.Assign",
+      "PracticalSchedules.List",
+      "PracticalSchedules.ForEnrollment",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Mine",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Certificates.Mine",
+      "Certificates.Get",
+      "Dashboards.CourseEffectiveness",
+      "Courses.List",
+      "Courses.Create",
+      "Courses.Get",
+      "Courses.Modules",
+      "Courses.EligibleTrainers",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Approve",
+      "Courses.Return",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "EquipmentClasses.List",
+      "EquipmentClasses.Get",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.List",
+      "Ingredients.Get",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "LearningPath.Mine",
+      "LearningPath.Get",
+      "LearningPath.Assign",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.Withdraw",
+      "BranchAudits.Summary",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Create",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Summary",
+      "RecipeFeedback.Accept",
+      "RecipeFeedback.Reject",
+      "RecipeFeedback.Address",
+      "Recipes.List",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.Get",
+      "Recipes.ListVersions",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Get",
+      "RecipeVersions.Diff",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.Served",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Extraction",
+      "RecipeVersions.Validate",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.Aggregate",
+      "TrainingRegulations.List",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "TrainingNeeds.List",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.Mine",
+      "Enrollments.CompleteModule",
+      "Enrollments.CompleteLesson",
+      "Enrollments.Quiz",
+      "Enrollments.AttemptQuiz",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.PracticalVideos",
+      "Enrollments.PracticalVideoContent",
+      "Enrollments.EvaluatePractical",
+      "Enrollments.Close",
+      "Enrollments.Reset",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate"
+    ]
+  },
+  {
+    "role": "QUALITY_AUDITOR",
+    "prefix": "/quality-auditor",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "branch-audits",
+        "title": "Kiểm định chi nhánh",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "corrective-actions",
+        "title": "Khắc phục sai lệch",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "trace",
+        "title": "Truy vết tiêu chuẩn",
+        "group": "Chất lượng"
+      },
+      {
+        "key": "training-progress",
+        "title": "Tiến độ đào tạo",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "branch-performance",
+        "title": "Hiệu quả chi nhánh",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "quality-summary",
+        "title": "Tổng quan tuân thủ",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "compliance",
+        "title": "Xuất báo cáo chứng nhận",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "sales",
+        "title": "Doanh số",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "ingredients",
+        "title": "Nguyên liệu",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "equipment",
+        "title": "Nhóm thiết bị",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "recipes",
+        "title": "Công thức & SOP",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "audit-log",
+        "title": "Nhật ký hệ thống",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "AuditLog.List",
+        "method": "GET",
+        "path": "/api/v1/audit-log"
+      },
+      {
+        "operation": "AuditLog.Trace",
+        "method": "GET",
+        "path": "/api/v1/audit-log/trace/{entityType}/{entityId:long}"
+      },
+      {
+        "operation": "Reports.Compliance",
+        "method": "GET",
+        "path": "/api/v1/reports/compliance"
+      },
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Certificates.Get",
+        "method": "GET",
+        "path": "/api/v1/certificates/{id:long}"
+      },
+      {
+        "operation": "Dashboards.TrainingProgress",
+        "method": "GET",
+        "path": "/api/v1/dashboards/training-progress"
+      },
+      {
+        "operation": "Dashboards.BranchPerformance",
+        "method": "GET",
+        "path": "/api/v1/dashboards/branch-performance"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.List",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "Ingredients.List",
+        "method": "GET",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Get",
+        "method": "GET",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "BranchAudits.List",
+        "method": "GET",
+        "path": "/api/v1/branch-audits"
+      },
+      {
+        "operation": "BranchAudits.Summary",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/summary"
+      },
+      {
+        "operation": "BranchAudits.UploadEvidence",
+        "method": "POST",
+        "path": "/api/v1/branch-audits/evidence"
+      },
+      {
+        "operation": "BranchAudits.Evidence",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/evidence/{**key}"
+      },
+      {
+        "operation": "BranchAudits.Get",
+        "method": "GET",
+        "path": "/api/v1/branch-audits/{id:long}"
+      },
+      {
+        "operation": "BranchAudits.Create",
+        "method": "POST",
+        "path": "/api/v1/branch-audits"
+      },
+      {
+        "operation": "CorrectiveActions.List",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions"
+      },
+      {
+        "operation": "CorrectiveActions.Get",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions/{id:long}"
+      },
+      {
+        "operation": "CorrectiveActions.Start",
+        "method": "POST",
+        "path": "/api/v1/corrective-actions/{id:long}/start"
+      },
+      {
+        "operation": "CorrectiveActions.RetrainingOptions",
+        "method": "GET",
+        "path": "/api/v1/corrective-actions/{id:long}/retraining-options"
+      },
+      {
+        "operation": "CorrectiveActions.AssignRetraining",
+        "method": "POST",
+        "path": "/api/v1/corrective-actions/{id:long}/assign-retraining"
+      },
+      {
+        "operation": "CorrectiveActions.Close",
+        "method": "POST",
+        "path": "/api/v1/corrective-actions/{id:long}/close"
+      },
+      {
+        "operation": "RecipeFeedback.Summary",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/feedback-summary"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "Recipes.List",
+        "method": "GET",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.Get",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}"
+      },
+      {
+        "operation": "Recipes.ListVersions",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "RecipeVersions.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.Diff",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/diff"
+      },
+      {
+        "operation": "RecipeVersions.Served",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/variants/{code}"
+      },
+      {
+        "operation": "RecipeVersions.Extraction",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/extraction"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "Sales.List",
+        "method": "GET",
+        "path": "/api/v1/sales"
+      },
+      {
+        "operation": "Enrollments.PracticalVideoContent",
+        "method": "GET",
+        "path": "/api/v1/practical-videos/{id:long}"
+      },
+      {
+        "operation": "UserLookup.Lookup",
+        "method": "GET",
+        "path": "/api/v1/users/lookup"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "Assignments.List",
+      "Assignments.Assign",
+      "PracticalSchedules.List",
+      "PracticalSchedules.ForEnrollment",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Mine",
+      "Skills.Employees",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Certificates.Mine",
+      "Dashboards.CourseEffectiveness",
+      "Courses.List",
+      "Courses.Create",
+      "Courses.Get",
+      "Courses.Modules",
+      "Courses.EligibleTrainers",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Approve",
+      "Courses.Return",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "LearningPath.Mine",
+      "LearningPath.Get",
+      "LearningPath.Assign",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Get",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.List",
+      "BranchLaunchStatus.Withdraw",
+      "RecipeFeedback.Submit",
+      "RecipeFeedback.Accept",
+      "RecipeFeedback.Reject",
+      "RecipeFeedback.Address",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Validate",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Sales.Aggregate",
+      "Stock.Receive",
+      "Stock.Count",
+      "Stock.LossReport",
+      "TrainingRegulations.List",
+      "TrainingRegulations.Create",
+      "TrainingRegulations.Update",
+      "TrainingNeeds.List",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.Mine",
+      "Enrollments.Get",
+      "Enrollments.Modules",
+      "Enrollments.CompleteModule",
+      "Enrollments.CompleteLesson",
+      "Enrollments.Eligibility",
+      "Enrollments.Quiz",
+      "Enrollments.AttemptQuiz",
+      "Enrollments.QuizAttempts",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.PracticalVideos",
+      "Enrollments.EvaluatePractical",
+      "Enrollments.Close",
+      "Enrollments.Reset",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate"
+    ]
+  },
+  {
+    "role": "TRAINING_MANAGER",
+    "prefix": "/training-manager",
+    "menu": [
+      {
+        "key": "dashboard",
+        "title": "Tổng quan",
+        "group": "Tổng quan"
+      },
+      {
+        "key": "assignments",
+        "title": "Giao khóa & tiến độ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "regulations",
+        "title": "Quy định đào tạo",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "learning-path",
+        "title": "Lộ trình học",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "courses",
+        "title": "Quản lý khóa học",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "needs",
+        "title": "Nhu cầu đào tạo",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "employees",
+        "title": "Kỹ năng đội ngũ",
+        "group": "Đào tạo"
+      },
+      {
+        "key": "branches",
+        "title": "Chi nhánh",
+        "group": "Vận hành chi nhánh"
+      },
+      {
+        "key": "ingredients",
+        "title": "Nguyên liệu",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "equipment",
+        "title": "Nhóm thiết bị",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "products",
+        "title": "Sản phẩm",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "recipes",
+        "title": "Công thức & SOP",
+        "group": "Công thức & sản phẩm"
+      },
+      {
+        "key": "course-effectiveness",
+        "title": "Hiệu quả khóa học",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "sales-analytics",
+        "title": "Phân tích doanh số",
+        "group": "Báo cáo"
+      },
+      {
+        "key": "categories",
+        "title": "Danh mục",
+        "group": "Quản trị hệ thống"
+      },
+      {
+        "key": "notifications",
+        "title": "Hộp thông báo",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "account",
+        "title": "Tài khoản",
+        "group": "Cá nhân"
+      },
+      {
+        "key": "push",
+        "title": "Thông báo trình duyệt",
+        "group": "Cá nhân"
+      }
+    ],
+    "allowed": [
+      {
+        "operation": "Auth.Logout",
+        "method": "POST",
+        "path": "/api/v1/auth/logout"
+      },
+      {
+        "operation": "Auth.Me",
+        "method": "GET",
+        "path": "/api/v1/auth/me"
+      },
+      {
+        "operation": "Branches.List",
+        "method": "GET",
+        "path": "/api/v1/branches"
+      },
+      {
+        "operation": "Branches.Get",
+        "method": "GET",
+        "path": "/api/v1/branches/{id:long}"
+      },
+      {
+        "operation": "Products.List",
+        "method": "GET",
+        "path": "/api/v1/products"
+      },
+      {
+        "operation": "Products.Get",
+        "method": "GET",
+        "path": "/api/v1/products/{id:long}"
+      },
+      {
+        "operation": "Assignments.List",
+        "method": "GET",
+        "path": "/api/v1/assignments"
+      },
+      {
+        "operation": "Assignments.Assign",
+        "method": "POST",
+        "path": "/api/v1/assignments"
+      },
+      {
+        "operation": "Skills.Employees",
+        "method": "GET",
+        "path": "/api/v1/dashboards/employees"
+      },
+      {
+        "operation": "Categories.List",
+        "method": "GET",
+        "path": "/api/v1/categories"
+      },
+      {
+        "operation": "Categories.Get",
+        "method": "GET",
+        "path": "/api/v1/categories/{id:long}"
+      },
+      {
+        "operation": "Dashboards.CourseEffectiveness",
+        "method": "GET",
+        "path": "/api/v1/dashboards/course-effectiveness"
+      },
+      {
+        "operation": "Courses.List",
+        "method": "GET",
+        "path": "/api/v1/courses"
+      },
+      {
+        "operation": "Courses.Get",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}"
+      },
+      {
+        "operation": "Courses.Modules",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/modules"
+      },
+      {
+        "operation": "Courses.EligibleTrainers",
+        "method": "GET",
+        "path": "/api/v1/courses/{id:long}/eligible-trainers"
+      },
+      {
+        "operation": "LessonMedia.Get",
+        "method": "GET",
+        "path": "/api/v1/lesson-media/{id:long}"
+      },
+      {
+        "operation": "EquipmentClasses.List",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes"
+      },
+      {
+        "operation": "EquipmentClasses.Get",
+        "method": "GET",
+        "path": "/api/v1/equipment-classes/{id:long}"
+      },
+      {
+        "operation": "Ingredients.List",
+        "method": "GET",
+        "path": "/api/v1/ingredients"
+      },
+      {
+        "operation": "Ingredients.Get",
+        "method": "GET",
+        "path": "/api/v1/ingredients/{id:long}"
+      },
+      {
+        "operation": "LearningPath.Get",
+        "method": "GET",
+        "path": "/api/v1/learning-paths/{userId:long}"
+      },
+      {
+        "operation": "LearningPath.Assign",
+        "method": "POST",
+        "path": "/api/v1/learning-paths/{userId:long}/assign"
+      },
+      {
+        "operation": "Notifications.PushConfig",
+        "method": "GET",
+        "path": "/api/v1/push/config"
+      },
+      {
+        "operation": "Notifications.Inbox",
+        "method": "GET",
+        "path": "/api/v1/me/notifications"
+      },
+      {
+        "operation": "Notifications.UnreadCount",
+        "method": "GET",
+        "path": "/api/v1/me/notifications/unread-count"
+      },
+      {
+        "operation": "Notifications.MarkRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/{id:long}/read"
+      },
+      {
+        "operation": "Notifications.MarkAllRead",
+        "method": "POST",
+        "path": "/api/v1/me/notifications/read-all"
+      },
+      {
+        "operation": "Notifications.Mine",
+        "method": "GET",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Subscribe",
+        "method": "POST",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "Notifications.Unsubscribe",
+        "method": "DELETE",
+        "path": "/api/v1/me/push-subscriptions"
+      },
+      {
+        "operation": "RecipeFeedback.Summary",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/feedback-summary"
+      },
+      {
+        "operation": "RecipeFeedback.List",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback"
+      },
+      {
+        "operation": "RecipeFeedback.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-feedback/{id:long}"
+      },
+      {
+        "operation": "Recipes.List",
+        "method": "GET",
+        "path": "/api/v1/recipes"
+      },
+      {
+        "operation": "Recipes.Get",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}"
+      },
+      {
+        "operation": "Recipes.ListVersions",
+        "method": "GET",
+        "path": "/api/v1/recipes/{id:long}/versions"
+      },
+      {
+        "operation": "RecipeVersions.Get",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}"
+      },
+      {
+        "operation": "RecipeVersions.Diff",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/diff"
+      },
+      {
+        "operation": "RecipeVersions.Served",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/variants/{code}"
+      },
+      {
+        "operation": "RecipeVersions.Extraction",
+        "method": "GET",
+        "path": "/api/v1/recipe-versions/{id:long}/extraction"
+      },
+      {
+        "operation": "Roles.List",
+        "method": "GET",
+        "path": "/api/v1/roles"
+      },
+      {
+        "operation": "Sales.Aggregate",
+        "method": "GET",
+        "path": "/api/v1/sales/aggregate"
+      },
+      {
+        "operation": "TrainingRegulations.List",
+        "method": "GET",
+        "path": "/api/v1/training-regulations"
+      },
+      {
+        "operation": "TrainingRegulations.Create",
+        "method": "POST",
+        "path": "/api/v1/training-regulations"
+      },
+      {
+        "operation": "TrainingRegulations.Update",
+        "method": "PUT",
+        "path": "/api/v1/training-regulations/{id:long}"
+      },
+      {
+        "operation": "TrainingNeeds.List",
+        "method": "GET",
+        "path": "/api/v1/training-needs"
+      },
+      {
+        "operation": "Enrollments.Get",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}"
+      },
+      {
+        "operation": "Enrollments.Modules",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/modules"
+      },
+      {
+        "operation": "Enrollments.Eligibility",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/eligibility"
+      },
+      {
+        "operation": "Enrollments.QuizAttempts",
+        "method": "GET",
+        "path": "/api/v1/enrollments/{id:long}/quiz-attempts"
+      },
+      {
+        "operation": "Enrollments.PracticalVideoContent",
+        "method": "GET",
+        "path": "/api/v1/practical-videos/{id:long}"
+      },
+      {
+        "operation": "Enrollments.Close",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/close"
+      },
+      {
+        "operation": "Enrollments.Reset",
+        "method": "POST",
+        "path": "/api/v1/enrollments/{id:long}/reset"
+      },
+      {
+        "operation": "UserLookup.Lookup",
+        "method": "GET",
+        "path": "/api/v1/users/lookup"
+      }
+    ],
+    "denied": [
+      "ImpactAnalysis.Analyze",
+      "ImpactAnalysis.Get",
+      "ImpactAnalysis.Commit",
+      "AuditLog.List",
+      "AuditLog.Trace",
+      "Reports.Compliance",
+      "Branches.Create",
+      "Branches.Update",
+      "Branches.Deactivate",
+      "Products.Create",
+      "Products.Update",
+      "Products.Deactivate",
+      "QuestionBank.List",
+      "QuestionBank.Get",
+      "QuestionBank.Create",
+      "QuestionBank.Update",
+      "QuestionBank.Delete",
+      "QuestionBank.AddToCourse",
+      "PracticalSchedules.List",
+      "PracticalSchedules.ForEnrollment",
+      "PracticalSchedules.Create",
+      "PracticalSchedules.Reschedule",
+      "PracticalSchedules.Cancel",
+      "PracticalSchedules.Complete",
+      "Skills.Mine",
+      "Settings.List",
+      "Settings.Update",
+      "Categories.Create",
+      "Categories.Update",
+      "Categories.Deactivate",
+      "Certificates.Mine",
+      "Certificates.Get",
+      "Dashboards.TrainingProgress",
+      "Dashboards.BranchPerformance",
+      "Courses.Create",
+      "Courses.GetQuiz",
+      "Courses.UpdateQuiz",
+      "Courses.ListQuestions",
+      "Courses.AddQuestion",
+      "Courses.SetPracticalChecklist",
+      "Courses.Submit",
+      "Courses.Approve",
+      "Courses.Return",
+      "Courses.Rebuild",
+      "CourseModules.Update",
+      "CourseModules.Regenerate",
+      "CourseModules.ListLessons",
+      "CourseModules.AddLesson",
+      "Lessons.Update",
+      "Lessons.Delete",
+      "Lessons.AddMedia",
+      "LessonMedia.Delete",
+      "EquipmentClasses.Create",
+      "EquipmentClasses.Update",
+      "EquipmentClasses.Deactivate",
+      "Ingredients.Create",
+      "Ingredients.Update",
+      "Ingredients.Deactivate",
+      "LearningPath.Mine",
+      "Pilots.List",
+      "Pilots.Create",
+      "Pilots.Get",
+      "Pilots.Update",
+      "Pilots.Readiness",
+      "Pilots.Start",
+      "Pilots.Cancel",
+      "Pilots.GoLive",
+      "Pilots.Evaluation",
+      "Pilots.Decide",
+      "BranchLaunchStatus.List",
+      "BranchLaunchStatus.Withdraw",
+      "BranchAudits.List",
+      "BranchAudits.Summary",
+      "BranchAudits.UploadEvidence",
+      "BranchAudits.Evidence",
+      "BranchAudits.Get",
+      "BranchAudits.Create",
+      "CorrectiveActions.List",
+      "CorrectiveActions.Get",
+      "CorrectiveActions.Start",
+      "CorrectiveActions.RetrainingOptions",
+      "CorrectiveActions.AssignRetraining",
+      "CorrectiveActions.Close",
+      "RecipeFeedback.Submit",
+      "RecipeFeedback.Accept",
+      "RecipeFeedback.Reject",
+      "RecipeFeedback.Address",
+      "Recipes.Create",
+      "Recipes.ImportExisting",
+      "Recipes.CreateVersion",
+      "RecipeVersions.Update",
+      "RecipeVersions.GenerateDraft",
+      "RecipeVersions.ReplaceVariants",
+      "RecipeVersions.ExtractDocument",
+      "RecipeVersions.Validate",
+      "RecipeVersions.Repair",
+      "RecipeVersions.Submit",
+      "RecipeVersions.Review",
+      "RecipeVersions.Release",
+      "RecipeVersions.Rollback",
+      "Sales.List",
+      "Sales.Drinks",
+      "Sales.Create",
+      "Sales.Correct",
+      "Sales.Import",
+      "Sales.ImportResult",
+      "Stock.Receive",
+      "Stock.Count",
+      "Stock.LossReport",
+      "TrainingClasses.List",
+      "TrainingClasses.Create",
+      "TrainingClasses.Get",
+      "TrainingClasses.Update",
+      "TrainingClasses.AddSession",
+      "TrainingClasses.Open",
+      "TrainingClasses.Close",
+      "TrainingClasses.Cancel",
+      "TrainingSessions.Update",
+      "TrainingSessions.Delete",
+      "TrainingSessions.GetAttendance",
+      "TrainingSessions.RecordAttendance",
+      "Enrollments.Mine",
+      "Enrollments.CompleteModule",
+      "Enrollments.CompleteLesson",
+      "Enrollments.Quiz",
+      "Enrollments.AttemptQuiz",
+      "Enrollments.UploadPracticalVideo",
+      "Enrollments.PracticalVideos",
+      "Enrollments.EvaluatePractical",
+      "Users.List",
+      "Users.Get",
+      "Users.Create",
+      "Users.Update",
+      "Users.Deactivate"
+    ]
+  }
+]

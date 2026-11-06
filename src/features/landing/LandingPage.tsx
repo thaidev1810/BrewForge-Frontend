@@ -1,33 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/app/hooks';
-import { login } from '@/features/auth/authSlice';
-import { DEMO_PASSWORD } from '@/features/auth/mockAuthService';
+import { useAppSelector } from '@/app/hooks';
 import { dashboardPath, roleConfig } from '@/constants/roles';
-import { ROLES, type Role } from '@/features/auth/authTypes';
+import { ROLES } from '@/features/auth/authTypes';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const landingRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
-  const handleQuickLogin = async (role: Role) => {
-    const email = `${role.toLowerCase()}@demo.brewforge.test`;
-    try {
-      const res = await dispatch(login({ email, password: DEMO_PASSWORD }));
-      if (login.fulfilled.match(res)) {
-        navigate(dashboardPath(role));
-      }
-    } catch {
-      navigate('/login');
-    }
-  };
-
   useEffect(() => {
-    const d = document, root = d.documentElement;
+    const d = document, container = landingRef.current;
+    if (!container) return;
+    const root = container;
+    const listeners = new AbortController();
+    let disposed = false;
+    const frames = new Set<number>();
+    const timers = new Set<ReturnType<typeof window.setTimeout>>();
+    const requestAnimationFrame = (callback: FrameRequestCallback) => {
+      if (disposed) return 0;
+      const id = window.requestAnimationFrame(time => { frames.delete(id); if (!disposed) callback(time); });
+      frames.add(id);
+      return id;
+    };
+    const setTimeout = (callback: () => void, delay: number) => {
+      const id = window.setTimeout(() => { timers.delete(id); if (!disposed) callback(); }, delay);
+      timers.add(id);
+      return id;
+    };
+    const originalScrollRestoration = history.scrollRestoration;
+    const splitText = Array.from(root.querySelectorAll<HTMLElement>('[data-split], [data-words-split]')).map(el => [el, el.textContent] as const);
     root.classList.add('js');
-    const $ = (s: string, r: ParentNode = d) => r.querySelector(s) as HTMLElement | null;
-    const $$ = (s: string, r: ParentNode = d) => Array.from(r.querySelectorAll(s)) as HTMLElement[];
+    d.body.classList.add('landing-active');
+    const $ = (s: string, r: ParentNode = root) => r.querySelector(s) as HTMLElement | null;
+    const $$ = (s: string, r: ParentNode = root) => Array.from(r.querySelectorAll(s)) as HTMLElement[];
     const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const FINE = matchMedia('(pointer: fine)').matches;
     const clamp = (v: number, a = 0, b = 1) => v < a ? a : v > b ? b : v;
@@ -78,7 +84,7 @@ export const LandingPage: React.FC = () => {
         handle: 'brewforge_lab',
         cap: 'Signature cascara infusion. 18h slow steep. Nitrogen draft.',
         likes: 'TDS 1.38%',
-        url: '#cases',
+        url: '#services',
         desc: 'Formulated in the BrewForge R&D lab for synchronized franchise deployment. Features single-origin Typica cascara, washed Ethiopian beans, and calibrated micro-filtration yielding a velvety guinness-style head.',
         cats: ['R&D Signature', 'Nitro Draft', 'Cascara Fusion'],
         stats: [
@@ -95,7 +101,7 @@ export const LandingPage: React.FC = () => {
         handle: 'brewforge_sop',
         cap: '18.5g in · 38.0g out · 27 sec · 9.2 bar · 93.5°C.',
         likes: 'Daily Calibration',
-        url: '#cases',
+        url: '#services',
         desc: 'Our definitive multi-branch espresso standard. Eliminates barista extraction drift with micrometric grind tolerances, standardized WDT distribution, automated volumetric dosing, and real-time refractometer logging.',
         cats: ['Espresso Standard', 'Barista Calibration', 'Zero Drift'],
         stats: [
@@ -112,7 +118,7 @@ export const LandingPage: React.FC = () => {
         handle: 'brewforge_academy',
         cap: 'Dialing precision, latte art microfoam, and blind sensory cupping.',
         likes: '80% Pass Mark',
-        url: '#cases',
+        url: '#services',
         desc: 'Interactive learning modules, prerequisite knowledge quizzes, and blind sensory cupping tests. Baristas earn verified digital credentials and badge milestones before stepping onto live franchise shifts.',
         cats: ['Barista LMS', 'Sensory Cupping', 'Latte Art'],
         stats: [
@@ -129,7 +135,7 @@ export const LandingPage: React.FC = () => {
         handle: 'brewforge_audit',
         cap: '50+ branches. 1 unified standard across every cup.',
         likes: 'Live Audits',
-        url: '#cases',
+        url: '#services',
         desc: 'Equip quality auditors and store managers with digital checklists, water filtration testing, milk steaming hygiene checks, and blind taste audits across Hanoi, Saigon, Da Nang, and regional stores.',
         cats: ['Franchise Scale', 'Quality Audits', 'Zero Tolerance'],
         stats: [
@@ -180,13 +186,13 @@ export const LandingPage: React.FC = () => {
       {
         n: 'Franchise Enterprise', word: 'SCALE', unit: 'Multi-Branch', tag: 'Recommended',
         d: 'The complete operations suite for growing coffee chains. Automated multi-branch quality audits, advanced LMS with certification, and versioned R&D.',
-        f: ['Unlimited Branches & Stores', 'Full 7-Role Workspace Suite', 'Real-time Branch Auditing', 'Automated Barista Certifications', 'R&D Approval Workflows'],
+        f: ['Branch Workspaces', 'Full 8-Role Workspace Suite', 'Recorded Quality Audits', 'Assessed Barista Certifications', 'R&D Approval Workflows'],
         href: '/login', cta: 'Launch Workspace', solid: true
       },
       {
         n: 'Custom Chain & API', word: 'FORGE', unit: '50+ Stores',
-        d: 'Enterprise-grade customization for large coffee corporations with custom POS/ERP integration and dedicated coffee science consulting.',
-        f: ['Custom ERP / POS Integrations', 'Dedicated Coffee Master Consultant', 'Custom Sensory Calibration Matrix', 'White-Label Store Portal'],
+        d: 'Coordinate recipe releases, team readiness and sales records across branches using the current workspace capabilities.',
+        f: ['CSV / XLSX POS Imports', 'Pilot Readiness & Coverage', 'Versioned Recipe Releases', 'Branch Sales Reports'],
         href: '/login', cta: 'Explore Enterprise', solid: false
       }
     ];
@@ -203,10 +209,10 @@ export const LandingPage: React.FC = () => {
     const FAQ = [
       ['What is BrewForge and who is it designed for?', 'BrewForge is an end-to-end platform built for specialty coffee chains, roasteries, and franchise brands. It connects R&D teams, trainers, store managers, baristas, and quality auditors into one single source of truth.'],
       ['How does BrewForge ensure identical drink taste across 50+ stores?', 'Through standardized digital SOPs, calibrated extraction targets (dose, yield, temperature, time), and regular audit inspections. When every barista follows identical parameters, customers experience identical specialty quality in every city.'],
-      ['Can baristas use BrewForge on mobile phones during busy shifts?', 'Yes! BrewForge is engineered mobile-first. Baristas can look up SOPs in seconds, follow interactive brew timers, and complete daily calibration checks directly from their phone or bar tablet.'],
+      ['Can baristas use BrewForge on mobile phones during busy shifts?', 'The workspace supports mobile browsers for assigned lessons, quizzes and certification history. An active connection is required to load data and save progress.'],
       ['How do R&D Specialists and Managers collaborate on new drinks?', 'Specialists draft beverages with experimental extraction parameters. When dialed in, they submit for review. R&D Managers approve and publish with semantic versioning (v1.0, v2.0), leaving historical snapshots intact.'],
-      ['How do the 7 demo role workspaces work?', 'You can test all 7 roles directly on the platform: Administrator, R&D Specialist, R&D Manager, Trainer, Store Manager, Barista, and Quality Auditor. Click "Launch App" or pick any role in the top header to explore their dedicated dashboard.'],
-      ['Does BrewForge support offline bar usage?', 'Yes, core SOPs and dialing guides are cached locally so baristas can continue pulling dialed shots even if the cafe internet temporarily drops.']
+      ['How do the 8 role workspaces work?', 'Administrator, R&D Specialist, R&D Manager, Trainer, Training Manager, Branch Manager, Trainee and Quality Auditor each have a scoped workspace. Launch App and the role buttons open sign-in; access comes from the account assigned by your administrator.'],
+      ['Does BrewForge support offline bar usage?', 'An active connection is required. Offline SOP caching and progress synchronization are not available; failed saves must be checked before retrying.']
     ];
 
     /* ---------- build DOM elements ---------- */
@@ -219,7 +225,7 @@ export const LandingPage: React.FC = () => {
       caseListEl.innerHTML = CASES.map((c, i) => `<article class="case" data-i="${i}">
         <div class="case-inner">
           <div class="case-row pad"><span class="mono lab"><i class="sq"></i>Standard</span><span class="case-line"></span><span class="case-num">${pad2(i + 1)}</span></div>
-          <div class="case-body pad"><p class="mono">${c.year}</p><h3 class="case-name">${esc(c.name)}</h3><p class="case-desc">${esc(c.desc)}</p><a class="case-link mono" ${ext(c.url)}>Explore Specification <span>→</span></a></div>
+          <div class="case-body pad"><p class="mono">${c.year}</p><h3 class="case-name">${esc(c.name)}</h3><p class="case-desc">${esc(c.desc)}</p><a class="case-link mono" ${ext(c.url)}>Explore Platform <span>→</span></a></div>
           <div class="case-cats"><p class="mono">Domains</p><div class="chips mono">${c.cats.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div></div>
         </div>
       </article>`).join('');
@@ -293,7 +299,7 @@ export const LandingPage: React.FC = () => {
 
     const faqListEl = $('#faqList');
     if (faqListEl) {
-      faqListEl.innerHTML = FAQ.map((f, i) => `<div class="qa"${i === 0 ? ' open' : ''}><button type="button" aria-expanded="${i === 0}" aria-controls="qa${i}">${esc(f[0])}<i aria-hidden="true">+</i></button><div class="qa-a" id="qa${i}"><div><p>${esc(f[1])}</p></div></div></div>`).join('');
+      faqListEl.innerHTML = FAQ.map((f, i) => `<div class="qa"${i === 0 ? ' open' : ''}><button type="button" aria-expanded="${i === 0}" aria-controls="qa${i}">${esc(f[0])}<i aria-hidden="true">+</i></button><div class="qa-a" id="qa${i}" aria-hidden="${i !== 0}"><div><p>${esc(f[1])}</p></div></div></div>`).join('');
     }
 
     /* ---------- text splitting ---------- */
@@ -315,7 +321,7 @@ export const LandingPage: React.FC = () => {
 
     /* ---------- smooth wheel scroll ---------- */
     const sm = { t: window.scrollY, c: window.scrollY, on: false, en: !RM && FINE };
-    const maxS = () => root.scrollHeight - window.innerHeight;
+    const maxS = () => d.documentElement.scrollHeight - window.innerHeight;
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.defaultPrevented) return;
       e.preventDefault();
@@ -339,13 +345,21 @@ export const LandingPage: React.FC = () => {
       else window.scrollTo({ top: y, behavior: RM ? 'auto' : 'smooth' });
     }
     const docTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+    const restoreAnchor = () => {
+      const target = location.hash && d.getElementById(location.hash.slice(1));
+      if (target && root.contains(target)) scrollToY(docTop(target) - ($('#nav')?.offsetHeight ?? 0));
+    };
+    window.addEventListener('popstate', restoreAnchor, { signal: listeners.signal });
+    window.addEventListener('hashchange', restoreAnchor, { signal: listeners.signal });
     $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
       const id = a.getAttribute('href');
-      const t = id && id.length > 1 ? d.getElementById(id.slice(1)) : null;
+      const t = id && id.length > 1 ? root.querySelector<HTMLElement>(id) : null;
       if (!t) return;
       e.preventDefault();
-      scrollToY(id === '#top' ? 0 : docTop(t));
-    }));
+      history.pushState(history.state, '', id);
+      t.tabIndex = -1; t.focus({ preventScroll: true });
+      scrollToY(id === '#top' ? 0 : docTop(t) - ($('#nav')?.offsetHeight ?? 0));
+    }, { signal: listeners.signal }));
 
     /* ---------- scramble effect ---------- */
     const CH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+=/<>';
@@ -369,7 +383,7 @@ export const LandingPage: React.FC = () => {
     }
     $$('[data-scramble]').forEach(el => {
       const h = el.closest('a,button') || el;
-      h.addEventListener('mouseenter', () => scramble(el));
+      h.addEventListener('mouseenter', () => scramble(el), { signal: listeners.signal });
     });
 
     /* ---------- reveal & countUp ---------- */
@@ -759,14 +773,16 @@ void main(){
     let rpx = 0, rpy = 0, reelVis = false;
     function toggleReel() {
       reelPlay = !reelPlay;
+      reelCard?.setAttribute('aria-pressed', String(reelPlay));
       if (reelIcon) reelIcon.textContent = reelPlay ? '❚❚' : '▶';
-      if (reelState) reelState.textContent = reelPlay ? 'Playing · Masterclass 2026' : 'Showreel · 01:24';
+      if (reelState) reelState.textContent = reelPlay ? 'Playing · Generative illustration' : 'Paused · Generative illustration';
     }
     if (reelCard) {
-      reelCard.addEventListener('click', toggleReel);
+      reelCard.setAttribute('aria-pressed', 'false');
+      reelCard.addEventListener('click', toggleReel, { signal: listeners.signal });
       reelCard.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleReel(); }
-      });
+      }, { signal: listeners.signal });
     }
     function updateReel() {
       if (!reelCard || !reelPlayEl) return;
@@ -785,7 +801,7 @@ void main(){
       reelPlayEl.style.transform = `translate3d(${rpx.toFixed(1)}px,${rpy.toFixed(1)}px,0)`;
       reelPlayEl.style.setProperty('--ps', inside ? '1.15' : '1');
       if (reelGL) {
-        rtime += dt * (reelPlay ? 3 : 0.7);
+        if (reelPlay) rtime += dt * 3;
         reelGL.draw(rtime, 4.2, PF.forge, PF.espresso, 0.4, 1.05);
       }
     }
@@ -821,7 +837,8 @@ void main(){
         const o = !q.hasAttribute('open');
         q.toggleAttribute('open', o);
         b.setAttribute('aria-expanded', String(o));
-      });
+        $('.qa-a', q)?.setAttribute('aria-hidden', String(!o));
+      }, { signal: listeners.signal });
     });
     function updateFaq() {
       qas.forEach(q => {
@@ -836,8 +853,8 @@ void main(){
       const emailInput = $('#nEmail') as HTMLInputElement | null;
       const em = emailInput?.value.trim() || '';
       const msg = $('#newsMsg');
-      if (msg) msg.textContent = /^\S+@\S+\.\S+$/.test(em) ? 'Subscribed to The Brew Dispatch. Thank you!' : 'Please enter a valid email address.';
-    });
+      if (msg) msg.textContent = /^\S+@\S+\.\S+$/.test(em) ? 'Newsletter subscriptions are not available yet.' : 'Please enter a valid email address.';
+    }, { signal: listeners.signal });
 
     /* Footer Rise */
     function updateFoot() {
@@ -879,7 +896,7 @@ void main(){
     if ('ResizeObserver' in window) {
       let roT: ReturnType<typeof setTimeout>;
       ro = new ResizeObserver(() => { clearTimeout(roT); roT = setTimeout(() => { measurePhone(); }, 120); });
-      ro.observe(d.body);
+      ro.observe(root);
     }
 
     let last = performance.now();
@@ -916,19 +933,28 @@ void main(){
     animFrameId = requestAnimationFrame(frame);
 
     const go = () => {
-      if (root.classList.contains('ready')) return;
+      if (disposed || root.classList.contains('ready')) return;
       onResize();
       root.classList.add('ready');
+      restoreAnchor();
       setTimeout(bakeSome, 250);
     };
     type DocumentWithFonts = Document & { fonts?: { ready?: Promise<void> } };
     const docFonts = (d as DocumentWithFonts).fonts;
     const fontsReady = docFonts?.ready ?? Promise.resolve();
-    Promise.race([fontsReady, new Promise(r => setTimeout(r, 1400))]).then(() => requestAnimationFrame(go));
+    Promise.race([fontsReady, new Promise<void>(r => setTimeout(r, 1400))]).then(() => requestAnimationFrame(go));
     if (docFonts?.ready) docFonts.ready.then(() => setTimeout(onResize, 50));
     const fallbackTO = setTimeout(go, 2500);
 
     return () => {
+      disposed = true;
+      listeners.abort();
+      frames.forEach(id => window.cancelAnimationFrame(id));
+      timers.forEach(id => window.clearTimeout(id));
+      root.classList.remove('js', 'ready');
+      d.body.classList.remove('landing-active');
+      splitText.forEach(([el, text]) => { el.textContent = text; });
+      history.scrollRestoration = originalScrollRestoration;
       cancelAnimationFrame(animFrameId);
       clearTimeout(rzT);
       clearTimeout(fallbackTO);
@@ -946,7 +972,7 @@ void main(){
   }, []);
 
   return (
-    <>
+    <div className="landing-page" ref={landingRef} lang="en">
       <header className="nav" id="nav">
         <div className="nav-in">
           <a className="nav-logo" href="#top" aria-label="BrewForge, back to top">BREWFORGE</a>
@@ -1020,13 +1046,13 @@ void main(){
               The operations and training engine for specialty coffee chains. Dial in signature recipes, automate SOP standards, and certify barista teams at scale.
             </p>
             <div className="roles-bar intro-fade" style={{ marginTop: '20px' }}>
-              <span className="mono" style={{ color: 'var(--mute)', fontSize: '10px' }}>Quick Demo:</span>
+              <span className="mono" style={{ color: 'var(--mute)', fontSize: '10px' }}>Workspace roles:</span>
               {ROLES.map((role) => (
                 <button
                   key={role}
                   type="button"
                   className="role-pill"
-                  onClick={() => handleQuickLogin(role)}
+                  onClick={() => navigate('/login')}
                   title={`Sign in as ${roleConfig[role].label}`}
                 >
                   <span className="sq" style={{ width: '5px', height: '5px' }}></span>
@@ -1082,6 +1108,7 @@ void main(){
         {/* Interactive Cases Section with Traveling Phone */}
         <div className="seam">
           <section className="cases round-b" id="work" aria-label="BrewForge Standards & Case Studies">
+            <p className="pad mono">Illustrative examples and targets — not live operational results.</p>
             <div className="cases-pin">
               <div className="slot slot-case" id="slotCase"></div>
             </div>
@@ -1121,10 +1148,10 @@ void main(){
 
             {/* Showreel Section */}
             <section className="reel pad" aria-label="Highlights & Dialing Showreel">
-              <div className="reel-card" id="reelCard" role="button" tabIndex={0} aria-label="Play or pause the BrewForge highlights showreel">
+              <div className="reel-card" id="reelCard" role="button" tabIndex={0} aria-pressed="false" aria-label="Play or pause the BrewForge generative illustration">
                 <canvas id="reelCv"></canvas>
                 <div className="reel-play" id="reelPlay"><span id="reelIcon">▶</span></div>
-                <span className="reel-state mono" id="reelState">Highlights · BrewForge 2026</span>
+                <span className="reel-state mono" id="reelState">Generative illustration · BrewForge 2026</span>
                 <div className="reel-badge"><b>BREW</b><small>FORGE<br />2026</small></div>
               </div>
             </section>
@@ -1139,7 +1166,7 @@ void main(){
               <div>
                 <h2 className="h2" data-split>Engineered for any coffee footprint</h2>
                 <p className="sub" data-r>
-                  From single specialty lab roasteries to regional multi-branch franchise networks and global coffee chains.
+                  Workspace use cases, not subscription plans. Access and permissions are assigned by your administrator.
                 </p>
               </div>
             </div>
@@ -1148,9 +1175,9 @@ void main(){
               <div className="art" data-pal="forge" data-seed="11" data-zoom="1.3"></div>
               <div>
                 <p className="mono" style={{ color: 'var(--mute-d)' }}>Deploying multiple branches?</p>
-                <h3>Try the 7-role interactive simulation.</h3>
+                <h3>One workspace for eight operational roles.</h3>
                 <p>
-                  Switch instantly between Administrator, R&amp;D Specialist, R&amp;D Manager, Trainer, Store Manager, Barista, and Quality Auditor to experience how BrewForge powers your entire operation.
+                  Sign in with your assigned account as Administrator, R&amp;D Specialist, R&amp;D Manager, Trainer, Training Manager, Store Manager, Barista, or Quality Auditor.
                 </p>
                 <button
                   type="button"
@@ -1158,7 +1185,7 @@ void main(){
                   onClick={() => navigate('/login')}
                   style={{ marginTop: '16px' }}
                 >
-                  <span className="btn-l" data-scramble>Open Demo Workspace</span>
+                  <span className="btn-l" data-scramble>Open Workspace</span>
                   <span className="btn-a" aria-hidden="true"><i>→</i><i>→</i></span>
                 </button>
               </div>
@@ -1220,7 +1247,7 @@ void main(){
                     <span className="art" data-pal="crema" data-seed="23" data-zoom="2"></span>
                     <span className="art" data-pal="amber" data-seed="24" data-zoom="2"></span>
                   </div>
-                  <span className="mono" style={{ color: 'var(--mute-d)' }}>Empowering 1,200+ Craft Baristas</span>
+                  <span className="mono" style={{ color: 'var(--mute-d)' }}>Built for coffee teams</span>
                 </div>
               </div>
               <div>
@@ -1236,7 +1263,7 @@ void main(){
               </div>
               <div className="fcontact">
                 <p className="mono">Workspace Access</p>
-                <a className="big" href="/login">demo.brewforge.test</a>
+                <a className="big" href="/login">Sign in to BrewForge ↗</a>
                 <address className="mono">
                   BrewForge Platform HQ<br />
                   Specialty Coffee Franchise Engine<br />
@@ -1258,7 +1285,7 @@ void main(){
         </div>
       </main>
       <div className="svc-prev" id="svcPrev" aria-hidden="true"></div>
-    </>
+    </div>
   );
 };
 

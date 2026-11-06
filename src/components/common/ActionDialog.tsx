@@ -1,0 +1,125 @@
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
+import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { X } from 'lucide-react'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { Button } from '@/components/ui/button'
+import { endpoints } from '@/services/backend/schema'
+import { backendApi, canCall, executeOperation, useExecuteMutation, asRecord, type RecordData } from '@/services/backend/operations'
+import { normalizeApiError, type ApiError } from '@/services/apiError'
+import { validateRequest, type FieldIssue } from '@/services/backend/validation'
+import type { ActionSpec } from '@/features/workspace/resources'
+import { ContractFields, type FormContext } from './ContractForm'
+import { courseReadiness } from '@/services/backend/authoringRules'
+import { mutationTags } from '@/services/backend/cachePolicy'
+import { formDefaults } from '@/services/backend/formValues'
+import { confinedBranch } from '@/services/backend/learningFlow'
+import { ErrorState, Notice } from './AsyncState'
+import { DataView } from './DataView'
+import { fieldFeedback } from '@/services/errorPresentation'
+import { submitLabel, successMessage, posCsvTemplate } from '@/services/operationPresentation'
+import { saveBlob } from '@/utils/download'
+
+export function ActionDialog({ action, record = {}, initial, context = {}, onClose, onSuccess, onFailure, disabledReason, renderResult, errorAction }: { action: ActionSpec; record?: RecordData; initial?: RecordData; context?: FormContext; onClose: () => void; onSuccess?: (data: unknown) => void; onFailure?: (error: ApiError) => void; disabledReason?: string; renderResult?: (data: unknown) => ReactNode; errorAction?: ReactNode }) {
+  const user = useAppSelector(s => s.auth.user), dispatch = useAppDispatch(), endpoint = endpoints[action.operation]
+  const [body, setBody] = useState<RecordData>(() => {
+    const defaults = endpoint.body ? formDefaults(endpoint.body) : {}
+    return { ...defaults, ...(['AssignmentRequest', 'SalesRecordRequest', 'TrainingClassRequest', 'BranchAuditRequest'].includes(endpoint.body ?? '') && user?.branchId ? { branchId: Number(user.branchId) } : {}), ...initial, ...action.initial?.(record), ...(confinedBranch(user) && 'branchId' in defaults ? { branchId: confinedBranch(user) } : {}) }
+  })
+  const [issues, setIssues] = useState<FieldIssue[]>([]), [upload, setUpload] = useState<File | null>(null), [progress, setProgress] = useState(0), [uploading, setUploading] = useState(false), [error, setError] = useState<unknown>(null), [result, setResult] = useState<unknown>(undefined)
+  const [extra, setExtra] = useState<string>('')
+  const [initialBody] = useState(() => JSON.stringify(body))
+  const dirty = result === undefined && (JSON.stringify(body) !== initialBody || upload !== null || extra !== '')
+  const submitting = useRef(false)
+  const key = useRef(crypto.randomUUID()), [mutate, mutation] = useExecuteMutation()
+  const busy = mutation.isLoading || uploading
+  const dialog = useRef<HTMLElement>(null), errorSummary = useRef<HTMLElement>(null), close = useRef(onClose)
+  function requestClose() { if (!busy && (!dirty || window.confirm('Bạn có thay đổi chưa lưu. Bỏ thay đổi và đóng?'))) onClose() }
+  useEffect(() => { close.current = requestClose })
+  useUnsavedChanges(dirty,busy)
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null
+    dialog.current?.querySelector<HTMLElement>('button,input,select,textarea')?.focus()
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close.current()
+      if (event.key !== 'Tab') return
+      const elements = [...(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]') ?? [])].filter(element => element.getClientRects().length > 0)
+      const first = elements[0], last = elements.at(-1)
+      if (!first) { event.preventDefault(); dialog.current?.focus() }
+      else if (!dialog.current?.contains(document.activeElement)) { event.preventDefault(); (event.shiftKey ? last : first)?.focus() }
+      else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+    }
+    document.addEventListener('keydown', keydown)
+    return () => { document.removeEventListener('keydown', keydown); previous?.focus() }
+  }, [])
+  useEffect(() => {
+    if (busy && dialog.current && !dialog.current.contains(document.activeElement)) dialog.current.focus()
+  }, [busy])
+  const needsCourse = action.operation === 'QuestionBank.AddToCourse'
+  const params = action.params?.(record) ?? (action.operation === 'Settings.Update' ? { key: String(record.key) } : { id: Number(record.id ?? record.enrollmentId) })
+  const maxBytes = action.operation === 'Enrollments.UploadPracticalVideo' ? 200 * 1024 * 1024 : 5 * 1024 * 1024
+  const accept = action.operation === 'Enrollments.UploadPracticalVideo' ? '.mp4,.mov,.webm' : action.operation === 'BranchAudits.UploadEvidence' ? '.jpg,.jpeg,.png,.webp' : '.csv,.xlsx'
+  const blocked = action.operation === 'CorrectiveActions.AssignRetraining' && !context.retrainingCourseIds?.length || !!disabledReason
+  function focusIssue(field?: string) {
+    if (!field) return
+    requestAnimationFrame(() => {
+      const group = dialog.current?.querySelector<HTMLElement>('[data-field="' + CSS.escape(field) + '"]')
+      const target = document.getElementById(field) ?? group?.querySelector<HTMLElement>('input,select,textarea,button')
+      let ancestor = target?.parentElement
+      while (ancestor) { if (ancestor instanceof HTMLDetailsElement) ancestor.open = true; ancestor = ancestor.parentElement }
+      target?.focus(); target?.scrollIntoView({ block: 'center', behavior: 'auto' })
+    })
+  }
+  function focusFeedback(fields: FieldIssue[]) {
+    if (fields.length > 1) requestAnimationFrame(() => {
+      errorSummary.current?.focus()
+      errorSummary.current?.scrollIntoView({ block: 'nearest', behavior: 'auto' })
+    })
+    else focusIssue(fields[0]?.field)
+  }
+  async function submit() {
+    if (submitting.current || busy) return
+    setError(null)
+    let checked = endpoint.body ? validateRequest(endpoint.body, body, context.creating) : []
+    if (action.operation === 'CorrectiveActions.AssignRetraining' && !context.retrainingCourseIds?.includes(Number(body.courseId))) checked.push({ field: 'courseId', issue: 'Chọn khóa đã công bố từ danh sách học lại hợp lệ của action.' })
+    if (action.operation === 'Courses.Submit' && Array.isArray(record.modules)) checked.push(...courseReadiness(record))
+    if (action.operation === 'Settings.Update') {
+      const value = String(body.value ?? '').trim()
+      if (record.key === 'audit.pass_mark' && (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 100)) checked.push({ field: 'value', issue: 'Ngưỡng đạt phải là số nguyên từ 1 đến 100.' })
+      if (record.key === 'company.name' && (!value || value.length > 120)) checked.push({ field: 'value', issue: 'Tên công ty 1–120 ký tự.' })
+    }
+    if (needsCourse && !extra) checked = [{ field: 'courseId', issue: 'Chọn khóa học để sao chép câu hỏi.' }]
+    setIssues(checked)
+    if (checked.length || blocked) { focusFeedback(checked); return }
+    submitting.current = true
+    try {
+      let data: unknown
+      if (endpoint.upload) {
+        if (!upload || upload.size === 0 || upload.size > maxBytes || !accept.split(',').includes('.' + upload.name.split('.').at(-1)?.toLowerCase())) throw new Error(`Chọn tệp hợp lệ, không rỗng, tối đa ${maxBytes / 1024 / 1024} MB (${accept}).`)
+        const form = new FormData(); form.append('file', upload)
+        setUploading(true)
+        data = await executeOperation(action.operation, { params, body: form, idempotencyKey: endpoint.idempotency ? key.current : undefined }, { onUploadProgress: event => setProgress(event.total ? Math.round(event.loaded / event.total * 100) : 0) })
+        dispatch(backendApi.util.invalidateTags(mutationTags(action.operation)))
+      } else data = await mutate({ operation: action.operation, params: { ...params, ...(needsCourse ? { courseId: Number(extra) } : {}) }, body: endpoint.body ? body : undefined, idempotencyKey: endpoint.idempotency ? key.current : undefined }).unwrap()
+      setResult(data ?? null); onSuccess?.(data)
+    } catch (e) {
+      const normalized = normalizeApiError(e)
+      setError(normalized)
+      const fields = Object.entries(normalized.validationErrors ?? {}).flatMap(([field, messages]) => messages.map(issue => ({ field: action.operation === 'Assignments.Assign' && field === 'traineeIds' ? 'employeeIds' : field, issue })))
+      setIssues(fields); focusFeedback(fields)
+      onFailure?.(normalized)
+    } finally { submitting.current = false; setUploading(false) }
+  }
+  return <div className="modal-backdrop"><section ref={dialog} className="dialog" role="dialog" aria-modal="true" aria-busy={busy || undefined} aria-labelledby="action-title" tabIndex={-1}><header><h2 id="action-title">{action.label}</h2><Button variant="ghost" aria-label="Đóng" disabled={busy} onClick={requestClose}><X size={20} /></Button></header><div className="dialog-body">{result !== undefined ? renderResult ? renderResult(result) : <><div className="success-box" role="status">{successMessage(action.operation)}</div>{result !== null && <DataView value={result} />}</> : <form id="action-form" onSubmit={e => { e.preventDefault(); void submit() }}>{issues.length > 0 && <section ref={errorSummary} role="region" aria-labelledby="form-errors-title" tabIndex={-1} className="form-error-summary error-box mb-4"><h3 id="form-errors-title">Cần kiểm tra trước khi gửi</h3><p role="alert">Có {issues.length} mục cần kiểm tra. Nội dung đã nhập được giữ lại.</p><ul className="mt-2 list-disc pl-5">{issues.map((issue, index) => { const text = fieldFeedback(issue.field, issue.issue), root = issue.field.split(/[.[\]]/)[0]; return <li key={index}>{root in body ? <button type="button" className="text-link text-left" onClick={() => focusIssue(issue.field)}>{text}</button> : <span>{text}</span>}</li> })}</ul></section>}<fieldset disabled={busy} className="min-w-0">
+    {action.operation === 'CorrectiveActions.Close' && record.retrainingRequired === true && <Notice>Kiểm tra tiến độ học lại của các nhân viên được yêu cầu trước khi đóng. Kết quả đạt từ trước không chứng minh nghĩa vụ học lại mới đã hoàn tất; nếu chưa đủ thông tin, giữ yêu cầu mở và liên hệ quản lý đào tạo.</Notice>}
+    {action.note && <Notice>{action.note}</Notice>}{blocked && <Notice>{disabledReason ?? 'Chưa có lựa chọn phù hợp. Kiểm tra danh sách nhân viên và khóa học được phép rồi tải lại.'}</Notice>}
+    {action.danger && <Notice>Thao tác này thay đổi trạng thái tài nguyên. Kiểm tra thông tin trước khi xác nhận.</Notice>}
+    {endpoint.body && (!blocked || action.operation==='CorrectiveActions.AssignRetraining') && <ContractFields schema={endpoint.body} value={body} onChange={setBody} context={{ ...context, peopleRoles: ['AssignmentRequest', 'OpenClassRequest'].includes(endpoint.body) ? ['TRAINEE', 'TRAINER'] : context.peopleRoles, readOnly: [...(context.readOnly ?? []), ...(endpoint.body === 'UpdateUserRequest' ? ['username'] : [])] }} issues={issues} />}
+    {needsCourse && <ContractFields schema="RetrainingRequest" value={{ courseId: extra ? Number(extra) : null }} onChange={v => setExtra(String(v.courseId ?? ''))} issues={issues} />}
+    {endpoint.upload && <div className="form-field"><label htmlFor="upload-file">Tệp ({accept}; tối đa {maxBytes / 1024 / 1024} MB)</label>{action.operation === 'Sales.Import' && <Button type="button" variant="outline" onClick={() => saveBlob(new Blob([posCsvTemplate], { type: 'text/csv;charset=utf-8' }), 'BrewForge-mau-doanh-so.csv')}>Tải tệp mẫu CSV</Button>}<input id="upload-file" type="file" accept={accept} onChange={e => { setUpload(e.target.files?.[0] ?? null); setError(null); key.current = crypto.randomUUID() }} />{uploading && <div role="status"><progress value={progress} max={100} /> Đang tải lên {progress}%</div>}</div>}
+    {error !== null && action.operation === 'Sales.Import' && <Notice>Chưa xác nhận được kết quả nhập. Kiểm tra lịch sử nhập trước khi gửi lần nữa. Nếu cần gửi lại, giữ nguyên tệp để lấy kết quả lần xử lý trước; chỉ chọn tệp khác khi bắt đầu một lần nhập mới.</Notice>}
+    {error !== null && <ErrorState operation={action.operation} error={asRecord(error).message ? error : normalizeApiError(error)} />}{errorAction}
+    {!canCall(action.operation, user?.role) && <Notice>Bạn không có quyền thực hiện thao tác này.</Notice>}
+    </fieldset></form>}</div><footer><Button variant="outline" disabled={busy} onClick={requestClose}>{result !== undefined ? 'Đóng' : 'Hủy'}</Button>{result === undefined && !blocked && <Button type="submit" form="action-form" disabled={busy || !canCall(action.operation, user?.role)}>{busy ? 'Đang xử lý…' : submitLabel(action.operation, action.label)}</Button>}</footer></section></div>
+}
