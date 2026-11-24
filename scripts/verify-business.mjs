@@ -74,7 +74,7 @@ try {
   const course = await run(courses.mutateCourse, { operation: 'create', input: courseInput })
   assert.equal(course.quizPassingScore, 80)
   await fails(courses.mutateCourse, { operation: 'create', input: { ...courseInput, quizPassingScore: 101 } }, 400)
-  const trainee = demoUsers.find((user) => user.role === 'BARISTA')
+  const trainee = demoUsers.find((user) => user.role === 'TRAINEE')
   const assessor = demoUsers.find((user) => user.role === 'TRAINER')
   const assignmentInput = { courseId: course.id, traineeId: trainee.id, branchId: 'demo-branch-1', dueAt: null }
   const assignment = await run(training.mutateTrainingAssignment, { operation: 'assign', input: assignmentInput })

@@ -1,1 +1,2 @@
 export const DEFAULT_QUIZ_PASSING_SCORE = 80
+export const MIN_ATTENDANCE_PERCENT = 80

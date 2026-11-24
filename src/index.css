@@ -1,35 +1,55 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./styles/landing.css";
+@import "./styles/app.css";
 
 :root {
-  --background: #FAF8F5;
-  --foreground: #4B3028;
-  --card: #ffffff;
-  --card-foreground: #4B3028;
-  --popover: #ffffff;
-  --popover-foreground: #4B3028;
-  --primary: #4B3028;
-  --primary-foreground: #FAF8F5;
-  --secondary: #f0e6db;
-  --secondary-foreground: #4B3028;
-  --muted: #f0eae3;
-  --muted-foreground: #75665e;
-  --accent: #f3e5d8;
-  --accent-foreground: #4B3028;
-  --destructive: #b42318;
-  --border: #e7ded5;
-  --input: #d8cabe;
-  --ring: #C68B59;
-  --radius: 0.625rem;
-  --chart-1: #4B3028;
-  --chart-2: #C68B59;
-  --chart-3: #85705b;
-  --chart-4: #65816c;
-  --chart-5: #bcad91;
+  color-scheme: dark;
+  /* Espresso dark theme: warm near-black page, mocha cards, cream ink, pastel coffee accents. */
+  --background: #0e0a08;
+  --foreground: #f4ebe1;
+  --card: #18120e;
+  --card-foreground: #f4ebe1;
+  --popover: #1f1712;
+  --popover-foreground: #f4ebe1;
+  --primary: #f4ebe1;
+  --primary-foreground: #17110d;
+  --secondary: #261d17;
+  --secondary-foreground: #f4ebe1;
+  --muted: #221a15;
+  --muted-foreground: #a3928a;
+  --accent: #2a2019;
+  --accent-foreground: #f4ebe1;
+  --destructive: #f0907a;
+  --border: rgba(244, 235, 225, 0.08);
+  --input: rgba(244, 235, 225, 0.14);
+  --ring: #d8ab7e;
+  --radius: 0.875rem;
+  /* Accents taken from the template, warmed into coffee tones. */
+  --latte: #d8b48f;
+  --latte-soft: #c7a07a;
+  --butter: #f2d58e;
+  --mint: #a8d8a6;
+  --coral: #f0907a;
+  --sky: #a9c8e8;
+  --ink: #f4ebe1;
+  --ink-fg: #17110d;
+  --chart-1: #d8b48f;
+  --chart-2: #f2d58e;
+  --chart-3: #a8d8a6;
+  --chart-4: #a9c8e8;
+  --chart-5: #f0907a;
 }
 @theme inline {
-  --color-espresso: #4B3028;
+  --color-espresso: #17110d;
+  --color-coal: #120b09;
+  --color-brand: #d8b48f;
+  --color-gold: #e09238;
+  --color-crema: #efe3d6;
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-display: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
   --color-caramel: #C68B59;
   --color-warm-white: #FAF8F5;
   --color-background: var(--background);
@@ -62,7 +82,8 @@
 }
 @layer base {
   * { @apply border-border; }
-  body { @apply bg-background text-foreground; margin: 0; font-family: system-ui, sans-serif; }
+  body { @apply bg-background text-foreground font-sans antialiased; margin: 0; }
+  ::selection { background: #d8b48f; color: #17110d; }
   button, select { cursor: pointer; }
   :focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
 }

@@ -14,6 +14,8 @@ Choose one of seven demo users on /login. The password is BrewForge123!. After l
 - src/app: Redux store, typed hooks, and router.
 - src/features/auth: types, Redux slice, interchangeable API/mock services, login page, and route guards.
 - src/features/{products,recipes,sops,courses,training,quizzes,assessments,certificates,branches}: typed business contracts, separate mock/API service bindings, Redux thunks/slices, and selectors. Each domain keeps one entity cache with independent asynchronous request states.
+- src/features/attendance: attendance records (one per assignment and session day), the 80% rule, and the trainer's attendance page.
+- Role pages: barista (`/barista/learning`, `/barista/quiz/:assignmentId`, `/barista/certificates`), trainer (`/trainer/assignments`, `/trainer/attendance`, `/trainer/assessments`) and store manager (`/store-manager/readiness`). Pages load on demand from `src/app/lazyPages.ts`; the three roles' dashboards show live figures.
 - src/features/{admin,audits}: reserved feature directories; create subfolders only when needed.
 - src/components/ui: local shadcn/ui-style Button and Input primitives; components.json supports adding components with the shadcn CLI.
 - src/components/layout: responsive sidebar, header, and dashboard shell.
@@ -50,6 +52,7 @@ Business services use their own `VITE_ENABLE_MOCK_SERVICES` flag (development de
 - npm run lint
 - npm run verify:auth (development/demo mode)
 - npm run verify:business
+- npm run verify:training (enrol → attendance → quiz → practical → certificate)
 - npm run build
 
 Tailwind v4 uses @tailwindcss/vite and CSS theme tokens in src/index.css. Existing React/Vite configuration is retained, with the @ alias added for both TypeScript and Vite.

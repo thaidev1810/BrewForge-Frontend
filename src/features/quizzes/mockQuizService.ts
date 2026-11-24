@@ -1,5 +1,8 @@
 import { ApiError } from '@/services/apiError'
 import { checkSignal, copy, mockRead, requireRecord } from '@/services/mock/helpers'
+import { mockAttendanceRecords } from '@/features/attendance/mockAttendanceService'
+import { summarizeAttendance } from '@/features/attendance/attendanceRules'
+import { MIN_ATTENDANCE_PERCENT } from '@/constants/training'
 import { mockTrainingAssignments } from '@/features/training/mockTrainingService'
 import type { QuizAttempt, QuizService } from './quizTypes'
 
@@ -11,6 +14,8 @@ export const mockQuizService: QuizService = {
     const input = command.input
     const assignment = requireRecord(mockTrainingAssignments, input.assignmentId)
     if (assignment.status === 'CANCELLED') throw new ApiError('Cancelled assignments cannot receive quiz attempts.', 409)
+    const attendance = summarizeAttendance([...mockAttendanceRecords.values()].filter((record) => record.assignmentId === assignment.id))
+    if (!attendance.meetsMinimum) throw new ApiError(`Quiz requires at least ${MIN_ATTENDANCE_PERCENT}% attendance; this trainee has ${attendance.percent}%.`, 409)
     if (!Number.isInteger(input.totalQuestions) || input.totalQuestions < 1 || !Number.isInteger(input.correctAnswers) || input.correctAnswers < 0 || input.correctAnswers > input.totalQuestions) throw new ApiError('Quiz counts must be valid whole numbers.', 400)
     const scorePercent = input.correctAnswers / input.totalQuestions * 100
     const attempt: QuizAttempt = { ...copy(input), id: crypto.randomUUID(), traineeId: assignment.traineeId, courseId: assignment.courseId, sopVersionIds: [...assignment.sopVersionIds], scorePercent, passingScore: assignment.quizPassingScore, passed: scorePercent >= assignment.quizPassingScore, submittedAt: new Date().toISOString() }

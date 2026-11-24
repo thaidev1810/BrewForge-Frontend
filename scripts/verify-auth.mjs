@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 
 // Load the real TypeScript modules through Vite, with the same aliases/env handling.
+process.env.VITE_ENABLE_MOCK_AUTH = 'true'
+process.env.VITE_ENABLE_MOCK_SERVICES = 'true'
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
 try {
   const { store } = await server.ssrLoadModule('/src/app/store.ts')
@@ -11,7 +13,7 @@ try {
   const { roleConfig } = await server.ssrLoadModule('/src/constants/roles.ts')
   const { apiClient, configureApiAuth } = await server.ssrLoadModule('/src/services/apiClient.ts')
   const { normalizeApiError } = await server.ssrLoadModule('/src/services/apiError.ts')
-  assert.equal(new Set(Object.values(roleConfig).map((role) => role.prefix)).size, 7)
+  assert.equal(new Set(Object.values(roleConfig).map((role) => role.prefix)).size, 8)
   assert.equal(demoUsers.length, ROLES.length)
   for (const user of demoUsers) {
     const result = await store.dispatch(login({ email: user.email, password: DEMO_PASSWORD }))

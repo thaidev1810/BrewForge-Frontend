@@ -105,3 +105,14 @@ All paths are relative to BrewForge/frontend. This inventory includes the existi
 - src/types/standards.ts
 - src/utils/cn.ts
 - src/utils/createDomainSlice.ts
+
+## Added with the enrol / attendance / quiz / practical flow
+
+- src/features/attendance/ (types, rules, mock service, service binding, slice, selectors, AttendancePage)
+- src/features/training/trainingProgress.ts, src/features/training/pages/{BaristaLearningPage,TrainerAssignmentsPage}.tsx
+- src/features/quizzes/{quizBuilder.ts,QuizPage.tsx}
+- src/features/assessments/PracticalAssessmentsPage.tsx
+- src/features/certificates/CertificatesPage.tsx
+- src/features/branches/{branchReadiness.ts,BranchReadinessPage.tsx}
+- src/components/common/Panel.tsx, src/hooks/useTrainingData.ts, src/app/lazyPages.ts
+- scripts/verify-training-flow.mjs

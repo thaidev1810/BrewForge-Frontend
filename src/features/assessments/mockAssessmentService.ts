@@ -15,6 +15,8 @@ export const mockAssessmentService: AssessmentService = {
     if (!attempt.passed) throw new ApiError('Practical assessment requires a passed quiz attempt.', 409)
     if (requireRecord(mockTrainingAssignments, attempt.assignmentId).status === 'CANCELLED') throw new ApiError('Cancelled assignments cannot be assessed.', 409)
     if (!demoUsers.some((user) => user.id === input.assessorId)) throw new ApiError('Demo assessor not found.', 404)
+    // BR-14: a trainee never evaluates themselves.
+    if (input.assessorId === attempt.traineeId) throw new ApiError('A trainee cannot assess their own practical.', 403)
     if (!input.criteria.length) throw new ApiError('At least one practical criterion is required.', 400)
     input.criteria = input.criteria.map((criterion) => ({ ...criterion, criterionId: requireText(criterion.criterionId, 'criterionId'), label: requireText(criterion.label, 'label') }))
     if (new Set(input.criteria.map((criterion) => criterion.criterionId)).size !== input.criteria.length) throw new ApiError('Practical criterion IDs must be unique.', 400)

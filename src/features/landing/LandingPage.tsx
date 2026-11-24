@@ -5,6 +5,7 @@ import { login } from '@/features/auth/authSlice';
 import { DEMO_PASSWORD } from '@/features/auth/mockAuthService';
 import { dashboardPath, roleConfig } from '@/constants/roles';
 import { ROLES, type Role } from '@/features/auth/authTypes';
+import { COFFEE_FS } from '@/lib/coffeeShader';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export const LandingPage: React.FC = () => {
 
   useEffect(() => {
     const d = document, root = d.documentElement;
-    root.classList.add('js');
+    root.classList.add('js', 'landing-page');
     const $ = (s: string, r: ParentNode = d) => r.querySelector(s) as HTMLElement | null;
     const $$ = (s: string, r: ParentNode = d) => Array.from(r.querySelectorAll(s)) as HTMLElement[];
     const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -58,10 +59,8 @@ export const LandingPage: React.FC = () => {
       roast: ['#0F0A09', '#3B211A', '#A25942', '#F1DFD8'],
       forge: ['#160805', '#7A2214', '#D94D26', '#FED7AA'],
       amber: ['#1A0F03', '#8C4D08', '#E69926', '#FEF3C7'],
-      nitro: ['#0A0E18', '#1E2D4A', '#4F75A8', '#E0EDFB'],
-      cascara: ['#1C070B', '#6D1525', '#C2384D', '#FCE7EA'],
-      matcha: ['#0A1409', '#2E5023', '#689B48', '#ECF6E5'],
-      steam: ['#121316', '#353B47', '#7E8B9F', '#EFF2F7'],
+      mocha: ['#140B09', '#3E2118', '#8F5B3E', '#F3E3D3'],
+      cortado: ['#150C08', '#5B3523', '#C1895F', '#F6E8DA'],
       cupping: ['#180F0A', '#523321', '#B57C52', '#F7ECE1'],
       terracotta: ['#1A0C08', '#6E2E1B', '#BA5836', '#FBECE6']
     };
@@ -72,141 +71,143 @@ export const LandingPage: React.FC = () => {
     /* ---------- BrewForge Showcase Cases ---------- */
     const CASES = [
       {
-        name: 'Golden Cascara Nitro Cold Brew',
-        year: 'R&D Lab · Release 2026',
+        name: 'One recipe, versioned and released',
+        year: 'R&D · Recipe & SOP',
         pal: 'forge',
-        handle: 'brewforge_lab',
-        cap: 'Signature cascara infusion. 18h slow steep. Nitrogen draft.',
-        likes: 'TDS 1.38%',
-        url: '#cases',
-        desc: 'Formulated in the BrewForge R&D lab for synchronized franchise deployment. Features single-origin Typica cascara, washed Ethiopian beans, and calibrated micro-filtration yielding a velvety guinness-style head.',
-        cats: ['R&D Signature', 'Nitro Draft', 'Cascara Fusion'],
+        handle: 'rd_specialist',
+        cap: 'Draft the recipe, validate it, send it to review.',
+        likes: 'Draft → Released',
+        url: '#services',
+        desc: 'R&D specialists build each drink as structured steps with ingredients and equipment settings, and can start from an AI draft. An R&D manager reviews it and releases it. A released version never changes: a fix is a new version, so every branch always knows which recipe is current.',
+        cats: ['Recipes & SOPs', 'Review & release', 'Version history'],
         stats: [
-          ['1.38%', 'Target TDS', 0.42, -0.34],
-          ['21.5%', 'Extr. Yield', -0.8, -0.08],
-          ['18 hrs', 'Steep Duration', 0.44, 0.2],
-          ['99.4', 'Sensory Score', -0.72, 0.42]
+          ['1', 'Released version per drink', 0.42, -0.34],
+          ['3', 'Automatic validator checks', -0.8, -0.08],
+          ['0', 'Edits to a released version', 0.44, 0.2],
+          ['100%', 'Changes carry a new version', -0.72, 0.42]
         ]
       },
       {
-        name: 'Espresso Dialing & Extraction SOP',
-        year: 'SOP Standard · v2.4',
-        pal: 'espresso',
-        handle: 'brewforge_sop',
-        cap: '18.5g in · 38.0g out · 27 sec · 9.2 bar · 93.5°C.',
-        likes: 'Daily Calibration',
-        url: '#cases',
-        desc: 'Our definitive multi-branch espresso standard. Eliminates barista extraction drift with micrometric grind tolerances, standardized WDT distribution, automated volumetric dosing, and real-time refractometer logging.',
-        cats: ['Espresso Standard', 'Barista Calibration', 'Zero Drift'],
-        stats: [
-          ['18.5g', 'Dry Dose', 0.44, -0.44],
-          ['38.0g', 'Liquid Yield', 0.42, 0.06],
-          ['27.0s', 'Extraction Time', -0.74, 0.2],
-          ['±0.2g', 'Tolerance', -0.72, -0.38]
-        ]
-      },
-      {
-        name: 'Barista Academy & Sensory Mastery',
-        year: 'Certification · Level 3',
+        name: 'From enrolment to certificate',
+        year: 'Training · Course flow',
         pal: 'crema',
-        handle: 'brewforge_academy',
-        cap: 'Dialing precision, latte art microfoam, and blind sensory cupping.',
-        likes: '80% Pass Mark',
-        url: '#cases',
-        desc: 'Interactive learning modules, prerequisite knowledge quizzes, and blind sensory cupping tests. Baristas earn verified digital credentials and badge milestones before stepping onto live franchise shifts.',
-        cats: ['Barista LMS', 'Sensory Cupping', 'Latte Art'],
+        handle: 'barista',
+        cap: 'Enrol, attend, pass the quiz, pass the practical.',
+        likes: '80% quiz pass mark',
+        url: '#services',
+        desc: 'A trainer builds a course from the released recipe and a manager approves it. Baristas enrol, attend sessions, take the quiz, then are assessed at the counter against a checklist. Only a person who passes both receives a certificate tied to the exact recipe version.',
+        cats: ['Enrolment', 'Attendance', 'Quiz', 'Practical'],
         stats: [
-          ['80%', 'Pass Threshold', 0.42, -0.2],
-          ['14', 'Training Modules', -0.82, 0],
-          ['1,240+', 'Certified Baristas', 0.44, 0.3],
-          ['100%', 'SOP Compliance', -0.62, 0.46]
+          ['80%', 'Quiz pass mark', 0.42, -0.2],
+          ['80%', 'Attendance needed for the quiz', -0.82, 0],
+          ['7', 'Modules in every course', 0.44, 0.3],
+          ['2', 'Passes needed for a certificate', -0.62, 0.46]
         ]
       },
       {
-        name: 'Multi-Branch Quality Audit Matrix',
-        year: 'Franchise Audit · Q4',
+        name: 'Practical assessment with critical items',
+        year: 'Trainer · Certification',
         pal: 'amber',
-        handle: 'brewforge_audit',
-        cap: '50+ branches. 1 unified standard across every cup.',
-        likes: 'Live Audits',
-        url: '#cases',
-        desc: 'Equip quality auditors and store managers with digital checklists, water filtration testing, milk steaming hygiene checks, and blind taste audits across Hanoi, Saigon, Da Nang, and regional stores.',
-        cats: ['Franchise Scale', 'Quality Audits', 'Zero Tolerance'],
+        handle: 'trainer',
+        cap: 'A failed critical item fails the whole practical.',
+        likes: 'Checklist at the counter',
+        url: '#services',
+        desc: 'The trainer marks every checklist item pass or fail while watching the barista work. Skipping an expiry check or a hygiene rule is a critical failure and the practical fails automatically. A trainee can never assess their own practical.',
+        cats: ['Checklist', 'Critical items', 'Trainer sign-off'],
         stats: [
-          ['99.2%', 'Franchise Score', 0.42, 0.08],
-          ['50+', 'Active Branches', -0.8, 0.32],
-          ['0', 'Critical Fails', 0.44, 0.44],
-          ['24/7', 'Cloud Sync', -0.7, -0.42]
+          ['100%', 'Checklist items marked', 0.42, 0.08],
+          ['2', 'Safety items always critical', -0.8, 0.32],
+          ['1', 'Failed critical item fails it', 0.44, 0.44],
+          ['0', 'Self-assessments allowed', -0.7, -0.42]
+        ]
+      },
+      {
+        name: 'Branch readiness and quality audits',
+        year: 'Branches · Quality',
+        pal: 'espresso',
+        handle: 'store_manager',
+        cap: 'Who is certified on what, branch by branch.',
+        likes: 'Readiness per branch',
+        url: '#services',
+        desc: 'Store managers see which employees are certified, in training or overdue for every course. Quality auditors check branches against the released recipe with a scored checklist and photo evidence; a failed audit opens a corrective action, with retraining where needed.',
+        cats: ['Branch readiness', 'Audits', 'Corrective actions'],
+        stats: [
+          ['4', 'States per employee and course', 0.42, 0.08],
+          ['1', 'Corrective action per failed audit', -0.8, 0.32],
+          ['90%', 'Audit score to pass', 0.44, 0.44],
+          ['7', 'Roles, each with its own view', -0.7, -0.42]
         ]
       }
     ];
 
-    const GPAL = ['espresso', 'forge', 'crema', 'amber', 'caramel', 'roast', 'nitro', 'cascara', 'matcha', 'steam'];
-    const GNAMES = [
-      'Nitro Cold Brew', 'V60 Ethiopian', 'Espresso Romano', 'Matcha Cloud',
-      'Salted Cream Coffee', 'Signature Latte', 'Cascara Spritz', 'Phin Reimagined',
-      'Geisha Pour Over', 'Kyoto Slow Drip', 'Cortado Especial', 'Cascara Blossom'
+    const GPAL = ['espresso', 'crema', 'caramel', 'mocha', 'roast', 'cortado', 'amber', 'cupping', 'forge', 'terracotta'];
+    // One name list per coffee scene (shader seed mod 5): latte art, beans, espresso, cream swirl, iced.
+    const GNAMES: string[][] = [
+      ['Flat White', 'Cappuccino', 'Latte', 'Cortado'],
+      ['Single Origin', 'Dark Roast', 'House Blend', 'Medium Roast'],
+      ['Espresso', 'Doppio', 'Ristretto', 'Americano'],
+      ['Mocha', 'Affogato', 'Macchiato', 'Breve'],
+      ['Cold Brew', 'Iced Latte', 'Nitro Cold Brew', 'Iced Americano']
     ];
 
     const BRANDS: [string, string, string, number, number, string][] = [
-      ['V60 Dripper', 'tri', 'Inter Tight', 600, 20, '-0.4'],
-      ['Portafilter', 'circle', 'Archivo', 800, 19, '-0.2'],
-      ['TDS Meter', 'grid', 'Geist Mono', 600, 18, '0'],
-      ['Steam Wand', 'bars', 'Archivo', 900, 19, '1.2'],
-      ['Burr Grinder', 'sun', 'Inter Tight', 700, 22, '-0.6'],
-      ['Arabica Beans', 'leaf', 'Georgia, serif', 400, 22, '0.2'],
-      ['AeroPress', 'slash', 'Geist Mono', 600, 17, '1.4'],
-      ['Cold Drip', 'dots', 'Inter Tight', 600, 20, '-0.4'],
-      ['Gooseneck', 'arc', 'Archivo', 700, 18, '-0.5'],
-      ['Scale 0.1g', 'diamond', 'Inter Tight', 600, 19, '-0.3'],
-      ['Cupping Spoon', 'ring', 'Georgia, serif', 400, 22, '0'],
-      ['Nitro Tap', 'star', 'Archivo', 900, 19, '0.4']
+      ['Espresso Machine', 'circle', 'Archivo', 800, 17, '-0.2'],
+      ['Milk Steamer', 'bars', 'Archivo', 900, 18, '1.0'],
+      ['Digital Scale', 'grid', 'Geist Mono', 600, 17, '0'],
+      ['Shaker', 'tri', 'Inter Tight', 600, 20, '-0.4'],
+      ['Sugar Dispenser', 'dots', 'Inter Tight', 600, 18, '-0.4'],
+      ['Sealing Machine', 'slash', 'Geist Mono', 600, 16, '1.2'],
+      ['Blender', 'sun', 'Inter Tight', 700, 21, '-0.6'],
+      ['Tea Brewer', 'leaf', 'Georgia, serif', 400, 20, '0.2'],
+      ['Ice Machine', 'diamond', 'Inter Tight', 600, 19, '-0.3'],
+      ['Thermometer', 'arc', 'Archivo', 700, 17, '-0.5'],
+      ['Timer', 'ring', 'Georgia, serif', 400, 22, '0'],
+      ['Grinder', 'star', 'Archivo', 900, 19, '0.4']
     ];
 
     const SERVICES = [
-      ['Recipe & Extraction R&D', 'Formulate signature espresso blends, seasonal cold brews, and tea infusions with calibrated brew ratios, TDS targets, and extraction curves.', 'forge'],
-      ['Standard Operating Procedures', 'Translate complex specialty craft into fool-proof digital SOPs with integrated brew timers, equipment calibration, and strict tolerances.', 'espresso'],
-      ['Barista Academy & Quizzes', 'Train front-line teams through interactive course modules, sensory cupping guides, and strict 80% passing threshold knowledge exams.', 'crema'],
-      ['Franchise Quality Audits', 'Empower Quality Auditors and Store Managers with real-time audit tools to guarantee identical cup consistency across every franchise store.', 'amber']
+      ['Recipes & SOPs', 'Specialists write each drink as ordered steps with ingredients and equipment settings. Three automatic checks catch a bad dose, an expired ingredient or steps that depend on each other in a circle before a manager ever sees it.', 'forge'],
+      ['Courses & quizzes', 'A course is built from the released recipe, so what is taught is what is sold. Quizzes pass at 80%, and when the recipe changes the course is flagged out of date instead of silently drifting.', 'espresso'],
+      ['Practical & certificates', 'Trainers assess baristas at the counter against a checklist. A certificate is issued only after the quiz and the practical, and always names the recipe version it covers.', 'crema'],
+      ['Readiness & audits', 'Store managers see who is certified, in training or overdue. Quality auditors score branches against the released recipe and follow every failure through to a corrective action.', 'amber']
     ];
 
     const TIERS = [
       {
-        n: 'Starter Roastery', word: 'LAB', unit: '1–3 Stores',
-        d: 'Essential digital recipe management, standard operating procedures, and basic barista onboarding for independent specialty cafes.',
-        f: ['Digital Recipe Library', 'Core SOP Builder & Timers', 'Basic Barista Onboarding', 'Mobile Web App Access'],
-        href: '/login', cta: 'Explore Lab', solid: false
+        n: 'Head office', word: 'DEFINE', unit: 'Administrator · R&D',
+        d: 'Set up branches, people and the ingredient and equipment lists, then write, review and release the recipes everything else is built on.',
+        f: ['Administrator: users, branches, catalogues', 'R&D Specialist: recipes, SOPs, AI drafts', 'R&D Manager: review, release, impact analysis'],
+        href: '/login', cta: 'Explore head office', solid: false
       },
       {
-        n: 'Franchise Enterprise', word: 'SCALE', unit: 'Multi-Branch', tag: 'Recommended',
-        d: 'The complete operations suite for growing coffee chains. Automated multi-branch quality audits, advanced LMS with certification, and versioned R&D.',
-        f: ['Unlimited Branches & Stores', 'Full 7-Role Workspace Suite', 'Real-time Branch Auditing', 'Automated Barista Certifications', 'R&D Approval Workflows'],
-        href: '/login', cta: 'Launch Workspace', solid: true
+        n: 'Training', word: 'TRAIN', unit: 'Trainer', tag: 'Core flow',
+        d: 'Turn a released recipe into a course, assign it, record attendance, and certify baristas after the quiz and the counter practical.',
+        f: ['Courses built from the released recipe', 'Assignments with deadlines', 'Attendance, quiz and practical assessment', 'Certificates tied to a recipe version'],
+        href: '/login', cta: 'Open the trainer workspace', solid: true
       },
       {
-        n: 'Custom Chain & API', word: 'FORGE', unit: '50+ Stores',
-        d: 'Enterprise-grade customization for large coffee corporations with custom POS/ERP integration and dedicated coffee science consulting.',
-        f: ['Custom ERP / POS Integrations', 'Dedicated Coffee Master Consultant', 'Custom Sensory Calibration Matrix', 'White-Label Store Portal'],
-        href: '/login', cta: 'Explore Enterprise', solid: false
+        n: 'Branches', word: 'DELIVER', unit: 'Store Manager · Barista · Auditor',
+        d: 'Baristas learn and earn certificates, managers see branch readiness, and auditors check every branch against the same standard.',
+        f: ['Barista: learning, quiz, skill passport', 'Store Manager: team progress and readiness', 'Quality Auditor: audits and corrective actions'],
+        href: '/login', cta: 'Explore branches', solid: false
       }
     ];
 
     const CMP = [
-      ['Recipe Standardization', 'Scattered paper sheets or PDF binders', 'Interactive digital SOPs with live timers & tolerances'],
-      ['Espresso Dialing', 'Subjective barista intuition and guesswork', 'Calibrated targets for dry dose, liquid yield, and TDS'],
-      ['Staff Training', 'Informal verbal shadowing on busy shifts', 'Structured Barista Academy with 80% passing quizzes'],
-      ['Branch Auditing', 'Infrequent sporadic visits from managers', 'Real-time digital audits with photo evidence & scores'],
-      ['Recipe Rollouts', 'Outdated instructions lingering in cafes', 'Semantic versioning with instant zero-delay rollouts'],
-      ['Equipment Care', 'Repairs only after machine breakdowns', 'Scheduled calibration checklists & water filter logs']
+      ['Recipe standardization', 'Paper sheets and chat messages, one version per person', 'One released recipe per drink, with its full version history'],
+      ['Changing a recipe', 'Old instructions linger until someone notices', 'A change is a new version; affected courses and certificates are flagged'],
+      ['Staff training', 'Shadowing a colleague on a busy shift', 'Courses, an 80% quiz and a counter practical'],
+      ['Knowing who can make what', 'The manager remembers', 'Certificates per drink and a readiness view per branch'],
+      ['Branch quality checks', 'Occasional visits, notes on paper', 'Scored audits with photos and tracked corrective actions']
     ];
 
     const FAQ = [
-      ['What is BrewForge and who is it designed for?', 'BrewForge is an end-to-end platform built for specialty coffee chains, roasteries, and franchise brands. It connects R&D teams, trainers, store managers, baristas, and quality auditors into one single source of truth.'],
-      ['How does BrewForge ensure identical drink taste across 50+ stores?', 'Through standardized digital SOPs, calibrated extraction targets (dose, yield, temperature, time), and regular audit inspections. When every barista follows identical parameters, customers experience identical specialty quality in every city.'],
-      ['Can baristas use BrewForge on mobile phones during busy shifts?', 'Yes! BrewForge is engineered mobile-first. Baristas can look up SOPs in seconds, follow interactive brew timers, and complete daily calibration checks directly from their phone or bar tablet.'],
-      ['How do R&D Specialists and Managers collaborate on new drinks?', 'Specialists draft beverages with experimental extraction parameters. When dialed in, they submit for review. R&D Managers approve and publish with semantic versioning (v1.0, v2.0), leaving historical snapshots intact.'],
-      ['How do the 7 demo role workspaces work?', 'You can test all 7 roles directly on the platform: Administrator, R&D Specialist, R&D Manager, Trainer, Store Manager, Barista, and Quality Auditor. Click "Launch App" or pick any role in the top header to explore their dedicated dashboard.'],
-      ['Does BrewForge support offline bar usage?', 'Yes, core SOPs and dialing guides are cached locally so baristas can continue pulling dialed shots even if the cafe internet temporarily drops.']
+      ['What is BrewForge?', 'BrewForge is a recipe standardization and barista training system for a tea and coffee chain. R&D releases one recipe per drink, trainers teach and certify staff on exactly that version, and managers and auditors can see how each branch is doing.'],
+      ['How is every drink made the same at every branch?', 'Each drink has one released recipe version, and every branch shares the same equipment standards. Baristas are trained and certified on that version, and auditors check branches against it.'],
+      ['Who can change a released recipe?', 'Nobody. A released version is locked. To change a drink, R&D creates a new version, a manager reviews and releases it, and the old one is kept in the history. The person who wrote a version cannot be the one to release it.'],
+      ['How does a barista get certified?', 'They enrol in a course, attend its sessions, and need at least 80% attendance to open the quiz. They pass the quiz at 80% or more, then a trainer assesses them at the counter. A failed critical item, such as skipping an expiry check, fails the practical. Passing both earns a certificate for that recipe version.'],
+      ['What happens to training when a recipe changes?', 'Courses built on the old version are flagged out of date, and certificates on it are flagged for re-certification. Nothing is deleted, so past results stay on record.'],
+      ['Is this a live product?', 'It is a capstone project. The workspace you open from here runs in demo mode with seven sample accounts, one per role, and its data is kept in the browser session only. Use "Quick Demo" below the headline to sign in as any role.']
     ];
 
     /* ---------- build DOM elements ---------- */
@@ -241,7 +242,7 @@ export const LandingPage: React.FC = () => {
         gh += `<div class="gal-col" style="margin-top:${c % 2 ? -24 : 0}vw">`;
         for (let r = 0; r < 4; r++) {
           const i = c * 4 + r, pal = GPAL[(i * 7 + c) % GPAL.length];
-          gh += `<figure class="gal-card" style="margin:0"><div class="art" ${artAttr(pal, i + 3, (1 + ((i * 37) % 9) / 10).toFixed(2))}></div><figcaption><span>${esc(GNAMES[i % GNAMES.length])}</span><span>${pad2(i + 1)}</span></figcaption></figure>`;
+          gh += `<figure class="gal-card" style="margin:0"><div class="art" ${artAttr(pal, i + 3, (1 + ((i * 37) % 9) / 10).toFixed(2))}></div><figcaption><span>${esc(GNAMES[(i + 3) % 5][Math.floor(i / 5) % 4])}</span><span>${pad2(i + 1)}</span></figcaption></figure>`;
         }
         gh += '</div>';
       }
@@ -298,7 +299,9 @@ export const LandingPage: React.FC = () => {
 
     /* ---------- text splitting ---------- */
     function splitWords(el: HTMLElement) {
-      const words = el.textContent?.trim().split(/\s+/) || [];
+      // Keep the source text so splitting twice (React StrictMode re-runs effects) does not lose the line breaks.
+      el.dataset.src ??= el.textContent ?? '';
+      const words = el.dataset.src.trim().split(/\s+/);
       let i = 0;
       el.innerHTML = words.map(w => w === '/' ? '<br>' : `<span class="w"><i style="--i:${i++}">${esc(w)}</i></span>`).join(' ');
     }
@@ -436,36 +439,9 @@ export const LandingPage: React.FC = () => {
     const wmHero = WM($('#wmHero'), { word: 'BREWFORGE', ratio: 5.1, ratioM: 3.8, front: true });
     const wmFoot = WM($('#wmFoot'), { word: 'BREWFORGE', ratio: 5.3, ratioM: 4.0, extra: 1.16 });
 
-    /* ---------- WebGL Procedural Fluid Shaders ---------- */
+    /* ---------- WebGL procedural coffee scenes (latte art, beans, espresso, cream, iced) ---------- */
     const VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-    const FS = `#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-uniform vec2 uRes;uniform float uTime;uniform float uSeed;uniform float uMix;uniform float uZoom;uniform vec3 uPA[4];uniform vec3 uPB[4];
-float h(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
-float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),u.x),u.y);}
-float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<5;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}
-void main(){
- vec2 uv=gl_FragCoord.xy/uRes;
- vec2 p=(gl_FragCoord.xy-.5*uRes)/min(uRes.x,uRes.y)*uZoom+vec2(uSeed*3.17,uSeed*1.71);
- float t=uTime*.07;
- vec2 q=vec2(fbm(p+vec2(0.,t)),fbm(p+vec2(5.2,1.3)-t*.8));
- vec2 r=vec2(fbm(p+2.4*q+vec2(1.7,9.2)+.18*t),fbm(p+2.4*q+vec2(8.3,2.8)-.14*t));
- float f=fbm(p+2.2*r);
- vec3 c0=mix(uPA[0],uPB[0],uMix),c1=mix(uPA[1],uPB[1],uMix),c2=mix(uPA[2],uPB[2],uMix),c3=mix(uPA[3],uPB[3],uMix);
- vec3 col=mix(c0,c1,smoothstep(.18,.62,f));
- col=mix(col,c2,smoothstep(.45,.95,length(q)*.95));
- col=mix(col,c3,smoothstep(.6,.92,r.y)*.8);
- float ridge=abs(sin((f*1.3+r.x)*10.));
- col+=(1.-smoothstep(0.,.22,ridge))*.06*(.5+f);
- col*=.78+.42*f;
- vec2 lp=uv-vec2(.72,.82);col+=c3*.22*exp(-dot(lp,lp)*7.);
- vec2 v=uv-.5;col*=1.-.55*dot(v,v);
- col+=(h(gl_FragCoord.xy+fract(uTime*3.7)*91.)-.5)*.075;
- gl_FragColor=vec4(clamp(col,0.,1.),1.);
-}`;
+    const FS = COFFEE_FS;
     function makeGL(canvas: HTMLCanvasElement, keep = false) {
       let gl: WebGLRenderingContext | null = null;
       try { gl = canvas.getContext('webgl', { antialias: false, alpha: false, preserveDrawingBuffer: !!keep, powerPreference: 'low-power' }); } catch { /* webgl unavailable */ }
@@ -611,7 +587,7 @@ void main(){
       if (phoneGL) {
         if (pmix < 1) pmix = Math.min(1, pmix + dt / 1.1);
         ptime += dt;
-        phoneGL.draw(ptime, 1.3, pa, pb, io3(pmix), 1.25);
+        phoneGL.draw(ptime, 10, pa, pb, io3(pmix), 1.25);
       }
     }
 
@@ -831,14 +807,6 @@ void main(){
       });
     }
 
-    $('#newsForm')?.addEventListener('submit', e => {
-      e.preventDefault();
-      const emailInput = $('#nEmail') as HTMLInputElement | null;
-      const em = emailInput?.value.trim() || '';
-      const msg = $('#newsMsg');
-      if (msg) msg.textContent = /^\S+@\S+\.\S+$/.test(em) ? 'Subscribed to The Brew Dispatch. Thank you!' : 'Please enter a valid email address.';
-    });
-
     /* Footer Rise */
     function updateFoot() {
       if (!wmFoot.el) return;
@@ -915,8 +883,10 @@ void main(){
     onResize();
     animFrameId = requestAnimationFrame(frame);
 
+    let disposed = false;
     const go = () => {
-      if (root.classList.contains('ready')) return;
+      // A cleaned-up run (React StrictMode mounts twice in dev) must not claim 'ready' and starve the live run of its bake pass.
+      if (disposed || root.classList.contains('ready')) return;
       onResize();
       root.classList.add('ready');
       setTimeout(bakeSome, 250);
@@ -929,6 +899,7 @@ void main(){
     const fallbackTO = setTimeout(go, 2500);
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(animFrameId);
       clearTimeout(rzT);
       clearTimeout(fallbackTO);
@@ -942,19 +913,23 @@ void main(){
       }
       ro?.disconnect();
       io.disconnect();
+      root.classList.remove('js', 'ready', 'landing-page');
     };
   }, []);
 
   return (
-    <>
+    <div className="landing-root">
       <header className="nav" id="nav">
         <div className="nav-in">
-          <a className="nav-logo" href="#top" aria-label="BrewForge, back to top">BREWFORGE</a>
+          <a className="nav-logo" href="#top" aria-label="BrewForge, back to top" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/brewforge-icon.png" alt="BrewForge" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }} />
+            <span>BREWFORGE</span>
+          </a>
           <div className="nav-r">
             <nav className="nav-links mono" aria-label="Primary">
-              <a href="#work"><span data-scramble>Standards</span></a>
+              <a href="#work"><span data-scramble>How it works</span></a>
               <a href="#services"><span data-scramble>Platform</span></a>
-              <a href="#pricing"><span data-scramble>Editions</span></a>
+              <a href="#roles"><span data-scramble>Roles</span></a>
               <a href="#faq"><span data-scramble>FAQ</span></a>
             </nav>
             {isAuthenticated && user ? (
@@ -991,14 +966,14 @@ void main(){
                 <div className="ph-bars" id="phBars"><i><b></b></i><i><b></b></i><i><b></b></i></div>
                 <div className="ph-top ph-swap" id="phTop">
                   <span className="ph-av"></span>
-                  <span className="ph-handle" id="phHandle">brewforge_lab</span>
-                  <span className="ph-time">18.5g · 93°C</span>
+                  <span className="ph-handle" id="phHandle">rd_specialist</span>
+                  <span className="ph-time">v2 · Released</span>
                 </div>
                 <div className="ph-swap" id="phBottom">
-                  <p className="ph-cap" id="phCap">Signature cascara infusion. 18h slow steep. Nitrogen draft.</p>
+                  <p className="ph-cap" id="phCap">Draft the recipe, validate it, send it to review.</p>
                   <div className="ph-meta">
-                    <span>★ <span id="phLikes">TDS 1.38%</span></span>
-                    <span>↗ SOP Sync</span>
+                    <span>★ <span id="phLikes">Draft → Released</span></span>
+                    <span>↗ One standard</span>
                     <span>☕ BrewForge</span>
                   </div>
                 </div>
@@ -1014,10 +989,10 @@ void main(){
         <section className="hero" id="top">
           <div className="hero-copy pad">
             <h1 className="h1 intro-split" data-words-split>
-              Precision coffee / standard across every cup
+              Precision drinks / standard across every cup
             </h1>
             <p className="hero-lead intro-fade">
-              The operations and training engine for specialty coffee chains. Dial in signature recipes, automate SOP standards, and certify barista teams at scale.
+              Recipe standardization and barista training for a tea and coffee chain. Release one trusted recipe per drink, train every branch on it, and certify who can make it.
             </p>
             <div className="roles-bar intro-fade" style={{ marginTop: '20px' }}>
               <span className="mono" style={{ color: 'var(--mute)', fontSize: '10px' }}>Quick Demo:</span>
@@ -1038,16 +1013,16 @@ void main(){
           <div className="slot slot-hero" id="slotHero"></div>
           <div className="tags mono" aria-hidden="true">
             <span className="tag-p t1" data-depth="22" style={{ left: 'calc(57.5% - var(--pw)*.98)', top: 'calc(max(10.5vh,84px) + var(--ph)*.44)' }}>
-              <span className="tag" style={{ '--k': 0 } as React.CSSProperties}>★ Specialty Coffee R&amp;D</span>
+              <span className="tag" style={{ '--k': 0 } as React.CSSProperties}>★ Recipe &amp; SOP R&amp;D</span>
             </span>
             <span className="tag-p t2" data-depth="-16" style={{ left: 'calc(57.5% + var(--pw)*.36)', top: 'calc(max(10.5vh,84px) + var(--ph)*.5)' }}>
-              <span className="tag" style={{ '--k': 1 } as React.CSSProperties}>Espresso Dialing SOP</span>
+              <span className="tag" style={{ '--k': 1 } as React.CSSProperties}>Released Recipe Versions</span>
             </span>
             <span className="tag-p t3" data-depth="12" style={{ left: 'calc(57.5% - var(--pw)*.9)', top: 'calc(max(10.5vh,84px) + var(--ph)*.59)' }}>
-              <span className="tag" style={{ '--k': 2 } as React.CSSProperties}>Barista Academy LMS</span>
+              <span className="tag" style={{ '--k': 2 } as React.CSSProperties}>Courses &amp; Certificates</span>
             </span>
             <span className="tag-p t4" data-depth="-26" style={{ left: 'calc(57.5% + var(--pw)*.08)', top: 'calc(max(10.5vh,84px) + var(--ph)*.68)' }}>
-              <span className="tag" style={{ '--k': 3 } as React.CSSProperties}>Multi-Branch Auditing</span>
+              <span className="tag" style={{ '--k': 3 } as React.CSSProperties}>Branch Readiness</span>
             </span>
           </div>
           <div className="pad"><div className="wm wm-hero" id="wmHero" role="img" aria-label="BREWFORGE"></div></div>
@@ -1059,13 +1034,13 @@ void main(){
           <div className="st-grid">
             <div className="st-col st-col-left">
               <p className="st-text st-left">
-                Whether dialing in micro-lot geisha espressos, synchronizing 50 franchise stores, or training apprentice baristas,
+                Whether launching a seasonal tea, retraining a branch after a recipe change, or onboarding a new barista,
               </p>
             </div>
             <div className="st-col st-col-mid" aria-hidden="true"></div>
             <div className="st-col st-col-right">
               <p className="st-text st-right">
-                BrewForge standardizes every variable so every single cup tastes legendary.
+                BrewForge keeps one released recipe, one course and one certificate behind every cup.
               </p>
               <button
                 type="button"
@@ -1081,7 +1056,7 @@ void main(){
 
         {/* Interactive Cases Section with Traveling Phone */}
         <div className="seam">
-          <section className="cases round-b" id="work" aria-label="BrewForge Standards & Case Studies">
+          <section className="cases round-b" id="work" aria-label="How BrewForge works">
             <div className="cases-pin">
               <div className="slot slot-case" id="slotCase"></div>
             </div>
@@ -1090,29 +1065,29 @@ void main(){
         </div>
 
         {/* 3D Rotating Gallery Section */}
-        <section className="gallery" id="gallery" aria-label="Beverage R&D Portfolio">
+        <section className="gallery" id="gallery" aria-label="Drinks on the BrewForge menu">
           <div className="gal-pin" id="galPin">
             <div className="gal-grid" id="galGrid"></div>
             <div className="gal-shade"></div>
-            <a className="gal-link" href="#services" aria-label="Explore BrewForge Platform Capabilities"></a>
-            <div className="gal-cursor" id="galCursor" aria-hidden="true"><span>Explore Beverage R&amp;D ↗</span></div>
+            <a className="gal-link" href="#services" aria-label="Explore the BrewForge platform"></a>
+            <div className="gal-cursor" id="galCursor" aria-hidden="true"><span>Explore the platform ↗</span></div>
           </div>
         </section>
 
         {/* Things We Love (Equipment Grid) & Services */}
         <div className="seam">
           <div className="slab round-t round-b">
-            <section className="brands pad" aria-label="Equipment & Tools of the Craft">
-              <p className="mono lab" data-r><i className="sq"></i>Tools of Precision Craft</p>
+            <section className="brands pad" aria-label="Shared equipment standards">
+              <p className="mono lab" data-r><i className="sq"></i>One equipment standard for every branch</p>
               <div className="brand-grid" id="brandGrid"></div>
             </section>
 
             <section className="services pad" id="services">
               <div className="sec-grid">
-                <div><span className="vlabel mono"><i className="sq"></i>What We Do</span></div>
+                <div><span className="vlabel mono"><i className="sq"></i>What it does</span></div>
                 <div>
                   <h2 className="h2" data-split>
-                    Recipe R&amp;D, digital SOPs, barista academies and multi-store consistency
+                    Recipes, courses, certification and branch consistency, in one system
                   </h2>
                 </div>
               </div>
@@ -1120,11 +1095,11 @@ void main(){
             </section>
 
             {/* Showreel Section */}
-            <section className="reel pad" aria-label="Highlights & Dialing Showreel">
-              <div className="reel-card" id="reelCard" role="button" tabIndex={0} aria-label="Play or pause the BrewForge highlights showreel">
+            <section className="reel pad" aria-label="BrewForge highlights animation">
+              <div className="reel-card" id="reelCard" role="button" tabIndex={0} aria-label="Play or pause the highlights animation">
                 <canvas id="reelCv"></canvas>
                 <div className="reel-play" id="reelPlay"><span id="reelIcon">▶</span></div>
-                <span className="reel-state mono" id="reelState">Highlights · BrewForge 2026</span>
+                <span className="reel-state mono" id="reelState">BrewForge · 2026</span>
                 <div className="reel-badge"><b>BREW</b><small>FORGE<br />2026</small></div>
               </div>
             </section>
@@ -1133,13 +1108,13 @@ void main(){
 
         {/* Pricing & Editions */}
         <div className="dark">
-          <section className="pricing pad" id="pricing">
+          <section className="pricing pad" id="roles">
             <div className="sec-grid">
-              <div><span className="vlabel mono"><i className="sq"></i>Editions</span></div>
+              <div><span className="vlabel mono"><i className="sq"></i>Roles</span></div>
               <div>
-                <h2 className="h2" data-split>Engineered for any coffee footprint</h2>
+                <h2 className="h2" data-split>One workspace, seven roles</h2>
                 <p className="sub" data-r>
-                  From single specialty lab roasteries to regional multi-branch franchise networks and global coffee chains.
+                  Each person sees only what their job needs, from head office to the counter.
                 </p>
               </div>
             </div>
@@ -1147,7 +1122,7 @@ void main(){
             <div className="custom" data-r>
               <div className="art" data-pal="forge" data-seed="11" data-zoom="1.3"></div>
               <div>
-                <p className="mono" style={{ color: 'var(--mute-d)' }}>Deploying multiple branches?</p>
+                <p className="mono" style={{ color: 'var(--mute-d)' }}>Want to see it work?</p>
                 <h3>Try the 7-role interactive simulation.</h3>
                 <p>
                   Switch instantly between Administrator, R&amp;D Specialist, R&amp;D Manager, Trainer, Store Manager, Barista, and Quality Auditor to experience how BrewForge powers your entire operation.
@@ -1166,7 +1141,7 @@ void main(){
           </section>
 
           {/* Comparison Table */}
-          <section className="compare pad" aria-label="BrewForge vs Traditional Cafe Management">
+          <section className="compare pad" aria-label="BrewForge compared with working without a shared standard">
             <p className="mono lab" data-r style={{ marginBottom: '22px', color: 'var(--mute-d)' }}>
               <i className="sq"></i>The BrewForge Difference
             </p>
@@ -1175,7 +1150,7 @@ void main(){
                 <thead>
                   <tr>
                     <th></th>
-                    <th className="mono">Traditional Cafe Management</th>
+                    <th className="mono">Without a shared standard</th>
                     <th><span className="cmp-logo">BREWFORGE</span></th>
                   </tr>
                 </thead>
@@ -1191,7 +1166,7 @@ void main(){
               <div>
                 <h2 className="h2" data-split>Questions, answered</h2>
                 <p className="sub" data-r>
-                  SOP deployment, barista certifications, franchise consistency, and how to get started.
+                  Recipes, certification, and how the demo works.
                 </p>
                 <div className="faq-list" id="faqList"></div>
               </div>
@@ -1205,60 +1180,44 @@ void main(){
             <div className="wm wm-foot" id="wmFoot" role="img" aria-label="BREWFORGE"></div>
             <div className="foot-grid">
               <div className="news">
-                <p className="mono">The Brew Dispatch</p>
-                <p>Curated extraction science, SOP frameworks, and specialty beverage R&amp;D insights delivered monthly.</p>
-                <form id="newsForm" noValidate>
-                  <label className="mono" htmlFor="nEmail" style={{ position: 'absolute', left: '-9999px' }}>Email</label>
-                  <input id="nEmail" type="email" placeholder="you@coffeechain.com" autoComplete="email" />
-                  <button type="submit" aria-label="Subscribe">→</button>
-                </form>
-                <p className="news-msg" id="newsMsg" role="status"></p>
-                <div className="readers">
-                  <div className="avs">
-                    <span className="art" data-pal="forge" data-seed="21" data-zoom="2"></span>
-                    <span className="art" data-pal="espresso" data-seed="22" data-zoom="2"></span>
-                    <span className="art" data-pal="crema" data-seed="23" data-zoom="2"></span>
-                    <span className="art" data-pal="amber" data-seed="24" data-zoom="2"></span>
-                  </div>
-                  <span className="mono" style={{ color: 'var(--mute-d)' }}>Empowering 1,200+ Craft Baristas</span>
-                </div>
+                <p className="mono">Try the demo</p>
+                <p>Sign in as any of the seven roles with the demo accounts. Nothing is saved outside your browser session.</p>
+                <button type="button" className="btn btn-light" onClick={() => navigate('/login')} style={{ marginTop: '12px' }}>
+                  <span className="btn-l" data-scramble>Open the demo workspace</span>
+                  <span className="btn-a" aria-hidden="true"><i>→</i><i>→</i></span>
+                </button>
               </div>
               <div>
                 <p className="mono">Navigation</p>
                 <nav className="flinks" aria-label="Footer">
                   <a href="#top">Overview</a>
-                  <a href="#work">Standards &amp; SOPs</a>
+                  <a href="#work">How it works</a>
                   <a href="#services">Platform</a>
-                  <a href="#pricing">Editions</a>
+                  <a href="#roles">Roles</a>
                   <a href="#faq">FAQ</a>
                   <a href="/login">Launch Workspace ↗</a>
                 </nav>
               </div>
               <div className="fcontact">
                 <p className="mono">Workspace Access</p>
-                <a className="big" href="/login">demo.brewforge.test</a>
+                <a className="big" href="/login">Sign in to the demo</a>
                 <address className="mono">
-                  BrewForge Platform HQ<br />
-                  Specialty Coffee Franchise Engine<br />
-                  Precision Extraction Systems
+                  BrewForge<br />
+                  Recipe standardization<br />
+                  and barista training
                 </address>
-                <div className="socials" aria-label="Social">
-                  <a href="#top" title="Specialty Coffee">☕</a>
-                  <a href="#top" title="R&D Lab">🧪</a>
-                  <a href="#top" title="Standards">📋</a>
-                </div>
               </div>
             </div>
             <div className="foot-bar mono">
-              <span>© 2026 BrewForge · Precision Coffee Chain &amp; Training Platform</span>
-              <span>Crafted for Coffee Masters <span className="star">★</span></span>
+              <span>© 2026 BrewForge · Recipe standardization &amp; barista training</span>
+              <span>Capstone project FA26SE311</span>
               <a className="top" href="#top">Back to top ↑</a>
             </div>
           </footer>
         </div>
       </main>
       <div className="svc-prev" id="svcPrev" aria-hidden="true"></div>
-    </>
+    </div>
   );
 };
 

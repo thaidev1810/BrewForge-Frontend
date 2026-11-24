@@ -10,7 +10,8 @@
                     "preview":  "vite preview",
                     "typecheck":  "tsc -b --pretty false",
                     "verify:auth":  "node scripts/verify-auth.mjs",
-                    "verify:business":  "node scripts/verify-business.mjs"
+                    "verify:business":  "node scripts/verify-business.mjs",
+                    "verify:training":  "node scripts/verify-training-flow.mjs"
                 },
     "dependencies":  {
                          "@hookform/resolvers":  "^5.9.1",

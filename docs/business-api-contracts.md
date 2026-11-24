@@ -131,6 +131,17 @@ Latest request IDs discard out-of-order responses for a list or one detail. Per-
 
 Logout, HTTP 401 session clearing, and successful login/demo role switching clear all business caches and pending request identities. Late results from the previous session cannot restore data. The mock backing Maps remain in memory as a simulated server database across logout; browser reload starts fixtures again. Mock services return deep copies so consumers cannot mutate backing records or published content by editing a read result.
 
+## Attendance
+
+`features/attendance` is the tenth domain. `recordAttendance({ operation: 'record', id, input: { assignmentId, sessionDate, status, note, recordedBy } })` writes one record per assignment and session day (`id` = `attendanceId(assignmentId, sessionDate)`, which only serializes writes per record); recording the same day again corrects it. `status` is `PRESENT`, `ABSENT` or `EXCUSED`. Rules the mock enforces and a real adapter must keep:
+
+- the assignment exists and is not cancelled (409), the date is a valid `YYYY-MM-DD` not in the future (400), the note is at most 255 characters (400);
+- staff record attendance, never the trainee (403);
+- an excused session is left out of the percentage, nothing recorded is not a shortfall, and 4 of 5 is exactly 80% (`summarizeAttendance`, `MIN_ATTENDANCE_PERCENT`);
+- a quiz attempt is refused with 409 while the assignment's attendance is below 80%.
+
+The practical assessment also refuses an assessor who is the trainee (403). The screens (`BaristaLearningPage`, `QuizPage`, `AttendancePage`, `PracticalAssessmentsPage`, `BranchReadinessPage`, `CertificatesPage`, `TrainerAssignmentsPage`) read only slices and selectors; the stage of an enrolment (`stageOf`) is derived from quiz attempts, assessments and certificates and is never stored. The mock quiz derives its questions from the SOP steps (`quizBuilder`) and sends only counts; a real adapter serves its own questions and grades on the server.
+
 ## Errors and server responsibilities
 
 Use the existing Axios client and `ApiError` normalization in real adapters. ASP.NET Core ProblemDetails (`title`, `detail`, `status`, `errors`) maps to the Redux error model. Proposed error meanings are validation `400`, unknown reference `404`, workflow/version conflict `409`, and server authorization `401/403`. Agree exact server semantics before integration; they are not claimed existing endpoint behavior.
@@ -139,4 +150,4 @@ The server must enforce roles, ownership, referential integrity, workflow transi
 
 ## Verification
 
-`npm run verify:business` loads the actual TypeScript modules through Vite and checks all nine list/detail lifecycles, mutation outcomes/errors, SOP review/publication/deprecation/revision, training snapshots, the quiz threshold, quiz prerequisite, critical failure, exact-version certification, branch standards, cache resets, stale response races, duplicate-write prevention, cancellation, and API-mode adapter registration. No backend network calls are made. The script explicitly enables mocks for its development graph, then disables them in a fresh graph to test all unconfigured API services.
+`npm run verify:training` runs the whole flow (enrol, attendance, quiz gate, no self-assessment, critical auto-fail, certificate) through the slices. `npm run verify:business` loads the actual TypeScript modules through Vite and checks all nine list/detail lifecycles, mutation outcomes/errors, SOP review/publication/deprecation/revision, training snapshots, the quiz threshold, quiz prerequisite, critical failure, exact-version certification, branch standards, cache resets, stale response races, duplicate-write prevention, cancellation, and API-mode adapter registration. No backend network calls are made. The script explicitly enables mocks for its development graph, then disables them in a fresh graph to test all unconfigured API services.

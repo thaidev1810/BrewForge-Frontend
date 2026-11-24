@@ -22,17 +22,15 @@
   color-scheme: light;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-html {
+/* The landing page owns these resets only while it is mounted. Unlayered element rules would otherwise
+   override Tailwind's layered utilities everywhere else in the app (buttons losing their background, border and padding). */
+html.landing-page {
   scroll-behavior: auto;
   background: var(--coal);
   -webkit-text-size-adjust: 100%;
 }
 
-body {
+html.landing-page body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
@@ -43,24 +41,24 @@ body {
   overflow-x: clip;
 }
 
-a {
+:where(.landing-root) a {
   color: inherit;
   text-decoration: none;
 }
 
-button, input, select, textarea {
+:where(.landing-root) :is(button, input, select, textarea) {
   font: inherit;
   color: inherit;
 }
 
-button {
+:where(.landing-root) button {
   cursor: pointer;
   background: none;
   border: 0;
   padding: 0;
 }
 
-::selection {
+:where(.landing-root) ::selection {
   background: var(--accent);
   color: #ffffff;
 }
@@ -92,7 +90,7 @@ button {
   white-space: nowrap;
 }
 
-h1, h2, h3, p {
+:where(.landing-root) :is(h1, h2, h3, p) {
   margin: 0;
 }
 
@@ -1634,6 +1632,7 @@ h1, h2, h3, p {
 .roles-bar {
   display: flex;
   flex-wrap: wrap;
+  max-width: min(30rem, 42vw);
   gap: 8px;
   margin-top: 24px;
   align-items: center;
@@ -1662,6 +1661,9 @@ h1, h2, h3, p {
 
 /* Responsive queries */
 @media (max-width: 900px) {
+  .roles-bar {
+    max-width: none;
+  }
   .sec-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1703,16 +1705,21 @@ h1, h2, h3, p {
   .hero-copy {
     padding-top: calc(env(safe-area-inset-top, 0px) + 74px);
   }
+  /* The phone sits below the copy and the role buttons, never over them. */
   .slot-hero {
-    top: max(34vh, 290px) !important;
-    left: auto;
-    right: 6%;
+    top: 470px !important;
+    left: 50%;
+    margin-left: calc(var(--pw) / -2);
+    right: auto;
   }
   .hero {
-    padding-top: max(60vh, 400px);
+    padding-top: calc(470px + var(--ph) - 70px);
+  }
+  .tags {
+    display: none;
   }
   .hero-lead {
-    max-width: 14em;
+    max-width: 18em;
   }
   .tag {
     font-size: 9px;
